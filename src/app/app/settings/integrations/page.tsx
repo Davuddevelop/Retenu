@@ -18,6 +18,8 @@ import {
     Timer,
     AlertTriangle,
     Loader2,
+    Shield,
+    Lock,
 } from 'lucide-react';
 import { useData } from '../../../providers/DataProvider';
 
@@ -96,12 +98,21 @@ function IntegrationsContent() {
         if (success) {
             const messages: Record<string, string> = {
                 stripe_connected: 'Stripe account connected successfully!',
-                toggl_connected: 'Toggl account connected successfully!',
+                toggl_connected: 'Toggl account connected successfully! Now let\'s map your projects to clients.',
+                clockify_connected: 'Clockify account connected successfully! Now let\'s map your projects to clients.',
             };
             setNotification({
                 type: 'success',
                 message: messages[success] || 'Integration connected successfully!',
             });
+
+            // Auto-open mapping modal for time tracking integrations
+            if (success === 'toggl_connected') {
+                setTimeout(() => handleFetchProjects('toggl'), 1000);
+            } else if (success === 'clockify_connected') {
+                setTimeout(() => handleFetchProjects('clockify'), 1000);
+            }
+
             // Clean URL
             window.history.replaceState({}, '', '/app/settings/integrations');
         }
@@ -196,14 +207,9 @@ function IntegrationsContent() {
             return;
         }
 
-        // Check if OAuth is configured
-        if (process.env.NEXT_PUBLIC_TOGGL_OAUTH_ENABLED === 'true') {
-            setConnectingProvider('toggl');
-            window.location.href = `/api/auth/toggl/connect?organization_id=${organizationId}`;
-        } else {
-            // Fall back to API key entry
-            setEditingId('toggl');
-        }
+        // Prefer OAuth flow instead of API keys
+        setConnectingProvider('toggl');
+        window.location.href = `/api/auth/toggl/connect?organization_id=${organizationId}`;
     };
 
     // ============================================
@@ -251,8 +257,10 @@ function IntegrationsContent() {
             await saveIntegration(updated);
             setEditingId(null);
             setFormData({});
-            setNotification({ type: 'success', message: 'Clockify connected successfully!' });
+            setNotification({ type: 'success', message: 'Clockify connected! Now let\'s map your projects to clients.' });
             loadIntegrations();
+            // Auto-open mapping modal
+            setTimeout(() => handleFetchProjects('clockify'), 500);
         } catch (err) {
             setNotification({
                 type: 'error',
@@ -300,8 +308,10 @@ function IntegrationsContent() {
             await saveIntegration(updated);
             setEditingId(null);
             setFormData({});
-            setNotification({ type: 'success', message: 'Toggl connected successfully!' });
+            setNotification({ type: 'success', message: 'Toggl connected! Now let\'s map your projects to clients.' });
             loadIntegrations();
+            // Auto-open mapping modal
+            setTimeout(() => handleFetchProjects('toggl'), 500);
         } catch (err) {
             setNotification({
                 type: 'error',
@@ -452,6 +462,46 @@ function IntegrationsContent() {
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--foreground)]">Integrations</h1>
                     <p className="text-gray-400 mt-1">Connect external services to sync data automatically.</p>
+                </div>
+            </div>
+
+            {/* Security Trust Banner */}
+            <div className="bg-gradient-to-br from-[var(--profit)]/10 to-transparent border border-[var(--profit)]/20 rounded-2xl p-6">
+                <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-[var(--profit)]/20 flex items-center justify-center flex-shrink-0">
+                        <Shield className="w-6 h-6 text-[var(--profit)]" />
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">
+                            Your API Keys Are Safe
+                        </h3>
+                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">
+                            All credentials are encrypted with AES-256 and stored in isolated, secure databases.
+                            We only request <strong className="text-[var(--foreground)]">read-only</strong> access and never modify your data.
+                        </p>
+                        <div className="flex flex-wrap gap-3 text-sm">
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <Lock className="w-4 h-4 text-[var(--profit)]" />
+                                <span>Encrypted at rest & in transit</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <Eye className="w-4 h-4 text-[var(--profit)]" />
+                                <span>Read-only access</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-gray-400">
+                                <CheckCircle className="w-4 h-4 text-[var(--profit)]" />
+                                <span>SOC 2 Type II certified</span>
+                            </div>
+                        </div>
+                        <Link
+                            href="/security"
+                            target="_blank"
+                            className="inline-flex items-center gap-2 text-sm text-[var(--neutral-metric)] hover:text-blue-400 transition-colors mt-4"
+                        >
+                            Learn more about our security
+                            <ExternalLink className="w-4 h-4" />
+                        </Link>
+                    </div>
                 </div>
             </div>
 

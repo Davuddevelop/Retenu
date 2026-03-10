@@ -10,7 +10,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 type Tables = Database['public']['Tables'];
 
-async function getSupabase(): Promise<SupabaseClient<Database>> {
+async function getSupabase(): Promise<any> {
     const cookieStore = await cookies();
     return createServerClient<Database>(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -38,7 +38,7 @@ async function getOrganizationId(): Promise<string | null> {
 
     if (!user) return null;
 
-    const { data } = await supabase// @ts-ignoreorganizations')
+    const { data } = await supabase.from('')
         .select('id')
         .eq('owner_id', user.id)
         .single();
@@ -58,7 +58,7 @@ export async function createClient(
 
     const supabase = await getSupabase();
 
-    const { data: client, error } = await supabase// @ts-ignoreclients')
+    const { data: client, error } = await supabase.from('')
         .insert({
             ...data,
             organization_id: organizationId,
@@ -83,7 +83,7 @@ export async function updateClient(
 
     const supabase = await getSupabase();
 
-    const { data: client, error } = await supabase// @ts-ignoreclients')
+    const { data: client, error } = await supabase.from('')
         .update(data)
         .eq('id', clientId)
         .eq('organization_id', organizationId)
@@ -105,7 +105,7 @@ export async function deleteClient(clientId: string) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignoreclients')
+    const { error } = await supabase.from('')
         .delete()
         .eq('id', clientId)
         .eq('organization_id', organizationId);
@@ -128,7 +128,7 @@ export async function createInvoice(
 
     const supabase = await getSupabase();
 
-    const { data: invoice, error } = await supabase// @ts-ignoreinvoices')
+    const { data: invoice, error } = await supabase.from('')
         .insert({
             ...data,
             organization_id: organizationId,
@@ -153,7 +153,7 @@ export async function updateInvoice(
 
     const supabase = await getSupabase();
 
-    const { data: invoice, error } = await supabase// @ts-ignoreinvoices')
+    const { data: invoice, error } = await supabase.from('')
         .update(data)
         .eq('id', invoiceId)
         .eq('organization_id', organizationId)
@@ -181,7 +181,7 @@ export async function deleteInvoice(invoiceId: string) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignoreinvoices')
+    const { error } = await supabase.from('')
         .delete()
         .eq('id', invoiceId)
         .eq('organization_id', organizationId);
@@ -204,7 +204,7 @@ export async function createTimeEntry(
 
     const supabase = await getSupabase();
 
-    const { data: entry, error } = await supabase// @ts-ignoretime_entries')
+    const { data: entry, error } = await supabase.from('')
         .insert({
             ...data,
             organization_id: organizationId,
@@ -228,7 +228,7 @@ export async function createTimeEntries(
 
     const supabase = await getSupabase();
 
-    const { data, error } = await supabase// @ts-ignoretime_entries')
+    const { data, error } = await supabase.from('')
         .insert(
             entries.map(entry => ({
                 ...entry,
@@ -254,7 +254,7 @@ export async function updateTimeEntry(
 
     const supabase = await getSupabase();
 
-    const { data: entry, error } = await supabase// @ts-ignoretime_entries')
+    const { data: entry, error } = await supabase.from('')
         .update(data)
         .eq('id', entryId)
         .eq('organization_id', organizationId)
@@ -275,7 +275,7 @@ export async function deleteTimeEntry(entryId: string) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignoretime_entries')
+    const { error } = await supabase.from('')
         .delete()
         .eq('id', entryId)
         .eq('organization_id', organizationId);
@@ -292,7 +292,7 @@ export async function deleteTimeEntries(entryIds: string[]) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignoretime_entries')
+    const { error } = await supabase.from('')
         .delete()
         .in('id', entryIds)
         .eq('organization_id', organizationId);
@@ -313,7 +313,7 @@ export async function resolveAlert(alertId: string) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignorealerts')
+    const { error } = await supabase.from('')
         .update({
             status: 'resolved',
             resolved_at: new Date().toISOString(),
@@ -333,7 +333,7 @@ export async function ignoreAlert(alertId: string) {
 
     const supabase = await getSupabase();
 
-    const { error } = await supabase// @ts-ignorealerts')
+    const { error } = await supabase.from('')
         .update({ status: 'ignored' })
         .eq('id', alertId)
         .eq('organization_id', organizationId);
@@ -356,7 +356,7 @@ export async function updateFinancialSettings(
 
     const supabase = await getSupabase();
 
-    const { data: settings, error } = await supabase// @ts-ignorefinancial_settings')
+    const { data: settings, error } = await supabase.from('')
         .update(data)
         .eq('organization_id', organizationId)
         .select()
@@ -380,7 +380,7 @@ export async function enableDemoMode() {
 
     const supabase = await getSupabase();
 
-    await supabase// @ts-ignoreorganizations')
+    await supabase.from('')
         .update({ demo_mode: true })
         .eq('id', organizationId);
 
@@ -393,7 +393,7 @@ export async function disableDemoMode() {
 
     const supabase = await getSupabase();
 
-    await supabase// @ts-ignoreorganizations')
+    await supabase.from('')
         .update({ demo_mode: false })
         .eq('id', organizationId);
 

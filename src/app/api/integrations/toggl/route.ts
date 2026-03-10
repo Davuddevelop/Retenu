@@ -1,9 +1,11 @@
-// src/app/api/integrations/toggl/route.ts
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 
 const TOGGL_API_BASE = 'https://api.track.toggl.com/api/v9';
 
+// Only use for backend operations AFTER auth check
 function getSupabaseAdmin() {
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -15,6 +17,51 @@ function getSupabaseAdmin() {
             },
         }
     );
+}
+
+// Check if user is authenticated and authorized for this organization
+async function checkAuth(organizationId: string) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+            cookies: {
+                getAll() {
+                    return cookieStore.getAll();
+                },
+                setAll(cookiesToSet) {
+                    try {
+                        cookiesToSet.forEach(({ name, value, options }) =>
+                            cookieStore.set(name, value, options)
+                        );
+                    } catch {
+                        // Ignored
+                    }
+                },
+            },
+        }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+        return { authorized: false, error: 'Unauthorized' };
+    }
+
+    // Verify user owns this organization
+    const { data: org } = await supabase
+        .from('organizations')
+        .select('id')
+        .eq('id', organizationId)
+        .eq('owner_id', user.id)
+        .single();
+
+    if (!org) {
+        return { authorized: false, error: 'Forbidden' };
+    }
+
+    return { authorized: true, user };
 }
 
 interface TogglTimeEntry {
@@ -48,6 +95,12 @@ export async function GET(request: Request) {
 
     if (!organizationId) {
         return NextResponse.json({ error: 'organization_id required' }, { status: 400 });
+    }
+
+    // AUTH CHECK
+    const authCheck = await checkAuth(organizationId);
+    if (!authCheck.authorized) {
+        return NextResponse.json({ error: authCheck.error }, { status: authCheck.error === 'Unauthorized' ? 401 : 403 });
     }
 
     const supabase = getSupabaseAdmin();
@@ -148,6 +201,12 @@ export async function POST(request: Request) {
 
     if (!organization_id) {
         return NextResponse.json({ error: 'organization_id required' }, { status: 400 });
+    }
+
+    // AUTH CHECK
+    const authCheck = await checkAuth(organization_id);
+    if (!authCheck.authorized) {
+        return NextResponse.json({ error: authCheck.error }, { status: authCheck.error === 'Unauthorized' ? 401 : 403 });
     }
 
     const supabase = getSupabaseAdmin();

@@ -150,7 +150,7 @@ export default function InvoicesPage() {
                 </div>
                 <Link
                     href="/app/invoices/new"
-                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-gray-200 inline-flex items-center gap-2"
+                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-white/90 active:bg-white/80 inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                 >
                     <Plus className="w-4 h-4" />
                     Add Invoice
@@ -239,8 +239,8 @@ export default function InvoicesPage() {
                     </div>
 
                     {/* Invoices Table */}
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                        <table className="w-full text-left text-sm">
+                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden overflow-x-auto">
+                        <table className="w-full text-left text-sm min-w-[700px]">
                             <thead className="bg-[var(--background)]/50 border-b border-[var(--border)] text-gray-400">
                                 <tr>
                                     <th className="px-6 py-4 font-medium">Client</th>

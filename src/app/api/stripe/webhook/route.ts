@@ -15,6 +15,25 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummyKeyForB
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 const connectWebhookSecret = process.env.STRIPE_CONNECT_WEBHOOK_SECRET || '';
 
+// Basic in-memory rate limiting (max 50 requests per minute per IP)
+const rateLimitMap = new Map<string, { count: number, resetTime: number }>();
+function checkRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const limitData = rateLimitMap.get(ip);
+
+    if (!limitData || limitData.resetTime < now) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + 60000 });
+        return true;
+    }
+
+    if (limitData.count >= 50) {
+        return false;
+    }
+
+    limitData.count++;
+    return true;
+}
+
 function getSupabaseAdmin() {
     return createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -35,6 +54,12 @@ export async function POST(req: Request) {
 
     if (!signature) {
         return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
+    }
+
+    // Basic Rate Limiting
+    const ip = headersList.get('x-forwarded-for') || 'unknown';
+    if (!checkRateLimit(ip)) {
+        return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
     let event: Stripe.Event;

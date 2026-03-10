@@ -2,11 +2,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, RefreshCw, DollarSign, AlertTriangle, Plug, ChevronRight } from 'lucide-react';
+import { Save, RefreshCw, DollarSign, AlertTriangle, Plug, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { FinancialSettings, EMPTY_FINANCIAL_SETTINGS } from '../../lib/types';
 import { dataStore } from '../../lib/dataStore';
-import { DemoModeBanner } from '../../components/EmptyStates';
 
 type Currency = 'USD' | 'EUR' | 'GBP' | 'CAD' | 'AUD';
 
@@ -20,7 +19,6 @@ const CURRENCIES: { value: Currency; label: string; symbol: string }[] = [
 
 export default function SettingsPage() {
     const [settings, setSettings] = useState<Omit<FinancialSettings, 'id' | 'organization_id' | 'updated_at'>>(EMPTY_FINANCIAL_SETTINGS);
-    const [isDemoMode, setIsDemoMode] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState<string | null>(null);
 
@@ -38,7 +36,6 @@ export default function SettingsPage() {
                 late_payment_days_threshold: currentSettings.late_payment_days_threshold,
             });
         }
-        setIsDemoMode(dataStore.isDemoModeEnabled());
     }, []);
 
     const handleSave = async () => {
@@ -64,16 +61,9 @@ export default function SettingsPage() {
         }
     };
 
-    const handleEnableDemoMode = () => {
-        dataStore.enableDemoMode();
-        setIsDemoMode(true);
-        window.location.reload();
-    };
-
-    const handleDisableDemoMode = () => {
-        dataStore.disableDemoMode();
-        setIsDemoMode(false);
-        window.location.reload();
+    const handleReplayTutorial = () => {
+        localStorage.removeItem('hasSeenTutorial');
+        window.location.href = '/app';
     };
 
     const updateSetting = <K extends keyof typeof settings>(key: K, value: typeof settings[K]) => {
@@ -89,10 +79,8 @@ export default function SettingsPage() {
                 <p className="text-gray-400 mt-1">Configure your financial assumptions and alert thresholds.</p>
             </div>
 
-            {isDemoMode && <DemoModeBanner onDisable={handleDisableDemoMode} />}
-
             {/* Rate Settings */}
-            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
+            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden" data-tutorial="settings-form">
                 <div className="px-6 py-4 border-b border-[var(--border)]">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
@@ -291,39 +279,30 @@ export default function SettingsPage() {
                 </div>
             </Link>
 
-            {/* Demo Mode */}
+            {/* Tutorial */}
             <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
                 <div className="px-6 py-4 border-b border-[var(--border)]">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
-                            <RefreshCw className="w-5 h-5 text-amber-400" />
+                        <div className="w-10 h-10 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 text-[var(--neutral-metric)]" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-[var(--foreground)]">Demo Mode</h2>
-                            <p className="text-sm text-gray-500">Load sample data to explore features</p>
+                            <h2 className="text-lg font-semibold text-[var(--foreground)]">Tutorial</h2>
+                            <p className="text-sm text-gray-500">Learn how to use RevenueLeak</p>
                         </div>
                     </div>
                 </div>
                 <div className="p-6">
                     <p className="text-sm text-gray-400 mb-4">
-                        Demo mode loads synthetic data to help you explore RevenueLeak&apos;s features.
-                        This data is clearly labeled and never mixes with real data.
+                        Take a guided tour of the dashboard and learn how to detect revenue leaks,
+                        manage clients, and set up alerts.
                     </p>
-                    {isDemoMode ? (
-                        <button
-                            onClick={handleDisableDemoMode}
-                            className="px-4 py-2 bg-amber-500/20 text-amber-400 font-medium rounded-lg text-sm hover:bg-amber-500/30 transition-colors border border-amber-500/30"
-                        >
-                            Exit Demo Mode
-                        </button>
-                    ) : (
-                        <button
-                            onClick={handleEnableDemoMode}
-                            className="px-4 py-2 bg-[var(--background)] text-[var(--foreground)] font-medium rounded-lg text-sm hover:bg-[var(--border)] transition-colors border border-[var(--border)]"
-                        >
-                            Enable Demo Mode
-                        </button>
-                    )}
+                    <button
+                        onClick={handleReplayTutorial}
+                        className="px-4 py-2 bg-gradient-to-r from-[var(--neutral-metric)] to-blue-400 text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                    >
+                        Replay Tutorial
+                    </button>
                 </div>
             </div>
 

@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
                 if (!org) {
                     // Create default organization for new user
                     await supabase.from('organizations').insert({
-                        name: user.email?.split('@')[0] || 'My Organization',
+                        name: user.user_metadata?.companyName || user.email?.split('@')[0] || 'My Organization',
                         owner_id: user.id,
                     });
                 }

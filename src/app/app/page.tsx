@@ -6,8 +6,10 @@ import { DollarSign, AlertTriangle, Activity, CreditCard, ChevronRight, Settings
 import Link from 'next/link';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { useData } from '../providers/DataProvider';
-import { DemoModeBanner, SetupChecklist, NoClientsEmpty } from '../components/EmptyStates';
+import { SetupChecklist, NoClientsEmpty } from '../components/EmptyStates';
+import { Tutorial, WelcomeModal, useTutorial } from '../components/Tutorial';
 import type { DashboardMetrics } from '../lib/types';
+import { NoiseGrain } from '../components/Shaders';
 
 export default function DashboardPage() {
     const {
@@ -16,11 +18,18 @@ export default function DashboardPage() {
         timeEntries,
         alerts,
         settings,
-        isDemoMode,
         isLoading,
         hasData,
-        disableDemoMode,
     } = useData();
+
+    // Tutorial state
+    const {
+        showWelcome,
+        showTutorial,
+        startTutorial,
+        completeTutorial,
+        skipTutorial,
+    } = useTutorial();
 
     // Calculate dashboard metrics from context data
     const stats = useMemo<DashboardMetrics>(() => {
@@ -142,10 +151,6 @@ export default function DashboardPage() {
     const formatPercent = (val: number) =>
         new Intl.NumberFormat('en-US', { style: 'percent', maximumFractionDigits: 1 }).format(val / 100);
 
-    const handleDisableDemo = () => {
-        disableDemoMode();
-    };
-
     // Setup steps for onboarding
     const setupSteps = [
         {
@@ -198,24 +203,36 @@ export default function DashboardPage() {
         : 100;
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Demo Mode Banner */}
-            {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
+        <div className="space-y-6 animate-in fade-in duration-500 relative">
+            <NoiseGrain />
+            {/* Tutorial Components */}
+            {showWelcome && (
+                <WelcomeModal
+                    onStart={startTutorial}
+                    onSkip={skipTutorial}
+                />
+            )}
+            {showTutorial && (
+                <Tutorial
+                    onComplete={completeTutorial}
+                    onSkip={skipTutorial}
+                />
+            )}
 
             {/* Setup Checklist (if not complete) */}
-            {!isSetupComplete && !isDemoMode && (
+            {!isSetupComplete && (
                 <SetupChecklist steps={setupSteps} />
             )}
 
             {/* Show empty state if no data */}
-            {!hasData && !isDemoMode ? (
+            {!hasData ? (
                 <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
                     <NoClientsEmpty />
                 </div>
             ) : (
                 <>
                     {/* Bento Grid Layout - F-Pattern with North Star Metric */}
-                    <div className="grid grid-cols-12 gap-4">
+                    <div className="grid grid-cols-12 gap-4" data-tutorial="metrics">
                         {/* North Star Metric - Total Estimated Leakage (Top-Left Priority) */}
                         <div className="col-span-12 lg:col-span-5 row-span-2">
                             <div className="h-full bg-gradient-to-br from-[var(--leak)]/10 via-[var(--card)] to-[var(--card)] p-6 rounded-2xl border border-[var(--leak)]/20 relative overflow-hidden group">
@@ -231,8 +248,8 @@ export default function DashboardPage() {
                                             <AlertTriangle className="w-6 h-6 text-[var(--leak)]" />
                                         </div>
                                         <div>
-                                            <p className="text-sm font-medium text-[var(--leak)]">North Star Metric</p>
-                                            <h3 className="text-base font-semibold text-gray-400">Total Estimated Leakage</h3>
+                                            <p className="text-sm font-medium text-[var(--leak)]">Money You&apos;re Losing</p>
+                                            <h3 className="text-base font-semibold text-gray-400">Estimated Lost Revenue</h3>
                                         </div>
                                     </div>
 
@@ -251,10 +268,10 @@ export default function DashboardPage() {
                                     {/* Quick Breakdown */}
                                     <div className="space-y-2">
                                         {[
-                                            { label: 'Underbilling', value: stats.leakage_by_type.underbilling },
-                                            { label: 'Scope Creep', value: stats.leakage_by_type.scope_creep },
+                                            { label: 'Unbilled Work', value: stats.leakage_by_type.underbilling },
+                                            { label: 'Over-Hours', value: stats.leakage_by_type.scope_creep },
                                             { label: 'Missing Invoices', value: stats.leakage_by_type.missing_invoice },
-                                            { label: 'Late Payments', value: stats.leakage_by_type.late_payment },
+                                            { label: 'Overdue Payments', value: stats.leakage_by_type.late_payment },
                                         ].filter(item => item.value > 0).slice(0, 3).map((item) => (
                                             <div key={item.label} className="flex items-center justify-between text-sm">
                                                 <span className="text-gray-500">{item.label}</span>
@@ -310,7 +327,7 @@ export default function DashboardPage() {
                                         <Activity className={`w-5 h-5 ${stats.margin_percent >= 25 ? 'text-[var(--profit)]' : stats.margin_percent >= 0 ? 'text-yellow-500' : 'text-[var(--leak)]'}`} />
                                     </div>
                                 </div>
-                                <p className="text-sm text-gray-400 mb-1">Avg. Margin</p>
+                                <p className="text-sm text-gray-400 mb-1">Profit %</p>
                                 <p className={`text-3xl font-bold ${stats.margin_percent >= 0 ? 'text-[var(--foreground)]' : 'text-[var(--leak)]'}`}>
                                     {stats.total_revenue > 0 ? formatPercent(stats.margin_percent) : '—'}
                                 </p>
@@ -367,7 +384,7 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         <Link
                             href="/app/clients/new"
-                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group"
+                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[var(--neutral-metric)]/10 rounded-lg group-hover:bg-[var(--neutral-metric)]/20 transition-colors">
@@ -378,7 +395,7 @@ export default function DashboardPage() {
                         </Link>
                         <Link
                             href="/app/invoices"
-                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group"
+                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[var(--profit)]/10 rounded-lg group-hover:bg-[var(--profit)]/20 transition-colors">
@@ -389,7 +406,7 @@ export default function DashboardPage() {
                         </Link>
                         <Link
                             href="/app/time-entries"
-                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group"
+                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-blue-500/10 rounded-lg group-hover:bg-blue-500/20 transition-colors">
@@ -400,7 +417,7 @@ export default function DashboardPage() {
                         </Link>
                         <Link
                             href="/app/settings"
-                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group"
+                            className="bg-[var(--card)] hover:bg-[var(--background)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/50 p-4 rounded-xl transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                         >
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-gray-500/10 rounded-lg group-hover:bg-gray-500/20 transition-colors">
@@ -412,7 +429,7 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Leak Alerts Feed */}
-                    <div id="alerts">
+                    <div id="alerts" data-tutorial="alerts">
                         <div className="flex items-center justify-between mb-4">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-[var(--leak)]/10 rounded-lg">
@@ -445,43 +462,72 @@ export default function DashboardPage() {
                                 </div>
                             ) : (
                                 <div className="divide-y divide-[var(--border)]">
-                                    {stats.active_alerts.slice(0, 5).map((alert, index) => (
-                                        <div
-                                            key={alert.id}
-                                            className="p-5 flex flex-col md:flex-row md:items-center justify-between hover:bg-[var(--background)]/50 transition-colors"
-                                            style={{ animationDelay: `${index * 50}ms` }}
-                                        >
-                                            <div className="flex items-start gap-4 mb-4 md:mb-0">
-                                                <div className="p-2.5 bg-[var(--leak)]/10 rounded-xl">
-                                                    <AlertTriangle className="w-5 h-5 text-[var(--leak)]" />
+                                    {stats.active_alerts.slice(0, 5).map((alert, index) => {
+                                        // Get specific action text, tip, and friendly name based on alert type
+                                        const getAlertInfo = (type: string) => {
+                                            switch (type) {
+                                                case 'underbilling':
+                                                    return { name: 'Unbilled Work', action: 'Review Hours', tip: 'Check if all billable hours are invoiced' };
+                                                case 'scope_creep':
+                                                    return { name: 'Over-Hours', action: 'Check Contract', tip: 'Hours exceed the agreed limit' };
+                                                case 'missing_invoice':
+                                                    return { name: 'Missing Invoice', action: 'Send Invoice', tip: 'Work completed but not invoiced' };
+                                                case 'late_payment':
+                                                    return { name: 'Overdue Payment', action: 'Follow Up', tip: 'Invoice is past due date' };
+                                                case 'low_margin':
+                                                    return { name: 'Low Profit', action: 'Review Rates', tip: 'Profit margin below target' };
+                                                case 'negative_margin':
+                                                    return { name: 'Losing Money', action: 'Stop Work', tip: 'This client is costing you money' };
+                                                default:
+                                                    return { name: type.replace(/_/g, ' '), action: 'View Details', tip: '' };
+                                            }
+                                        };
+                                        const { name, action, tip } = getAlertInfo(alert.alert_type);
+
+                                        return (
+                                            <div
+                                                key={alert.id}
+                                                className="p-5 flex flex-col md:flex-row md:items-center justify-between hover:bg-[var(--background)]/50 transition-colors"
+                                                style={{ animationDelay: `${index * 50}ms` }}
+                                            >
+                                                <div className="flex items-start gap-4 mb-4 md:mb-0">
+                                                    <div className="p-2.5 bg-[var(--leak)]/10 rounded-xl">
+                                                        <AlertTriangle className="w-5 h-5 text-[var(--leak)]" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-base font-semibold text-[var(--foreground)]">
+                                                            {name}
+                                                        </h4>
+                                                        <p className="text-sm text-gray-400 mt-0.5">{alert.message}</p>
+                                                        {tip && (
+                                                            <p className="text-xs text-[var(--neutral-metric)] mt-1 flex items-center gap-1">
+                                                                <Zap className="w-3 h-3" />
+                                                                {tip}
+                                                            </p>
+                                                        )}
+                                                        <p className="text-xs text-gray-500 mt-1.5">
+                                                            {format(new Date(alert.created_at), 'MMM dd, yyyy')}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h4 className="text-base font-semibold text-[var(--foreground)] capitalize">
-                                                        {alert.alert_type.replace(/_/g, ' ')}
-                                                    </h4>
-                                                    <p className="text-sm text-gray-400 mt-0.5">{alert.message}</p>
-                                                    <p className="text-xs text-gray-500 mt-1.5">
-                                                        {format(new Date(alert.created_at), 'MMM dd, yyyy')}
-                                                    </p>
+                                                <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
+                                                    <div className="text-right">
+                                                        <p className="text-xs text-gray-500 mb-0.5">Impact</p>
+                                                        <p className="text-lg font-bold text-[var(--leak)]">
+                                                            {alert.estimated_leakage > 0 ? formatCurrency(alert.estimated_leakage) : '—'}
+                                                        </p>
+                                                    </div>
+                                                    <Link
+                                                        href={`/app/clients/${alert.client_id}`}
+                                                        className="px-4 py-2 bg-[var(--foreground)] hover:bg-white/90 active:bg-white/80 text-[var(--card)] text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--card)]"
+                                                    >
+                                                        {action}
+                                                        <ChevronRight className="w-4 h-4" />
+                                                    </Link>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto">
-                                                <div className="text-right">
-                                                    <p className="text-xs text-gray-500 mb-0.5">Impact</p>
-                                                    <p className="text-lg font-bold text-[var(--leak)]">
-                                                        {alert.estimated_leakage > 0 ? formatCurrency(alert.estimated_leakage) : '—'}
-                                                    </p>
-                                                </div>
-                                                <Link
-                                                    href={`/app/clients/${alert.client_id}`}
-                                                    className="px-4 py-2 bg-[var(--foreground)] hover:bg-gray-200 text-[var(--card)] text-sm font-medium rounded-lg transition-colors inline-flex items-center gap-1.5"
-                                                >
-                                                    Fix
-                                                    <ChevronRight className="w-4 h-4" />
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                     {stats.active_alerts.length > 5 && (
                                         <div className="p-4 text-center bg-[var(--background)]/50">
                                             <Link
@@ -512,27 +558,27 @@ export default function DashboardPage() {
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 {[
                                     {
-                                        label: 'Underbilling',
+                                        label: 'Unbilled Work',
                                         value: stats.leakage_by_type.underbilling,
-                                        description: 'Hours worked but not billed',
+                                        description: 'Hours worked but not yet invoiced',
                                         color: 'var(--leak)'
                                     },
                                     {
-                                        label: 'Scope Creep',
+                                        label: 'Over-Hours',
                                         value: stats.leakage_by_type.scope_creep,
-                                        description: 'Work beyond contract limits',
+                                        description: 'Work exceeding agreed hours',
                                         color: '#f59e0b'
                                     },
                                     {
                                         label: 'Missing Invoices',
                                         value: stats.leakage_by_type.missing_invoice,
-                                        description: 'Expected invoices not sent',
+                                        description: 'Work done, invoice not sent',
                                         color: '#8b5cf6'
                                     },
                                     {
-                                        label: 'Late Payments',
+                                        label: 'Overdue Payments',
                                         value: stats.leakage_by_type.late_payment,
-                                        description: 'Overdue invoice payments',
+                                        description: 'Clients who haven\'t paid yet',
                                         color: '#ec4899'
                                     },
                                 ].map((item) => {

@@ -3,6 +3,8 @@ import { Navbar } from './components/landing/Navbar';
 import { Hero } from './components/landing/Hero';
 import { LogoCloud } from './components/landing/LogoCloud';
 import { Features } from './components/landing/Features';
+import { LeakExamples } from './components/landing/LeakExamples';
+import { ROICalculator } from './components/landing/ROICalculator';
 import { HowItWorks } from './components/landing/HowItWorks';
 import { Testimonials } from './components/landing/Testimonials';
 import { Pricing } from './components/landing/Pricing';
@@ -18,6 +20,8 @@ export default function LandingPage() {
         <Hero />
         <LogoCloud />
         <Features />
+        <LeakExamples />
+        <ROICalculator />
         <HowItWorks />
         <Testimonials />
         <Pricing />

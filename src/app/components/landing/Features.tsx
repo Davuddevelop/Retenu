@@ -64,10 +64,10 @@ const features = [
 ];
 
 const stats = [
-  { value: '$47K', label: 'Average Annual Recovery', icon: TrendingUp },
-  { value: '99.9%', label: 'Detection Accuracy', icon: Shield },
-  { value: '<2min', label: 'Alert Response Time', icon: Bell },
-  { value: '500+', label: 'Agencies Protected', icon: FileSearch },
+  { value: '4-10%', label: 'Avg Revenue Leakage', icon: TrendingUp },
+  { value: '57%', label: 'Agencies Lose $1K-$5K/mo', icon: AlertTriangle },
+  { value: '42%', label: 'Face Active Leakage', icon: Shield },
+  { value: '99%', label: 'Never Bill All Scope Creep', icon: FileSearch },
 ];
 
 export function Features() {
@@ -110,7 +110,7 @@ export function Features() {
             transition={{ delay: 0.2 }}
             className="mt-4 text-lg text-gray-400"
           >
-            Built for agencies who refuse to leave money on the table.
+            Built for agencies in the <span className="text-[var(--foreground)] font-semibold">$470B marketing services industry</span> who refuse to leave money on the table.
           </motion.p>
         </div>
 

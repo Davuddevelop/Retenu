@@ -16,13 +16,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-[var(--foreground)] text-[var(--card)] hover:bg-gray-200 focus:ring-[var(--foreground)]',
+        'bg-[var(--foreground)] text-[var(--card)] hover:bg-white/90 active:bg-white/80 focus:ring-[var(--foreground)]',
       secondary:
-        'bg-[var(--neutral-metric)] text-white hover:bg-[var(--neutral-metric)]/90 focus:ring-[var(--neutral-metric)]',
+        'bg-[var(--neutral-metric)] text-white hover:bg-[var(--neutral-metric)]/80 active:bg-[var(--neutral-metric)]/70 focus:ring-[var(--neutral-metric)]',
       outline:
-        'border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] font-medium hover:bg-[var(--border)] focus:ring-[var(--border)]',
+        'border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] font-medium hover:bg-[var(--card)] hover:border-[var(--neutral-metric)]/50 focus:ring-[var(--border)]',
       ghost:
-        'bg-transparent text-[var(--foreground)] font-medium hover:bg-[var(--card)] focus:ring-[var(--border)]',
+        'bg-transparent text-[var(--foreground)] font-medium hover:bg-[var(--card)] active:bg-[var(--border)] focus:ring-[var(--border)]',
     };
 
     const sizes = {

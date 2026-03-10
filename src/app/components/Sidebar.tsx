@@ -26,7 +26,7 @@ export default function Sidebar() {
     return (
         <aside className="w-64 bg-[var(--card)] border-r border-[var(--border)] hidden md:flex flex-col h-screen fixed left-0 top-0">
             <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
-                <Link href="/app" className="text-xl font-bold tracking-tight text-[var(--foreground)]">
+                <Link href="/app" className="text-xl font-bold tracking-tight text-[var(--foreground)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] rounded-lg">
                     RevenueLeak
                 </Link>
             </div>
@@ -39,7 +39,8 @@ export default function Sidebar() {
                         <Link
                             key={item.href}
                             href={item.href}
-                            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                            data-tutorial={item.label === 'Clients' ? 'clients' : undefined}
+                            className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] ${
                                 active
                                     ? 'bg-[var(--background)] text-[var(--foreground)]'
                                     : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
@@ -55,7 +56,7 @@ export default function Sidebar() {
             <div className="p-4 border-t border-[var(--border)] space-y-1">
                 <Link
                     href="/app/settings"
-                    className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] ${
                         pathname === '/app/settings'
                             ? 'bg-[var(--background)] text-[var(--foreground)]'
                             : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
@@ -66,7 +67,7 @@ export default function Sidebar() {
                 </Link>
                 <Link
                     href="/app/settings/integrations"
-                    className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors ${
+                    className={`flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] ${
                         pathname === '/app/settings/integrations'
                             ? 'bg-[var(--background)] text-[var(--foreground)]'
                             : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'

@@ -48,7 +48,7 @@ export function getClientHourlyRate(
     settings: FinancialSettings
 ): number {
     // Priority: Client override > Contract rate > Org default
-    if (client.custom_hourly_rate !== null) {
+    if (client.custom_hourly_rate !== null && client.custom_hourly_rate !== undefined) {
         return client.custom_hourly_rate;
     }
     if (contract?.internal_hourly_rate) {
@@ -63,7 +63,7 @@ export function getClientCostRate(
     settings: FinancialSettings
 ): number {
     // Priority: Client override > Contract rate > Org default
-    if (client.custom_cost_rate !== null) {
+    if (client.custom_cost_rate !== null && client.custom_cost_rate !== undefined) {
         return client.custom_cost_rate;
     }
     if (contract?.internal_cost_rate) {
@@ -165,7 +165,14 @@ export function calculateUnderbilling(
     const actualRevenue = Math.max(billed, client.agreed_monthly_retainer);
 
     // Only flag if underbilling exceeds threshold
-    const difference = expectedRevenue - actualRevenue;
+    let difference = expectedRevenue - actualRevenue;
+
+    // Prevent double-counting: If there's an hour limit, excess hours are "Scope Creep", not general underbilling.
+    // Subtract the scope creep value from the underbilling difference if it exists.
+    if (client.hour_limit !== null && billableHours > client.hour_limit) {
+        const excessHours = billableHours - client.hour_limit;
+        difference -= (excessHours * hourlyRate);
+    }
     const thresholdAmount = actualRevenue * (settings.underbilling_threshold_percent / 100);
 
     if (difference > thresholdAmount && difference > 0) {

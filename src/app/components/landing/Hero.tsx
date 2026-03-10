@@ -3,28 +3,19 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Play, Shield, TrendingUp, Zap } from 'lucide-react';
+import { ArrowRight, Shield, TrendingUp, Zap, Play } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
+import { AuroraWave } from '../Shaders';
+import { useAuth } from '../../providers/AuthProvider';
 
 export function Hero() {
+  const { signInAsGuest } = useAuth();
+
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden pt-24">
-      {/* Animated Background Gradient */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-[var(--leak)]/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse" />
-        <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-[var(--neutral-metric)]/20 via-transparent to-transparent rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-3xl" />
-      </div>
-
-      {/* Grid Pattern Overlay */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)`,
-          backgroundSize: '64px 64px',
-        }}
-      />
+      {/* Aurora Wave Effect */}
+      <AuroraWave />
 
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center max-w-4xl mx-auto">
@@ -61,9 +52,9 @@ export function Hero() {
             className="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed"
           >
             RevenueLeak automatically detects billing errors, undercharging, and missed
-            invoices in real-time. Agencies recover an average of{' '}
-            <span className="text-[var(--foreground)] font-semibold">$47,000/year</span> in
-            lost revenue.
+            invoices in real-time. Service businesses lose{' '}
+            <span className="text-[var(--foreground)] font-semibold">4-10% of annual revenue</span> on average—
+            and <span className="text-[var(--leak)] font-semibold">57% of agencies</span> lose $1K-$5K monthly to unbilled scope creep alone.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -79,9 +70,14 @@ export function Hero() {
                 <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
-            <Button variant="outline" size="lg" className="min-w-[200px]">
-              <Play className="mr-2 h-4 w-4" />
-              Watch Demo
+            <Button
+              size="lg"
+              variant="outline"
+              className="min-w-[200px] group"
+              onClick={signInAsGuest}
+            >
+              <Play className="mr-2 h-4 w-4 group-hover:scale-110 transition-transform" />
+              Try Live Demo
             </Button>
           </motion.div>
 

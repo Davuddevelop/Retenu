@@ -10,11 +10,13 @@ interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
+    isGuest: boolean;
     signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-    signUp: (email: string, password: string) => Promise<{ error: Error | null }>;
+    signUp: (email: string, password: string, metadata?: { fullName: string, companyName: string }) => Promise<{ error: Error | null }>;
     signOut: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     signInWithGitHub: () => Promise<void>;
+    signInAsGuest: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -23,11 +25,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null);
     const [session, setSession] = useState<Session | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isGuest, setIsGuest] = useState(false);
     const router = useRouter();
     const [supabase] = useState(() => createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy_anon_key'
     ));
+
+    // Check for guest mode on mount
+    useEffect(() => {
+        const guestCookie = document.cookie.split('; ').find(row => row.startsWith('guest_mode='));
+        if (guestCookie?.split('=')[1] === 'true') {
+            setIsGuest(true);
+        }
+    }, []);
 
     useEffect(() => {
         // Check for existing session
@@ -79,12 +90,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     };
 
-    const signUp = async (email: string, password: string) => {
+    const signUp = async (email: string, password: string, metadata?: { fullName: string, companyName: string }) => {
         try {
             const { error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
+                    data: metadata,
                     emailRedirectTo: `${window.location.origin}/auth/callback`,
                 },
             });
@@ -117,17 +129,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
     };
 
+    const signInAsGuest = () => {
+        // Set guest mode cookie (expires in 7 days)
+        document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
+        setIsGuest(true);
+        router.push('/app');
+    };
+
+    const exitGuestMode = () => {
+        document.cookie = 'guest_mode=; path=/; max-age=0';
+        setIsGuest(false);
+        router.push('/login');
+    };
+
+    // Override signOut to also handle guest mode
+    const handleSignOut = async () => {
+        if (isGuest) {
+            exitGuestMode();
+        } else {
+            await supabase.auth.signOut();
+        }
+    };
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 session,
                 loading,
+                isGuest,
                 signIn,
                 signUp,
-                signOut,
+                signOut: handleSignOut,
                 signInWithGoogle,
                 signInWithGitHub,
+                signInAsGuest,
             }}
         >
             {children}

@@ -8,6 +8,7 @@ import { Client, RevenueAlert } from '../../lib/types';
 import Link from 'next/link';
 import { ChevronRight, ShieldAlert, ShieldCheck, Plus, Users } from 'lucide-react';
 import { DemoModeBanner, NoClientsEmpty } from '../../components/EmptyStates';
+import { NoiseGrain } from '../../components/Shaders';
 
 export default function ClientsPage() {
     const [clients, setClients] = useState<Client[]>([]);
@@ -37,7 +38,8 @@ export default function ClientsPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6 animate-in fade-in duration-500 relative">
+            <NoiseGrain />
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             <div className="flex justify-between items-center">
@@ -51,7 +53,7 @@ export default function ClientsPage() {
                 </div>
                 <Link
                     href="/app/clients/new"
-                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-gray-200 inline-flex items-center gap-2"
+                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-white/90 active:bg-white/80 inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
                 >
                     <Plus className="w-4 h-4" />
                     Add Client
@@ -59,12 +61,12 @@ export default function ClientsPage() {
             </div>
 
             {clients.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
+                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]" data-tutorial="clients-list">
                     <NoClientsEmpty />
                 </div>
             ) : (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                    <table className="w-full text-left text-sm">
+                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden overflow-x-auto" data-tutorial="clients-list">
+                    <table className="w-full text-left text-sm min-w-[600px]">
                         <thead className="bg-[var(--background)]/50 border-b border-[var(--border)] text-gray-400">
                             <tr>
                                 <th className="px-6 py-4 font-medium">Client Name</th>
