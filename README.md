@@ -1,36 +1,71 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💸 RevenueLeak
 
-## Getting Started
+**Stop the bleeding. Scale your agency.**
 
-First, run the development server:
+RevenueLeak is a high-performance financial intelligence platform designed specifically for agencies. It automatically identifies "hidden" revenue losses by analyzing the gap between your contracts, time tracking, and actual invoicing.
 
+![RevenueLeak Dashboard](https://raw.githubusercontent.com/Davuddevelop/RevenueLeak/main/public/dashboard-preview.png) *(Placeholder for your screenshot)*
+
+## 🚀 The Core Engine
+
+RevenueLeak doesn't just show you numbers; it actively detects **four types of leakage** that kill agency margins:
+
+1.  **Underbilling Detection:** Automatically flags when billable hours worked exceed the amount actually invoiced, accounting for retainer offsets.
+2.  **Scope Creep Alerts:** Real-time monitoring of contract hour limits. The system triggers warnings when projects exceed their scoped boundaries.
+3.  **Missing Invoice audit:** A safety net that ensures every active client with a retainer is invoiced every single month.
+4.  **Late Payment Tracking:** Aggressive monitoring of overdue receivables to keep your cash flow healthy.
+
+## 🛠️ Technology Stack
+
+Built with a modern, high-performance stack for maximum reliability:
+
+- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
+- **Language:** TypeScript
+- **Database & Auth:** [Supabase](https://supabase.com/)
+- **Styling:** Tailwind CSS + Framer Motion (for premium UI animations)
+- **Integrations:** Stripe (Invoices), Toggl (Time Tracking)
+- **Testing:** [Vitest](https://vitest.dev/) (100% logic coverage)
+
+## 🚦 Getting Started
+
+### 1. Prerequisites
+- Node.js 18+
+- A Supabase project
+- Optional: Stripe and Toggl developer accounts
+
+### 2. Installation
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/Davuddevelop/RevenueLeak.git
+cd RevenueLeak
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Environment Setup
+Copy `.env.example` to `.env.local` and fill in your credentials:
+```bash
+cp .env.example .env.local
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Direct Development
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🧪 Automated Testing
 
-## Learn More
+We take financial accuracy seriously. Our calculation engine is protected by a comprehensive suite of automated tests.
 
-To learn more about Next.js, take a look at the following resources:
+Run the test suite:
+```bash
+npm test
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔐 Security & Compliance
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **OAuth 2.0:** Secure integrations with Stripe and Toggl.
+- **Row Level Security (RLS):** Built-in data protection via Supabase.
+- **GDPR Ready:** Clean data management patterns.
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with ❤️ for Agency Owners.
