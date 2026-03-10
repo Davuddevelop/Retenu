@@ -4,7 +4,7 @@
 
 RevenueLeak is a high-performance financial intelligence platform designed specifically for agencies. It automatically identifies "hidden" revenue losses by analyzing the gap between your contracts, time tracking, and actual invoicing.
 
-![RevenueLeak Dashboard](https://raw.githubusercontent.com/Davuddevelop/RevenueLeak/main/public/dashboard-preview.png) *(Placeholder for your screenshot)*
+
 
 ## 🚀 The Core Engine
 
