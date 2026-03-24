@@ -6,7 +6,7 @@ import { dataStore } from '../../lib/dataStore';
 import { getDataStatus } from '../../lib/detectionEngine';
 import { TimeEntry, Client } from '../../lib/types';
 import Link from 'next/link';
-import { Plus, Clock, Trash2, Calendar, User, FileText, Upload, ChevronDown, Filter, Search } from 'lucide-react';
+import { Plus, Trash2, Upload, ChevronDown, Search } from 'lucide-react';
 import { DemoModeBanner, NoTimeEntriesEmpty } from '../../components/EmptyStates';
 import { format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -20,17 +20,20 @@ export default function TimeEntriesPage() {
     const [filterMonth, setFilterMonth] = useState<string>(format(new Date(), 'yyyy-MM'));
     const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        const status = getDataStatus();
-        setIsDemoMode(status.isDemoMode);
-        setClients(dataStore.getClients());
-        loadEntries();
-        setIsLoading(false);
-    }, []);
-
     const loadEntries = () => {
         setEntries(dataStore.getTimeEntries());
     };
+
+    useEffect(() => {
+        const initializeData = () => {
+            const status = getDataStatus();
+            setIsDemoMode(status.isDemoMode);
+            setClients(dataStore.getClients());
+            setEntries(dataStore.getTimeEntries());
+            setIsLoading(false);
+        };
+        initializeData();
+    }, []);
 
     const handleDisableDemo = () => {
         dataStore.disableDemoMode();
@@ -128,17 +131,16 @@ export default function TimeEntriesPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6">
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)]">Time Entries</h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500">
                         {entries.length > 0
-                            ? `${totalHours.toFixed(1)} total hours (${billableHours.toFixed(1)} billable)`
-                            : 'Track hours to calculate margins and detect scope creep.'}
+                            ? `${totalHours.toFixed(1)} hrs total · ${billableHours.toFixed(1)} billable`
+                            : 'No time entries yet'}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
@@ -151,7 +153,7 @@ export default function TimeEntriesPage() {
                     </Link>
                     <Link
                         href="/app/time-entries/new"
-                        className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-gray-200 inline-flex items-center gap-2"
+                        className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm transition-colors hover:bg-white/90 inline-flex items-center gap-2"
                     >
                         <Plus className="w-4 h-4" />
                         Add Entry
@@ -160,7 +162,7 @@ export default function TimeEntriesPage() {
             </div>
 
             {entries.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
+                <div className="bg-[var(--card)] rounded-lg border border-[var(--border)]">
                     <NoTimeEntriesEmpty />
                 </div>
             ) : (
@@ -174,7 +176,7 @@ export default function TimeEntriesPage() {
                                 placeholder="Search by client, team member, or description..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
                             />
                         </div>
                         <div className="flex gap-3">
@@ -182,7 +184,7 @@ export default function TimeEntriesPage() {
                                 <select
                                     value={filterClient}
                                     onChange={(e) => setFilterClient(e.target.value)}
-                                    className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-lg pl-4 pr-10 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                    className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-lg pl-4 pr-10 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
                                 >
                                     <option value="all">All Clients</option>
                                     {clients.map(client => (
@@ -195,20 +197,20 @@ export default function TimeEntriesPage() {
                                 type="month"
                                 value={filterMonth}
                                 onChange={(e) => setFilterMonth(e.target.value)}
-                                className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-4 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
                             />
                         </div>
                     </div>
 
                     {/* Bulk Actions */}
                     {selectedEntries.size > 0 && (
-                        <div className="bg-[var(--leak)]/10 border border-[var(--leak)]/20 rounded-lg p-3 flex items-center justify-between">
+                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-center justify-between">
                             <span className="text-sm text-[var(--foreground)]">
                                 {selectedEntries.size} entr{selectedEntries.size === 1 ? 'y' : 'ies'} selected
                             </span>
                             <button
                                 onClick={handleDeleteSelected}
-                                className="px-3 py-1.5 bg-[var(--leak)] text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors inline-flex items-center gap-2"
+                                className="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors inline-flex items-center gap-2"
                             >
                                 <Trash2 className="w-4 h-4" />
                                 Delete Selected
@@ -217,11 +219,11 @@ export default function TimeEntriesPage() {
                     )}
 
                     {/* Time Entries Table */}
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
+                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
                         <table className="w-full text-left text-sm">
-                            <thead className="bg-[var(--background)]/50 border-b border-[var(--border)] text-gray-400">
+                            <thead className="border-b border-[var(--border)]">
                                 <tr>
-                                    <th className="px-4 py-4 font-medium w-10">
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 w-10">
                                         <input
                                             type="checkbox"
                                             checked={selectedEntries.size === filteredEntries.length && filteredEntries.length > 0}
@@ -229,13 +231,13 @@ export default function TimeEntriesPage() {
                                             className="rounded border-[var(--border)] bg-[var(--background)]"
                                         />
                                     </th>
-                                    <th className="px-4 py-4 font-medium">Date</th>
-                                    <th className="px-4 py-4 font-medium">Client</th>
-                                    <th className="px-4 py-4 font-medium">Team Member</th>
-                                    <th className="px-4 py-4 font-medium">Description</th>
-                                    <th className="px-4 py-4 font-medium text-right">Hours</th>
-                                    <th className="px-4 py-4 font-medium text-center">Billable</th>
-                                    <th className="px-4 py-4 font-medium text-right">Actions</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Date</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Client</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Team Member</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Description</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-right">Hours</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-center">Billable</th>
+                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border)]">
@@ -247,8 +249,8 @@ export default function TimeEntriesPage() {
                                     </tr>
                                 ) : (
                                     filteredEntries.map(entry => (
-                                        <tr key={entry.id} className="hover:bg-[var(--background)]/50 transition-colors">
-                                            <td className="px-4 py-4">
+                                        <tr key={entry.id} className="hover:bg-[var(--background)]/30 transition-colors">
+                                            <td className="px-4 py-3">
                                                 <input
                                                     type="checkbox"
                                                     checked={selectedEntries.has(entry.id)}
@@ -256,42 +258,36 @@ export default function TimeEntriesPage() {
                                                     className="rounded border-[var(--border)] bg-[var(--background)]"
                                                 />
                                             </td>
-                                            <td className="px-4 py-4 text-[var(--foreground)]">
-                                                <div className="flex items-center gap-2">
-                                                    <Calendar className="w-4 h-4 text-gray-500" />
-                                                    {format(parseISO(entry.date), 'MMM dd, yyyy')}
-                                                </div>
+                                            <td className="px-4 py-3 text-[var(--foreground)]">
+                                                {format(parseISO(entry.date), 'MMM dd, yyyy')}
                                             </td>
-                                            <td className="px-4 py-4 font-medium text-[var(--foreground)]">
+                                            <td className="px-4 py-3 font-medium text-[var(--foreground)]">
                                                 {getClientName(entry.client_id)}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-300">
-                                                <div className="flex items-center gap-2">
-                                                    <User className="w-4 h-4 text-gray-500" />
-                                                    {entry.team_member}
-                                                </div>
+                                            <td className="px-4 py-3 text-gray-400">
+                                                {entry.team_member}
                                             </td>
-                                            <td className="px-4 py-4 text-gray-400 max-w-xs truncate">
+                                            <td className="px-4 py-3 text-gray-400 max-w-xs truncate">
                                                 {entry.description || '—'}
                                             </td>
-                                            <td className="px-4 py-4 text-right font-medium text-[var(--foreground)]">
-                                                {entry.hours.toFixed(1)}h
+                                            <td className="px-4 py-3 text-right font-medium text-[var(--foreground)]">
+                                                {entry.hours.toFixed(1)}
                                             </td>
-                                            <td className="px-4 py-4 text-center">
+                                            <td className="px-4 py-3 text-center">
                                                 {entry.billable ? (
-                                                    <span className="text-xs px-2 py-1 rounded-md bg-[var(--profit)]/10 text-[var(--profit)] font-medium">
+                                                    <span className="text-xs font-medium text-green-500">
                                                         Yes
                                                     </span>
                                                 ) : (
-                                                    <span className="text-xs px-2 py-1 rounded-md bg-gray-500/10 text-gray-500 font-medium">
+                                                    <span className="text-xs font-medium text-gray-500">
                                                         No
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-4 text-right">
+                                            <td className="px-4 py-3 text-right">
                                                 <button
                                                     onClick={() => handleDeleteEntry(entry.id)}
-                                                    className="p-2 text-gray-400 hover:text-[var(--leak)] hover:bg-[var(--leak)]/10 rounded-lg transition-colors"
+                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                                     title="Delete entry"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
@@ -305,23 +301,23 @@ export default function TimeEntriesPage() {
                     </div>
 
                     {/* Summary Footer */}
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] p-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
                             <div>
-                                <p className="text-sm text-gray-400">Total Entries</p>
-                                <p className="text-xl font-bold text-[var(--foreground)]">{filteredEntries.length}</p>
+                                <p className="text-xs text-gray-500 mb-1">Total Entries</p>
+                                <p className="text-2xl font-semibold text-[var(--foreground)]">{filteredEntries.length}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">Total Hours</p>
-                                <p className="text-xl font-bold text-[var(--foreground)]">{totalHours.toFixed(1)}h</p>
+                                <p className="text-xs text-gray-500 mb-1">Total Hours</p>
+                                <p className="text-2xl font-semibold text-[var(--foreground)]">{totalHours.toFixed(1)}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">Billable Hours</p>
-                                <p className="text-xl font-bold text-[var(--profit)]">{billableHours.toFixed(1)}h</p>
+                                <p className="text-xs text-gray-500 mb-1">Billable</p>
+                                <p className="text-2xl font-semibold text-green-500">{billableHours.toFixed(1)}</p>
                             </div>
                             <div>
-                                <p className="text-sm text-gray-400">Non-Billable</p>
-                                <p className="text-xl font-bold text-gray-400">{(totalHours - billableHours).toFixed(1)}h</p>
+                                <p className="text-xs text-gray-500 mb-1">Non-Billable</p>
+                                <p className="text-2xl font-semibold text-gray-400">{(totalHours - billableHours).toFixed(1)}</p>
                             </div>
                         </div>
                     </div>

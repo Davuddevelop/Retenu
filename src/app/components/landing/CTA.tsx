@@ -57,8 +57,8 @@ export function CTA() {
               transition={{ delay: 0.2 }}
               className="mt-4 text-lg text-gray-400 max-w-2xl mx-auto"
             >
-              Join 500+ agencies who have already recovered millions in lost revenue.
-              Start your free trial today — no credit card required.
+              See what revenue you might be missing.
+              Try it free — no credit card required.
             </motion.p>
 
             <motion.div

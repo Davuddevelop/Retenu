@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, FileText, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, Save, FileText } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
 import { Client, Invoice } from '../../../lib/types';
 import { addDays, format } from 'date-fns';

@@ -6,9 +6,8 @@ import { runDetectionEngine, getDataStatus } from '../../lib/detectionEngine';
 import { dataStore } from '../../lib/dataStore';
 import { Client, RevenueAlert } from '../../lib/types';
 import Link from 'next/link';
-import { ChevronRight, ShieldAlert, ShieldCheck, Plus, Users } from 'lucide-react';
+import { ArrowRight, Plus } from 'lucide-react';
 import { DemoModeBanner, NoClientsEmpty } from '../../components/EmptyStates';
-import { NoiseGrain } from '../../components/Shaders';
 
 export default function ClientsPage() {
     const [clients, setClients] = useState<Client[]>([]);
@@ -18,6 +17,7 @@ export default function ClientsPage() {
 
     useEffect(() => {
         const status = getDataStatus();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDemoMode(status.isDemoMode);
         setClients(dataStore.getClients());
         setAlerts(runDetectionEngine());
@@ -38,22 +38,20 @@ export default function ClientsPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 relative">
-            <NoiseGrain />
+        <div className="space-y-6">
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             <div className="flex justify-between items-center">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)]">Clients</h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500">
                         {clients.length > 0
-                            ? `Managing ${clients.length} client${clients.length !== 1 ? 's' : ''}`
-                            : 'Manage your service accounts and monitor revenue health.'}
+                            ? `${clients.length} client${clients.length !== 1 ? 's' : ''}`
+                            : 'No clients yet'}
                     </p>
                 </div>
                 <Link
                     href="/app/clients/new"
-                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-white/90 active:bg-white/80 inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm transition-colors hover:bg-white/90 inline-flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
                     Add Client
@@ -61,51 +59,44 @@ export default function ClientsPage() {
             </div>
 
             {clients.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]" data-tutorial="clients-list">
+                <div className="bg-[var(--card)] rounded-lg border border-[var(--border)]" data-tutorial="clients-list">
                     <NoClientsEmpty />
                 </div>
             ) : (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden overflow-x-auto" data-tutorial="clients-list">
+                <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden overflow-x-auto" data-tutorial="clients-list">
                     <table className="w-full text-left text-sm min-w-[600px]">
-                        <thead className="bg-[var(--background)]/50 border-b border-[var(--border)] text-gray-400">
+                        <thead className="border-b border-[var(--border)]">
                             <tr>
-                                <th className="px-6 py-4 font-medium">Client Name</th>
-                                <th className="px-6 py-4 font-medium">Retainer</th>
-                                <th className="px-6 py-4 font-medium">Hour Limit</th>
-                                <th className="px-6 py-4 font-medium">Status</th>
-                                <th className="px-6 py-4 font-medium text-right">Action</th>
+                                <th className="px-6 py-3 text-xs font-medium text-gray-500">Client</th>
+                                <th className="px-6 py-3 text-xs font-medium text-gray-500">Retainer</th>
+                                <th className="px-6 py-3 text-xs font-medium text-gray-500">Hours</th>
+                                <th className="px-6 py-3 text-xs font-medium text-gray-500">Status</th>
+                                <th className="px-6 py-3 text-xs font-medium text-gray-500 text-right"></th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[var(--border)]">
                             {clients.filter(c => c.status === 'active').map(client => {
                                 const clientAlerts = alerts.filter(a => a.client_id === client.id);
                                 return (
-                                    <tr key={client.id} className="hover:bg-[var(--background)]/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium border-l-2 border-transparent hover:border-l-[var(--neutral-metric)] text-[var(--foreground)]">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-[var(--background)] border border-[var(--border)] flex items-center justify-center">
-                                                    <Users className="w-4 h-4 text-gray-500" />
-                                                </div>
-                                                {client.name}
-                                            </div>
+                                    <tr key={client.id} className="hover:bg-[var(--background)]/30 transition-colors">
+                                        <td className="px-6 py-4 font-medium text-[var(--foreground)]">
+                                            {client.name}
                                         </td>
-                                        <td className="px-6 py-4 text-gray-300">
+                                        <td className="px-6 py-4 text-gray-400">
                                             ${client.agreed_monthly_retainer.toLocaleString()}/mo
                                         </td>
-                                        <td className="px-6 py-4 text-gray-300">
-                                            {client.hour_limit !== null ? `${client.hour_limit} hrs` : 'Unlimited'}
+                                        <td className="px-6 py-4 text-gray-400">
+                                            {client.hour_limit !== null ? `${client.hour_limit}` : '∞'}
                                         </td>
                                         <td className="px-6 py-4">
                                             {clientAlerts.length > 0 ? (
-                                                <div className="flex items-center gap-1.5 text-[var(--leak)] font-medium text-xs bg-[var(--leak)]/10 w-fit px-2 py-1 rounded-md">
-                                                    <ShieldAlert className="w-3.5 h-3.5" />
-                                                    {clientAlerts.length} Alert{clientAlerts.length !== 1 ? 's' : ''}
-                                                </div>
+                                                <span className="text-xs font-medium text-red-500">
+                                                    {clientAlerts.length} alert{clientAlerts.length !== 1 ? 's' : ''}
+                                                </span>
                                             ) : (
-                                                <div className="flex items-center gap-1.5 text-[var(--profit)] font-medium text-xs bg-[var(--profit)]/10 w-fit px-2 py-1 rounded-md">
-                                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                                <span className="text-xs font-medium text-green-500">
                                                     Healthy
-                                                </div>
+                                                </span>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
@@ -114,7 +105,7 @@ export default function ClientsPage() {
                                                 className="inline-flex items-center gap-1 text-sm font-medium text-gray-400 hover:text-[var(--foreground)] transition-colors"
                                             >
                                                 View
-                                                <ChevronRight className="w-4 h-4" />
+                                                <ArrowRight className="w-4 h-4" />
                                             </Link>
                                         </td>
                                     </tr>
@@ -128,28 +119,28 @@ export default function ClientsPage() {
             {/* Inactive Clients Section */}
             {clients.filter(c => c.status !== 'active').length > 0 && (
                 <div>
-                    <h2 className="text-lg font-semibold text-gray-400 mb-4">Inactive Clients</h2>
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden opacity-60">
+                    <p className="text-sm text-gray-500 mb-3">Inactive Clients</p>
+                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden opacity-50">
                         <table className="w-full text-left text-sm">
                             <tbody className="divide-y divide-[var(--border)]">
                                 {clients.filter(c => c.status !== 'active').map(client => (
-                                    <tr key={client.id} className="hover:bg-[var(--background)]/50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-gray-400">{client.name}</td>
-                                        <td className="px-6 py-4 text-gray-500">
+                                    <tr key={client.id} className="hover:bg-[var(--background)]/30 transition-colors">
+                                        <td className="px-6 py-3 font-medium text-gray-400">{client.name}</td>
+                                        <td className="px-6 py-3 text-gray-500">
                                             ${client.agreed_monthly_retainer.toLocaleString()}/mo
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-xs px-2 py-1 rounded-md bg-gray-700 text-gray-400 capitalize">
+                                        <td className="px-6 py-3">
+                                            <span className="text-xs text-gray-500 capitalize">
                                                 {client.status}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-6 py-3 text-right">
                                             <Link
                                                 href={`/app/clients/${client.id}`}
                                                 className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-400 transition-colors"
                                             >
                                                 View
-                                                <ChevronRight className="w-4 h-4" />
+                                                <ArrowRight className="w-4 h-4" />
                                             </Link>
                                         </td>
                                     </tr>

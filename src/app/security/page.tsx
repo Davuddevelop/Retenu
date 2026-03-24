@@ -31,8 +31,8 @@ export default function SecurityPage() {
             <div className="bg-gradient-to-r from-[var(--profit)]/10 to-transparent border-b border-[var(--border)]">
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                     <p className="text-lg text-gray-300 max-w-3xl">
-                        We understand that you're entrusting us with your most sensitive business data. Security isn't an afterthought—it's
-                        built into every layer of our infrastructure. Here's exactly how we protect your information.
+                        We understand that you&apos;re entrusting us with your most sensitive business data. Security isn&apos;t an afterthought—it&apos;s
+                        built into every layer of our infrastructure. Here&apos;s exactly how we protect your information.
                     </p>
                 </div>
             </div>
@@ -42,10 +42,10 @@ export default function SecurityPage() {
                 <h2 className="text-2xl font-bold text-[var(--foreground)] mb-6">Security Certifications & Compliance</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
                     {[
-                        { name: 'GDPR Configured', desc: 'Secure data processing', icon: <Eye className="w-6 h-6" /> },
-                        { name: 'CCPA Compliant', desc: 'California privacy ready', icon: <Lock className="w-6 h-6" /> },
-                        { name: 'AES-256', desc: 'Military-grade encryption', icon: <Key className="w-6 h-6" /> },
-                        { name: 'Infrastructure Ready', desc: 'Built to modern SOC 2 standards', icon: <FileCheck className="w-6 h-6" /> },
+                        { name: 'Data Ownership', desc: 'Your data, your control', icon: <Eye className="w-6 h-6" /> },
+                        { name: 'Secure Hosting', desc: 'Supabase infrastructure', icon: <Lock className="w-6 h-6" /> },
+                        { name: 'Encrypted Storage', desc: 'Data encrypted at rest', icon: <Key className="w-6 h-6" /> },
+                        { name: 'Beta Product', desc: 'Security improving with each release', icon: <FileCheck className="w-6 h-6" /> },
                     ].map((cert) => (
                         <div key={cert.name} className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)]">
                             <div className="w-12 h-12 rounded-xl bg-[var(--profit)]/20 flex items-center justify-center text-[var(--profit)] mb-4">

@@ -6,7 +6,7 @@ import { dataStore } from '../../lib/dataStore';
 import { getDataStatus } from '../../lib/detectionEngine';
 import { Invoice, Client } from '../../lib/types';
 import Link from 'next/link';
-import { Plus, FileText, Trash2, Calendar, CheckCircle2, Clock, AlertCircle, ChevronDown, Search, DollarSign, CreditCard } from 'lucide-react';
+import { Plus, Trash2, ChevronDown, Search } from 'lucide-react';
 import { DemoModeBanner, NoInvoicesEmpty } from '../../components/EmptyStates';
 import { format, parseISO, differenceInDays } from 'date-fns';
 
@@ -19,17 +19,23 @@ export default function InvoicesPage() {
     const [filterStatus, setFilterStatus] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
 
-    useEffect(() => {
-        const status = getDataStatus();
-        setIsDemoMode(status.isDemoMode);
-        setClients(dataStore.getClients());
-        loadInvoices();
-        setIsLoading(false);
-    }, []);
-
     const loadInvoices = () => {
         setInvoices(dataStore.getInvoices());
     };
+
+    useEffect(() => {
+        const initializeData = () => {
+            const status = getDataStatus();
+            const clientsData = dataStore.getClients();
+            const invoicesData = dataStore.getInvoices();
+
+            setIsDemoMode(status.isDemoMode);
+            setClients(clientsData);
+            setInvoices(invoicesData);
+            setIsLoading(false);
+        };
+        initializeData();
+    }, []);
 
     const handleDisableDemo = () => {
         dataStore.disableDemoMode();
@@ -88,38 +94,31 @@ export default function InvoicesPage() {
         switch (status) {
             case 'paid':
                 return (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-[var(--profit)]/10 text-[var(--profit)] font-medium flex items-center gap-1 w-fit">
-                        <CheckCircle2 className="w-3 h-3" />
+                    <span className="text-xs font-medium text-green-500">
                         Paid
                     </span>
                 );
             case 'overdue':
                 return (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-[var(--leak)]/10 text-[var(--leak)] font-medium flex items-center gap-1 w-fit">
-                        <AlertCircle className="w-3 h-3" />
+                    <span className="text-xs font-medium text-red-500">
                         Overdue
                     </span>
                 );
             case 'sent':
                 return (
-                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1 w-fit ${
-                        daysUntilDue <= 7 ? 'bg-yellow-500/10 text-yellow-500' : 'bg-blue-500/10 text-blue-500'
-                    }`}>
-                        <Clock className="w-3 h-3" />
-                        {daysUntilDue <= 0 ? 'Due Today' : daysUntilDue === 1 ? 'Due Tomorrow' : `Due in ${daysUntilDue}d`}
+                    <span className="text-xs font-medium text-gray-400">
+                        {daysUntilDue <= 0 ? 'Due today' : daysUntilDue === 1 ? 'Due tomorrow' : `Due in ${daysUntilDue}d`}
                     </span>
                 );
             case 'draft':
                 return (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-gray-500/10 text-gray-400 font-medium flex items-center gap-1 w-fit">
-                        <FileText className="w-3 h-3" />
+                    <span className="text-xs font-medium text-gray-500">
                         Draft
                     </span>
                 );
             default:
                 return (
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-gray-500/10 text-gray-400 font-medium flex items-center gap-1 w-fit">
-                        <Clock className="w-3 h-3" />
+                    <span className="text-xs font-medium text-gray-400">
                         Pending
                     </span>
                 );
@@ -135,22 +134,21 @@ export default function InvoicesPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6">
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)]">Invoices</h1>
-                    <p className="text-gray-400 mt-1">
+                    <p className="text-sm text-gray-500">
                         {invoices.length > 0
-                            ? `${formatCurrency(totalAmount)} total across ${invoices.length} invoice${invoices.length !== 1 ? 's' : ''}`
-                            : 'Track invoices to detect missing and late payments.'}
+                            ? `${invoices.length} invoice${invoices.length !== 1 ? 's' : ''}`
+                            : 'No invoices yet'}
                     </p>
                 </div>
                 <Link
                     href="/app/invoices/new"
-                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm transition-colors hover:bg-white/90 active:bg-white/80 inline-flex items-center gap-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]"
+                    className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm transition-colors hover:bg-white/90 inline-flex items-center gap-2"
                 >
                     <Plus className="w-4 h-4" />
                     Add Invoice
@@ -158,40 +156,28 @@ export default function InvoicesPage() {
             </div>
 
             {invoices.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
+                <div className="bg-[var(--card)] rounded-lg border border-[var(--border)]">
                     <NoInvoicesEmpty />
                 </div>
             ) : (
                 <>
                     {/* Summary Cards */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)]">
-                            <div className="flex items-center gap-2 text-gray-400 mb-2">
-                                <DollarSign className="w-4 h-4" />
-                                <span className="text-xs font-medium">Total</span>
-                            </div>
-                            <p className="text-xl font-bold text-[var(--foreground)]">{formatCurrency(totalAmount)}</p>
+                        <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)]">
+                            <p className="text-xs text-gray-500 mb-2">Total</p>
+                            <p className="text-2xl font-semibold text-[var(--foreground)]">{formatCurrency(totalAmount)}</p>
                         </div>
-                        <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)]">
-                            <div className="flex items-center gap-2 text-[var(--profit)] mb-2">
-                                <CheckCircle2 className="w-4 h-4" />
-                                <span className="text-xs font-medium">Paid</span>
-                            </div>
-                            <p className="text-xl font-bold text-[var(--foreground)]">{formatCurrency(paidAmount)}</p>
+                        <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)]">
+                            <p className="text-xs text-gray-500 mb-2">Paid</p>
+                            <p className="text-2xl font-semibold text-green-500">{formatCurrency(paidAmount)}</p>
                         </div>
-                        <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)]">
-                            <div className="flex items-center gap-2 text-blue-500 mb-2">
-                                <Clock className="w-4 h-4" />
-                                <span className="text-xs font-medium">Pending</span>
-                            </div>
-                            <p className="text-xl font-bold text-[var(--foreground)]">{formatCurrency(pendingAmount)}</p>
+                        <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)]">
+                            <p className="text-xs text-gray-500 mb-2">Pending</p>
+                            <p className="text-2xl font-semibold text-[var(--foreground)]">{formatCurrency(pendingAmount)}</p>
                         </div>
-                        <div className="bg-[var(--card)] p-4 rounded-xl border border-[var(--border)]">
-                            <div className="flex items-center gap-2 text-[var(--leak)] mb-2">
-                                <AlertCircle className="w-4 h-4" />
-                                <span className="text-xs font-medium">Overdue</span>
-                            </div>
-                            <p className="text-xl font-bold text-[var(--foreground)]">{formatCurrency(overdueAmount)}</p>
+                        <div className="bg-[var(--card)] p-6 rounded-lg border border-[var(--border)]">
+                            <p className="text-xs text-gray-500 mb-2">Overdue</p>
+                            <p className="text-2xl font-semibold text-red-500">{formatCurrency(overdueAmount)}</p>
                         </div>
                     </div>
 
@@ -239,16 +225,16 @@ export default function InvoicesPage() {
                     </div>
 
                     {/* Invoices Table */}
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden overflow-x-auto">
+                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden overflow-x-auto">
                         <table className="w-full text-left text-sm min-w-[700px]">
-                            <thead className="bg-[var(--background)]/50 border-b border-[var(--border)] text-gray-400">
+                            <thead className="border-b border-[var(--border)]">
                                 <tr>
-                                    <th className="px-6 py-4 font-medium">Client</th>
-                                    <th className="px-6 py-4 font-medium">Amount</th>
-                                    <th className="px-6 py-4 font-medium">Issue Date</th>
-                                    <th className="px-6 py-4 font-medium">Due Date</th>
-                                    <th className="px-6 py-4 font-medium">Status</th>
-                                    <th className="px-6 py-4 font-medium text-right">Actions</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500">Client</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500">Amount</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500">Issued</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500">Due</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500">Status</th>
+                                    <th className="px-6 py-3 text-xs font-medium text-gray-500 text-right"></th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-[var(--border)]">
@@ -260,14 +246,9 @@ export default function InvoicesPage() {
                                     </tr>
                                 ) : (
                                     filteredInvoices.map(invoice => (
-                                        <tr key={invoice.id} className="hover:bg-[var(--background)]/50 transition-colors">
+                                        <tr key={invoice.id} className="hover:bg-[var(--background)]/30 transition-colors">
                                             <td className="px-6 py-4 font-medium text-[var(--foreground)]">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-lg bg-[var(--background)] border border-[var(--border)] flex items-center justify-center">
-                                                        <FileText className="w-4 h-4 text-gray-500" />
-                                                    </div>
-                                                    {getClientName(invoice.client_id)}
-                                                </div>
+                                                {getClientName(invoice.client_id)}
                                             </td>
                                             <td className="px-6 py-4 font-semibold text-[var(--foreground)]">
                                                 {formatCurrency(invoice.amount)}
@@ -286,14 +267,14 @@ export default function InvoicesPage() {
                                                     {invoice.status !== 'paid' && (
                                                         <button
                                                             onClick={() => handleMarkPaid(invoice.id)}
-                                                            className="px-3 py-1.5 text-xs font-medium text-[var(--profit)] bg-[var(--profit)]/10 hover:bg-[var(--profit)]/20 rounded-lg transition-colors"
+                                                            className="px-3 py-1.5 text-xs font-medium text-green-500 hover:bg-green-500/10 rounded-lg transition-colors"
                                                         >
                                                             Mark Paid
                                                         </button>
                                                     )}
                                                     <button
                                                         onClick={() => handleDeleteInvoice(invoice.id)}
-                                                        className="p-2 text-gray-400 hover:text-[var(--leak)] hover:bg-[var(--leak)]/10 rounded-lg transition-colors"
+                                                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
                                                         title="Delete invoice"
                                                     >
                                                         <Trash2 className="w-4 h-4" />

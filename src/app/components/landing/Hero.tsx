@@ -36,7 +36,8 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[var(--foreground)]"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-[var(--foreground)]"
+            style={{ letterSpacing: '0.02em' }}
           >
             Stop Losing Revenue
             <span className="block mt-2 bg-gradient-to-r from-[var(--leak)] via-orange-400 to-amber-400 bg-clip-text text-transparent">
@@ -49,7 +50,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-6 text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed"
+            className="mt-6 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed"
           >
             RevenueLeak automatically detects billing errors, undercharging, and missed
             invoices in real-time. Service businesses lose{' '}
@@ -90,11 +91,11 @@ export function Hero() {
           >
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-[var(--profit)]" />
-              <span>SOC 2 Compliant</span>
+              <span>Your Data Stays Yours</span>
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-[var(--profit)]" />
-              <span>500+ Agencies Trust Us</span>
+              <span>Free During Beta</span>
             </div>
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-[var(--profit)]" />
@@ -129,11 +130,15 @@ export function Hero() {
               <div className="grid grid-cols-4 gap-4">
                 {[
                   { label: 'Revenue', value: '$284,392', color: 'text-[var(--foreground)]' },
-                  { label: 'Leakage Detected', value: '$12,847', color: 'text-[var(--leak)]' },
+                  { label: 'Leakage Detected', value: '$12,847', color: 'text-[var(--leak)]', hasGlow: true },
                   { label: 'Recovered', value: '$9,234', color: 'text-[var(--profit)]' },
                   { label: 'Active Alerts', value: '7', color: 'text-amber-400' },
                 ].map((stat, i) => (
-                  <div key={i} className="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]">
+                  <div
+                    key={i}
+                    className="p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]"
+                    style={stat.hasGlow ? { boxShadow: '0 0 30px rgba(255, 87, 51, 0.2)' } : {}}
+                  >
                     <p className="text-xs text-gray-500">{stat.label}</p>
                     <p className={`text-xl font-bold mt-1 ${stat.color}`}>{stat.value}</p>
                   </div>
@@ -155,6 +160,7 @@ export function Hero() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.8 }}
             className="absolute -left-4 top-1/4 p-4 rounded-xl bg-[var(--card)] border border-[var(--border)] shadow-xl hidden lg:block"
+            style={{ boxShadow: '0 0 30px rgba(255, 87, 51, 0.2)' }}
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-[var(--leak)]/20 flex items-center justify-center">

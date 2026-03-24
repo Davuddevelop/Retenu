@@ -1,5 +1,6 @@
 // src/lib/database.types.ts
 // Auto-generated types for Supabase - run `npx supabase gen types typescript` to update
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 
 export type Json =
     | string

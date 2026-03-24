@@ -18,6 +18,7 @@ describe('Calculation Engine', () => {
         organization_id: 'org-1',
         default_internal_hourly_rate: 100,
         default_internal_cost_rate: 50,
+        currency: 'USD',
         margin_warning_threshold_percent: 30,
         underbilling_threshold_percent: 5,
         scope_creep_threshold_percent: 10,
@@ -29,13 +30,14 @@ describe('Calculation Engine', () => {
         id: 'client-1',
         organization_id: 'org-1',
         name: 'Test Client',
-        email: 'test@example.com',
-        status: 'active',
         agreed_monthly_retainer: 1000,
+        agreed_deliverables: '',
         hour_limit: 10,
         custom_hourly_rate: null,
         custom_cost_rate: null,
         custom_margin_threshold: null,
+        start_date: new Date().toISOString(),
+        status: 'active',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
     };
@@ -66,7 +68,7 @@ describe('Calculation Engine', () => {
             // Actual is $1000 (retainer).
             // Underbilling should be $1000.
             const timeEntries: TimeEntry[] = [
-                { id: '1', client_id: 'client-1', organization_id: 'org-1', user_id: 'u1', hours: 20, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
+                { id: '1', client_id: 'client-1', organization_id: 'org-1', team_member: 'Test User', hours: 20, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
             ];
             const invoices: Invoice[] = []; // Only retainer counts
 
@@ -84,7 +86,7 @@ describe('Calculation Engine', () => {
             // Retainer: $1000.
             // No underbilling (actual revenue $1000 covers the $800 work).
             const timeEntries: TimeEntry[] = [
-                { id: '1', client_id: 'client-1', organization_id: 'org-1', user_id: 'u1', hours: 8, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
+                { id: '1', client_id: 'client-1', organization_id: 'org-1', team_member: 'Test User', hours: 8, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
             ];
             const underbilling = calculateUnderbilling(mockClient, null, timeEntries, [], mockSettings, periodStart, periodEnd);
             expect(underbilling).toBe(0);
@@ -96,7 +98,7 @@ describe('Calculation Engine', () => {
             // Retainer = $500.
             // Difference = $500.
             const timeEntries: TimeEntry[] = [
-                { id: '1', client_id: 'client-1', organization_id: 'org-1', user_id: 'u1', hours: 10, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
+                { id: '1', client_id: 'client-1', organization_id: 'org-1', team_member: 'Test User', hours: 10, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
             ];
             const underbilling = calculateUnderbilling(clientNoLimit, null, timeEntries, [], mockSettings, periodStart, periodEnd);
             expect(underbilling).toBe(500);
@@ -108,7 +110,7 @@ describe('Calculation Engine', () => {
             // Limit 10h. Work 15h.
             // Excess 5h * $100 = $500 scope creep.
             const timeEntries: TimeEntry[] = [
-                { id: '1', client_id: 'client-1', organization_id: 'org-1', user_id: 'u1', hours: 15, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
+                { id: '1', client_id: 'client-1', organization_id: 'org-1', team_member: 'Test User', hours: 15, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
             ];
             const creep = calculateScopeCreep(mockClient, null, timeEntries, mockSettings, periodStart, periodEnd);
             expect(creep).toBe(500);
@@ -118,7 +120,7 @@ describe('Calculation Engine', () => {
             // Limit 10h. Threshold 10% (starts at 11h).
             // Work 10.5h -> Should be 0 creep.
             const timeEntries: TimeEntry[] = [
-                { id: '1', client_id: 'client-1', organization_id: 'org-1', user_id: 'u1', hours: 10.5, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
+                { id: '1', client_id: 'client-1', organization_id: 'org-1', team_member: 'Test User', hours: 10.5, description: 'Work', date: midMonthDate, billable: true, created_at: '' }
             ];
             const creep = calculateScopeCreep(mockClient, null, timeEntries, mockSettings, periodStart, periodEnd);
             expect(creep).toBe(0);
@@ -133,7 +135,7 @@ describe('Calculation Engine', () => {
 
         it('should return 0 if any valid invoice exists', () => {
             const invoices: Invoice[] = [
-                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1000, status: 'pending', issue_date: midMonthDate, due_date: midMonthDate, created_at: '' }
+                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1000, status: 'pending', issue_date: midMonthDate, due_date: midMonthDate, paid_date: null, stripe_invoice_id: null, created_at: '' }
             ];
             const leakage = calculateMissingInvoices(mockClient, invoices, periodStart, periodEnd);
             expect(leakage).toBe(0);
@@ -144,7 +146,7 @@ describe('Calculation Engine', () => {
         it('should count overdue invoices past threshold', () => {
             const oldDate = format(subDays(new Date(), 30), 'yyyy-MM-dd');
             const invoices: Invoice[] = [
-                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1500, status: 'overdue', issue_date: oldDate, due_date: oldDate, created_at: '' }
+                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1500, status: 'overdue', issue_date: oldDate, due_date: oldDate, paid_date: null, stripe_invoice_id: null, created_at: '' }
             ];
             const leakage = calculateLatePayments(mockClient, invoices, mockSettings, new Date());
             expect(leakage).toBe(1500);
@@ -153,7 +155,7 @@ describe('Calculation Engine', () => {
         it('should not count invoices within threshold', () => {
             const recentDate = format(subDays(new Date(), 5), 'yyyy-MM-dd');
             const invoices: Invoice[] = [
-                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1500, status: 'overdue', issue_date: recentDate, due_date: recentDate, created_at: '' }
+                { id: 'inv-1', client_id: 'client-1', organization_id: 'org-1', amount: 1500, status: 'overdue', issue_date: recentDate, due_date: recentDate, paid_date: null, stripe_invoice_id: null, created_at: '' }
             ];
             const leakage = calculateLatePayments(mockClient, invoices, mockSettings, new Date());
             expect(leakage).toBe(0);

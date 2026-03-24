@@ -181,7 +181,7 @@ export function ROICalculator() {
             className="mt-4 text-lg text-gray-400"
           >
             Service businesses lose <span className="text-[var(--foreground)] font-semibold">4-10% of revenue</span> annually.
-            See exactly how much you're losing—and what you could recover.
+            See exactly how much you&apos;re losing—and what you could recover.
           </motion.p>
         </div>
 
@@ -496,7 +496,7 @@ export function ROICalculator() {
                     <Calculator className="w-16 h-16 text-gray-600 mx-auto mb-4 opacity-50" />
                     <p className="text-gray-500 text-lg">
                       Adjust your details and click<br />
-                      <span className="font-semibold text-[var(--foreground)]">"Calculate My Savings"</span><br />
+                      <span className="font-semibold text-[var(--foreground)]">&quot;Calculate My Savings&quot;</span><br />
                       to see your results
                     </p>
                   </div>

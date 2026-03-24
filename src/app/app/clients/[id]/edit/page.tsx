@@ -152,7 +152,7 @@ export default function EditClientPage() {
                 </div>
                 <div>
                     <h1 className="text-2xl font-bold text-[var(--foreground)]">Edit Client</h1>
-                    <p className="text-gray-400">Update {client.name}'s settings and financial configuration.</p>
+                    <p className="text-gray-400">Update {client.name}&apos;s settings and financial configuration.</p>
                 </div>
             </div>
 

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { useData } from '../../../providers/DataProvider';
 import { calculateClientMetrics, generateClientAlerts } from '../../../lib/calculations';
-import { Client, ClientMetrics, RevenueAlert, FinancialSettings, EMPTY_FINANCIAL_SETTINGS } from '../../../lib/types';
+import { ClientMetrics, RevenueAlert } from '../../../lib/types';
 import { TrendingUp, Clock, AlertTriangle, ShieldCheck, ArrowLeft, DollarSign, Edit } from 'lucide-react';
 import Link from 'next/link';
 import { DemoModeBanner } from '../../../components/EmptyStates';
@@ -102,7 +102,7 @@ export default function ClientDetailPage() {
         );
     }
 
-    const RiskScoreBadge = () => {
+    const renderRiskBadge = () => {
         if (alerts.length >= 2)
             return <span className="bg-red-500/20 text-red-500 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide">High Risk</span>;
         if (alerts.length === 1)
@@ -139,7 +139,7 @@ export default function ClientDetailPage() {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                     <div className="flex items-center gap-2">
-                        <RiskScoreBadge />
+                        {renderRiskBadge()}
                         <Link
                             href={`/app/clients/${clientId}/edit`}
                             className="p-2 text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)] rounded-lg transition-colors"

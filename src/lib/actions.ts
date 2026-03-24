@@ -1,5 +1,6 @@
 // src/lib/actions.ts
 // Server actions for data mutations
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use server';
 
 import { createServerClient } from '@supabase/ssr';

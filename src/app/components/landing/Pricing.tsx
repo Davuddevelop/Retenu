@@ -31,7 +31,7 @@ const plans = [
     billing: '/month',
     features: [
       'Up to 100 clients',
-      'AI-powered detection',
+      'Automated detection',
       'Real-time alerts',
       'Unlimited integrations',
       'Priority support',

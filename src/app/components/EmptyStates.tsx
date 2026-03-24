@@ -1,7 +1,7 @@
 // src/app/components/EmptyStates.tsx
 'use client';
 
-import { Users, FileText, Clock, Settings, AlertTriangle, TrendingUp, CreditCard, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Users, FileText, Clock, Settings, TrendingUp, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 
 interface EmptyStateProps {

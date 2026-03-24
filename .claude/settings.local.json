@@ -9,7 +9,9 @@
       "Bash(ping:*)",
       "WebFetch(domain:www.saasframe.io)",
       "Bash(npx tsc:*)",
-      "Bash(if not exist \"c:\\\\Users\\\\User\\\\Favorites\\\\RevenueLeak\\\\supabase\" mkdir \"c:\\\\Users\\\\User\\\\Favorites\\\\RevenueLeak\\\\supabase\")"
+      "Bash(if not exist \"c:\\\\Users\\\\User\\\\Favorites\\\\RevenueLeak\\\\supabase\" mkdir \"c:\\\\Users\\\\User\\\\Favorites\\\\RevenueLeak\\\\supabase\")",
+      "Bash(npm run lint:*)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }

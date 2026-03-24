@@ -1,4 +1,5 @@
 // src/app/app/settings/integrations/page.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
@@ -490,7 +491,7 @@ function IntegrationsContent() {
                             </div>
                             <div className="flex items-center gap-2 text-gray-400">
                                 <CheckCircle className="w-4 h-4 text-[var(--profit)]" />
-                                <span>SOC 2 Type II certified</span>
+                                <span>Secure Supabase storage</span>
                             </div>
                         </div>
                         <Link

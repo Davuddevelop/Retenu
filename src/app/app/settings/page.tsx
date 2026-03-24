@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, RefreshCw, DollarSign, AlertTriangle, Plug, ChevronRight, Sparkles } from 'lucide-react';
+import { Save, DollarSign, AlertTriangle, Plug, ChevronRight, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { FinancialSettings, EMPTY_FINANCIAL_SETTINGS } from '../../lib/types';
 import { dataStore } from '../../lib/dataStore';
@@ -54,7 +54,7 @@ export default function SettingsPage() {
             setSaveMessage('Settings saved successfully!');
 
             setTimeout(() => setSaveMessage(null), 3000);
-        } catch (error) {
+        } catch {
             setSaveMessage('Failed to save settings.');
         } finally {
             setIsSaving(false);
@@ -73,7 +73,7 @@ export default function SettingsPage() {
     const currencySymbol = CURRENCIES.find(c => c.value === settings.currency)?.symbol || '$';
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl">
+        <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl mx-auto">
             <div>
                 <h1 className="text-2xl font-bold text-[var(--foreground)]">Settings</h1>
                 <p className="text-gray-400 mt-1">Configure your financial assumptions and alert thresholds.</p>

@@ -64,7 +64,7 @@ const tutorialSteps: TutorialStep[] = [
     {
         id: 'complete',
         title: 'You\'re Ready to Start!',
-        description: 'Add your first client and start detecting revenue leaks. On average, agencies recover $47,000/year using RevenueLeak.',
+        description: 'Add your first client and start detecting revenue leaks. The system will analyze your data for unbilled hours, scope creep, and more.',
         page: '/app',
         position: 'center',
         icon: <Check className="w-6 h-6" />,
@@ -86,32 +86,58 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     useEffect(() => {
         // Navigate to the page for this step
         if (step.page && window.location.pathname !== step.page) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsNavigating(true);
             router.push(step.page);
             // Wait for navigation
-            setTimeout(() => {
+            const timer = setTimeout(() => {
                 setIsNavigating(false);
             }, 300);
+            return () => clearTimeout(timer);
         }
     }, [currentStep, step.page, router]);
 
     useEffect(() => {
         if (step.target && !isNavigating) {
-            // Wait a bit for the page to render
-            setTimeout(() => {
+            const updatePosition = () => {
                 const element = document.querySelector(step.target!);
                 if (element) {
                     const rect = element.getBoundingClientRect();
+
+                    // Use current viewport position
                     setHighlightPosition({
-                        top: rect.top + window.scrollY,
-                        left: rect.left + window.scrollX,
+                        top: rect.top,
+                        left: rect.left,
                         width: rect.width,
                         height: rect.height,
                     });
+                }
+            };
+
+            // Initial position update
+            setTimeout(() => {
+                updatePosition();
+                const element = document.querySelector(step.target!);
+                if (element) {
                     // Scroll element into view
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Update position after scroll completes
+                    setTimeout(updatePosition, 800);
                 }
-            }, 400);
+            }, 600);
+
+            // Update position on scroll and resize
+            const handleUpdate = () => {
+                requestAnimationFrame(updatePosition);
+            };
+
+            window.addEventListener('scroll', handleUpdate, true);
+            window.addEventListener('resize', handleUpdate);
+
+            return () => {
+                window.removeEventListener('scroll', handleUpdate, true);
+                window.removeEventListener('resize', handleUpdate);
+            };
         }
     }, [currentStep, step.target, isNavigating]);
 
@@ -140,6 +166,8 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
+                maxHeight: 'calc(100vh - 100px)',
+                overflowY: 'auto' as const,
             };
         }
 
@@ -147,51 +175,97 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
             position: 'fixed' as const,
         };
 
-        const padding = 20;
+        const padding = 24;
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        // Calculate position with boundary checks
+        let top = highlightPosition.top;
+        let left = highlightPosition.left;
+        let transform = '';
 
         switch (step.position) {
             case 'bottom':
-                return {
-                    ...baseStyle,
-                    top: `${highlightPosition.top + highlightPosition.height + padding}px`,
-                    left: `${highlightPosition.left + highlightPosition.width / 2}px`,
-                    transform: 'translateX(-50%)',
-                };
+                top = highlightPosition.top + highlightPosition.height + padding;
+                left = highlightPosition.left + highlightPosition.width / 2;
+                transform = 'translateX(-50%)';
+
+                // Check if tooltip would go off bottom of screen
+                if (top > viewportHeight - 300) {
+                    top = highlightPosition.top - padding;
+                    transform = 'translate(-50%, -100%)';
+                }
+                break;
             case 'top':
-                return {
-                    ...baseStyle,
-                    top: `${highlightPosition.top - padding}px`,
-                    left: `${highlightPosition.left + highlightPosition.width / 2}px`,
-                    transform: 'translate(-50%, -100%)',
-                };
+                top = highlightPosition.top - padding;
+                left = highlightPosition.left + highlightPosition.width / 2;
+                transform = 'translate(-50%, -100%)';
+
+                // Check if tooltip would go off top of screen
+                if (top < 100) {
+                    top = highlightPosition.top + highlightPosition.height + padding;
+                    transform = 'translateX(-50%)';
+                }
+                break;
             case 'right':
-                return {
-                    ...baseStyle,
-                    top: `${highlightPosition.top + highlightPosition.height / 2}px`,
-                    left: `${highlightPosition.left + highlightPosition.width + padding}px`,
-                    transform: 'translateY(-50%)',
-                };
+                top = highlightPosition.top + highlightPosition.height / 2;
+                left = highlightPosition.left + highlightPosition.width + padding;
+                transform = 'translateY(-50%)';
+
+                // Check if tooltip would go off right of screen
+                if (left > viewportWidth - 400) {
+                    left = highlightPosition.left - padding;
+                    transform = 'translate(-100%, -50%)';
+                }
+                break;
             case 'left':
-                return {
-                    ...baseStyle,
-                    top: `${highlightPosition.top + highlightPosition.height / 2}px`,
-                    left: `${highlightPosition.left - padding}px`,
-                    transform: 'translate(-100%, -50%)',
-                };
-            default:
-                return baseStyle;
+                top = highlightPosition.top + highlightPosition.height / 2;
+                left = highlightPosition.left - padding;
+                transform = 'translate(-100%, -50%)';
+
+                // Check if tooltip would go off left of screen
+                if (left < 100) {
+                    left = highlightPosition.left + highlightPosition.width + padding;
+                    transform = 'translateY(-50%)';
+                }
+                break;
         }
+
+        return {
+            ...baseStyle,
+            top: `${top}px`,
+            left: `${left}px`,
+            transform,
+            maxHeight: 'calc(100vh - 100px)',
+            overflowY: 'auto' as const,
+        };
     };
 
     return (
         <AnimatePresence>
-            <div className="fixed inset-0 z-50">
-                {/* Overlay */}
+            <div className="fixed inset-0 z-50 pointer-events-none">
+                {/* Overlay - allows clicks to pass through highlighted areas */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                    className="absolute inset-0 bg-black/70"
+                    style={{
+                        clipPath: step.target && highlightPosition.width > 0 && !isNavigating
+                            ? `polygon(
+                                0% 0%,
+                                0% 100%,
+                                ${highlightPosition.left - 8}px 100%,
+                                ${highlightPosition.left - 8}px ${highlightPosition.top - 8}px,
+                                ${highlightPosition.left + highlightPosition.width + 8}px ${highlightPosition.top - 8}px,
+                                ${highlightPosition.left + highlightPosition.width + 8}px ${highlightPosition.top + highlightPosition.height + 8}px,
+                                ${highlightPosition.left - 8}px ${highlightPosition.top + highlightPosition.height + 8}px,
+                                ${highlightPosition.left - 8}px 100%,
+                                100% 100%,
+                                100% 0%
+                            )`
+                            : 'none'
+                    }}
                 />
 
                 {/* Highlight area */}
@@ -202,27 +276,14 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                             initial={{ opacity: 0, scale: 0.95 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ duration: 0.3 }}
-                            className="absolute rounded-2xl"
+                            className="absolute rounded-2xl pointer-events-none"
                             style={{
                                 top: `${highlightPosition.top - 8}px`,
                                 left: `${highlightPosition.left - 8}px`,
                                 width: `${highlightPosition.width + 16}px`,
                                 height: `${highlightPosition.height + 16}px`,
-                                pointerEvents: 'none',
-                                boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 60px rgba(59, 130, 246, 0.3)',
-                            }}
-                        />
-
-                        {/* Clear spotlight */}
-                        <div
-                            className="absolute rounded-2xl"
-                            style={{
-                                top: `${highlightPosition.top}px`,
-                                left: `${highlightPosition.left}px`,
-                                width: `${highlightPosition.width}px`,
-                                height: `${highlightPosition.height}px`,
-                                pointerEvents: 'none',
-                                boxShadow: '0 0 0 9999px rgba(0, 0, 0, 0.5)',
+                                boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.4)',
+                                border: '2px solid rgba(59, 130, 246, 0.8)',
                             }}
                         />
                     </>
@@ -235,7 +296,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                     animate={{ opacity: 1, scale: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.3, delay: isNavigating ? 0.3 : 0 }}
-                    className="absolute max-w-lg w-full px-4"
+                    className="absolute max-w-lg w-full px-4 pointer-events-auto"
                     style={getTooltipPosition()}
                 >
                     <div className="bg-[var(--card)] border-2 border-[var(--border)] rounded-2xl p-6 shadow-2xl relative">
@@ -274,13 +335,12 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                                     {tutorialSteps.map((_, index) => (
                                         <div
                                             key={index}
-                                            className={`h-1.5 rounded-full transition-all duration-300 ${
-                                                index === currentStep
+                                            className={`h-1.5 rounded-full transition-all duration-300 ${index === currentStep
                                                     ? 'flex-1 bg-gradient-to-r from-[var(--leak)] to-orange-400'
                                                     : index < currentStep
-                                                    ? 'w-1.5 bg-[var(--profit)]'
-                                                    : 'w-1.5 bg-[var(--border)]'
-                                            }`}
+                                                        ? 'w-1.5 bg-[var(--profit)]'
+                                                        : 'w-1.5 bg-[var(--border)]'
+                                                }`}
                                         />
                                     ))}
                                 </div>
@@ -388,8 +448,8 @@ export function WelcomeModal({ onStart, onSkip }: WelcomeModalProps) {
                             },
                             {
                                 icon: <TrendingUp className="w-5 h-5" />,
-                                title: '$47K Average Recovery',
-                                text: 'Agencies recover $47,000/year on average'
+                                title: 'Find Hidden Revenue',
+                                text: 'Detect 4-10% of revenue typically lost to billing gaps'
                             },
                         ].map((feature, index) => (
                             <div key={index} className="flex items-start gap-4">
@@ -430,16 +490,29 @@ export function WelcomeModal({ onStart, onSkip }: WelcomeModalProps) {
 export function useTutorial() {
     const [showWelcome, setShowWelcome] = useState(false);
     const [showTutorial, setShowTutorial] = useState(false);
+    const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
+        // Only run once on mount
+        if (initialized) return;
+
         // Check if user has seen tutorial
         const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
-        if (!hasSeenTutorial) {
+        const isGuestMode = document.cookie.includes('guest_mode=true');
+
+        // For guest mode, check a separate flag
+        const guestHasSeenTutorial = isGuestMode && sessionStorage.getItem('guestSeenTutorial');
+
+        if (!hasSeenTutorial && !guestHasSeenTutorial) {
             // Small delay to let page load
             setTimeout(() => {
                 setShowWelcome(true);
             }, 500);
         }
+
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setInitialized(true);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const startTutorial = () => {
@@ -449,13 +522,27 @@ export function useTutorial() {
 
     const completeTutorial = () => {
         setShowTutorial(false);
-        localStorage.setItem('hasSeenTutorial', 'true');
+        const isGuestMode = document.cookie.includes('guest_mode=true');
+
+        if (isGuestMode) {
+            // For guest mode, use sessionStorage so it persists during the session
+            sessionStorage.setItem('guestSeenTutorial', 'true');
+        } else {
+            // For regular users, use localStorage for permanent storage
+            localStorage.setItem('hasSeenTutorial', 'true');
+        }
     };
 
     const skipTutorial = () => {
         setShowWelcome(false);
         setShowTutorial(false);
-        localStorage.setItem('hasSeenTutorial', 'true');
+        const isGuestMode = document.cookie.includes('guest_mode=true');
+
+        if (isGuestMode) {
+            sessionStorage.setItem('guestSeenTutorial', 'true');
+        } else {
+            localStorage.setItem('hasSeenTutorial', 'true');
+        }
     };
 
     const replayTutorial = () => {

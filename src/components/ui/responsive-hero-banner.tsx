@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
 interface NavLink {
     label: string;
@@ -33,7 +35,7 @@ interface ResponsiveHeroBannerProps {
 }
 
 const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
-    backgroundImageUrl = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=3840&auto=format&fit=crop",
+    // backgroundImageUrl is defined in props interface for future use
     navLinks = [
         { label: "Features", href: "#features" },
         { label: "Pricing", href: "#pricing" },
@@ -43,10 +45,10 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     ctaButtonText = "Get Started",
     ctaButtonHref = "/login",
     badgeLabel = "New",
-    badgeText = "AI-Powered Revenue Leak Detection",
+    badgeText = "Automated Revenue Leak Detection",
     title = "Stop Losing Revenue",
     titleLine2 = "Before It's Too Late",
-    description = "RevenueLeak automatically detects billing errors, undercharging, and missed invoices in real-time. Agencies recover an average of $47,000/year in lost revenue.",
+    description = "RevenueLeak detects billing errors, undercharging, and missed invoices in real-time. Find the 4-10% of revenue agencies typically lose.",
     primaryButtonText = "Start Free Trial",
     primaryButtonHref = "/login",
     secondaryButtonText = "Watch Demo",
@@ -64,35 +66,23 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
 
     return (
         <section className="w-full isolate min-h-screen overflow-hidden relative">
-            {/* Background Image */}
-            <img
-                src={backgroundImageUrl}
-                alt="Background"
-                className="w-full h-full object-cover absolute top-0 right-0 bottom-0 left-0"
-            />
-            {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/60 to-black/80" />
-            <div className="pointer-events-none absolute inset-0 ring-1 ring-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/90 to-black pointer-events-none" />
+            <div className="pointer-events-none absolute inset-0 ring-1 ring-white/10" />
 
             {/* Header */}
             <header className="z-10 xl:top-4 relative">
                 <div className="mx-6">
                     <div className="flex items-center justify-between pt-4">
                         {/* Logo */}
-                        <a
+                        <Link
                             href="/"
                             className="inline-flex items-center justify-center gap-2"
                         >
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--leak)] to-orange-500 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-                                    <line x1="12" x2="12" y1="2" y2="22" />
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                                </svg>
-                            </div>
+                            <Image src="/logo.png" alt="RevenueLeak Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-xl shadow-lg" />
                             <span className="text-xl font-bold text-white">
                                 RevenueLeak
                             </span>
-                        </a>
+                        </Link>
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex items-center gap-2">

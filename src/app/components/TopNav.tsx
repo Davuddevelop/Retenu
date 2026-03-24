@@ -4,17 +4,9 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { User, Bell, Calendar, TrendingUp, AlertTriangle, Clock, Menu, X, LayoutDashboard, Users, CreditCard, Settings, Plug, Play, ArrowRight } from 'lucide-react';
-import { ExpandableTabs } from '@/components/ui/expandable-tabs';
+import Image from 'next/image';
+import { User, Bell, AlertTriangle, Clock, Menu, X, LayoutDashboard, Users, CreditCard, Settings, Plug, Play, ArrowRight } from 'lucide-react';
 import { useAuth } from '../providers/AuthProvider';
-
-const viewTabs = [
-    { title: 'Today', icon: Clock },
-    { title: 'This Week', icon: Calendar },
-    { type: 'separator' as const },
-    { title: 'Trending', icon: TrendingUp },
-    { title: 'Alerts', icon: AlertTriangle },
-];
 
 const navItems = [
     { href: '/app', label: 'Dashboard', icon: LayoutDashboard },
@@ -120,21 +112,15 @@ export default function TopNav() {
                     </button>
 
                     {/* Logo on mobile */}
-                    <Link href="/app" className="md:hidden text-lg font-bold tracking-tight text-[var(--foreground)]">
+                    <Link href="/app" className="md:hidden flex items-center gap-2 text-lg font-bold tracking-tight text-[var(--foreground)]">
+                        <Image src="/logo.png" alt="RevenueLeak Logo" width={24} height={24} className="h-6 w-6 object-contain" />
                         RevenueLeak
                     </Link>
 
                     {/* Page title on desktop */}
                     <h2 className="hidden md:block text-lg font-semibold text-[var(--foreground)] tracking-tight">{getPageTitle()}</h2>
 
-                    {/* Expandable Tabs for view switching */}
-                    <div className="hidden lg:block">
-                        <ExpandableTabs
-                            tabs={viewTabs}
-                            activeColor="text-[var(--neutral-metric)]"
-                            onChange={(index) => console.log('Selected tab:', index)}
-                        />
-                    </div>
+
                 </div>
 
                 <div className="flex items-center gap-3 md:gap-4">
@@ -150,25 +136,24 @@ export default function TopNav() {
 
             {/* Mobile Navigation Overlay */}
             <div
-                className={`md:hidden fixed inset-0 z-10 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${
-                    mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
+                className={`md:hidden fixed inset-0 z-10 bg-black/50 backdrop-blur-sm transition-opacity duration-200 ${mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                    }`}
                 onClick={() => setMobileMenuOpen(false)}
             />
 
             {/* Mobile Navigation Drawer - Side Slide */}
             <nav
-                className={`md:hidden fixed top-0 left-0 bottom-0 w-72 z-20 bg-[var(--card)] border-r border-[var(--border)] transform transition-transform duration-300 ease-out ${
-                    mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-                }`}
+                className={`md:hidden fixed top-0 left-0 bottom-0 w-72 z-20 bg-[var(--card)] border-r border-[var(--border)] transform transition-transform duration-300 ease-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                    }`}
             >
                 {/* Mobile Header */}
                 <div className="h-16 flex items-center justify-between px-6 border-b border-[var(--border)]">
                     <Link
                         href="/app"
                         onClick={() => setMobileMenuOpen(false)}
-                        className="text-xl font-bold tracking-tight text-[var(--foreground)]"
+                        className="flex items-center gap-2 text-xl font-bold tracking-tight text-[var(--foreground)]"
                     >
+                        <Image src="/logo.png" alt="RevenueLeak Logo" width={24} height={24} className="h-6 w-6 object-contain" />
                         RevenueLeak
                     </Link>
                     <button
@@ -190,11 +175,10 @@ export default function TopNav() {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                                    active
-                                        ? 'bg-[var(--background)] text-[var(--foreground)]'
-                                        : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
-                                }`}
+                                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${active
+                                    ? 'bg-[var(--background)] text-[var(--foreground)]'
+                                    : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
+                                    }`}
                             >
                                 <Icon className={`w-5 h-5 ${active ? 'text-[var(--neutral-metric)]' : ''}`} />
                                 {item.label}
@@ -213,11 +197,10 @@ export default function TopNav() {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
-                                    active
-                                        ? 'bg-[var(--background)] text-[var(--foreground)]'
-                                        : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
-                                }`}
+                                className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-lg transition-colors ${active
+                                    ? 'bg-[var(--background)] text-[var(--foreground)]'
+                                    : 'text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)]'
+                                    }`}
                             >
                                 <Icon className={`w-5 h-5 ${active ? 'text-[var(--neutral-metric)]' : ''}`} />
                                 {item.label}

@@ -1,9 +1,9 @@
 "use client"
 
-import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { UserCircle2 } from "lucide-react"
 
 export default function SplitLoginCard() {
     return (
@@ -12,12 +12,7 @@ export default function SplitLoginCard() {
             {/* Left Side: Welcome + Illustration */}
             <div className="md:w-1/2 bg-[#8371F5] dark:bg-blue-600 text-white flex flex-col items-center justify-center p-8">
                 <h2 className="text-3xl font-bold mb-4">Welcome Back!</h2>
-                <p className="mb-6 text-center">Sign in to continue to your dashboard and enjoy seamless experience.</p>
-                <img
-                    src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=400&h=400"
-                    alt="Login Illustration"
-                    className="w-48 h-48 mt-4 rounded-2xl object-cover shadow-2xl border-4 border-white/10"
-                />
+                <UserCircle2 className="w-32 h-32 mt-8 text-white/90 stroke-[1.5]" />
             </div>
 
             {/* Right Side: Login Form */}

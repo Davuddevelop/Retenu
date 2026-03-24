@@ -6,7 +6,7 @@ import { cookies } from 'next/headers';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummyKeyForBuild', {
-    apiVersion: '2026-02-25.clover' as any,
+    apiVersion: '2025-02-24.acacia' as Stripe.LatestApiVersion,
 });
 
 function getSupabaseAdmin() {

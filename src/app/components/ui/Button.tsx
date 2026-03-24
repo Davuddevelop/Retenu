@@ -16,7 +16,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 
     const variants = {
       primary:
-        'bg-[var(--foreground)] text-[var(--card)] hover:bg-white/90 active:bg-white/80 focus:ring-[var(--foreground)]',
+        'bg-gradient-to-r from-[#FF5733] to-[#FF8C00] text-white hover:brightness-110 active:brightness-95 focus:ring-[#FF5733] shadow-lg shadow-[#FF5733]/20 transition-all',
       secondary:
         'bg-[var(--neutral-metric)] text-white hover:bg-[var(--neutral-metric)]/80 active:bg-[var(--neutral-metric)]/70 focus:ring-[var(--neutral-metric)]',
       outline:

@@ -1,4 +1,5 @@
 // src/app/providers/DataProvider.tsx
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';

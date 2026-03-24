@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronRight } from 'lucide-react';
@@ -20,13 +21,11 @@ export function Navbar() {
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--card)]/80 backdrop-blur-xl">
+        <div className="mt-4 rounded-2xl border border-white/10 bg-[var(--card)]/80 backdrop-blur-md shadow-lg shadow-black/10">
           <div className="flex h-16 items-center justify-between px-6">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--leak)] to-orange-500">
-                <span className="text-sm font-bold text-white">R</span>
-              </div>
+              <Image src="/logo.png" alt="RevenueLeak Logo" width={32} height={32} className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
                 RevenueLeak
               </span>

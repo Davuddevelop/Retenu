@@ -28,7 +28,7 @@ export default function PrivacyPolicy() {
                             <Shield className="w-5 h-5 text-[var(--profit)]" />
                             <div>
                                 <p className="text-xs text-gray-500">Security</p>
-                                <p className="text-sm font-semibold text-[var(--foreground)]">SOC 2 Type II</p>
+                                <p className="text-sm font-semibold text-[var(--foreground)]">Supabase Hosted</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-4 rounded-xl bg-[var(--background)] border border-[var(--border)]">
@@ -69,7 +69,7 @@ export default function PrivacyPolicy() {
                                 <div>
                                     <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">Your Security is Our Priority</h2>
                                     <p className="text-gray-400 leading-relaxed">
-                                        At RevenueLeak, we understand that you're trusting us with sensitive financial data and API credentials.
+                                        At RevenueLeak, we understand that you&apos;re trusting us with sensitive financial data and API credentials.
                                         We take this responsibility extremely seriously and have built enterprise-grade security into every aspect of our platform.
                                     </p>
                                 </div>
@@ -127,10 +127,10 @@ export default function PrivacyPolicy() {
                             <div className="flex items-start gap-3">
                                 <CheckCircle className="w-5 h-5 text-[var(--profit)] mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <h3 className="font-semibold text-[var(--foreground)] mb-1">You're In Control</h3>
+                                    <h3 className="font-semibold text-[var(--foreground)] mb-1">You&apos;re In Control</h3>
                                     <p className="text-gray-400">
                                         You can revoke access at any time. Simply disconnect the integration in your settings,
-                                        and we'll immediately delete all associated credentials from our systems.
+                                        and we&apos;ll immediately delete all associated credentials from our systems.
                                     </p>
                                 </div>
                             </div>
@@ -138,10 +138,10 @@ export default function PrivacyPolicy() {
                             <div className="flex items-start gap-3">
                                 <CheckCircle className="w-5 h-5 text-[var(--profit)] mt-0.5 flex-shrink-0" />
                                 <div>
-                                    <h3 className="font-semibold text-[var(--foreground)] mb-1">Regular Security Audits</h3>
+                                    <h3 className="font-semibold text-[var(--foreground)] mb-1">Security Practices</h3>
                                     <p className="text-gray-400">
-                                        Our security practices are regularly audited by third-party security firms.
-                                        We maintain SOC 2 Type II compliance and follow industry best practices.
+                                        Your data is stored securely via Supabase (which maintains SOC 2 compliance).
+                                        We follow security best practices but have not completed independent security audits yet.
                                     </p>
                                 </div>
                             </div>
@@ -220,26 +220,26 @@ export default function PrivacyPolicy() {
                         </ul>
                     </section>
 
-                    {/* Compliance */}
+                    {/* Data Practices */}
                     <section className="mb-12">
-                        <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">Compliance & Certifications</h2>
-                        <p className="text-gray-400 mb-4">RevenueLeak complies with:</p>
+                        <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">Our Data Practices</h2>
+                        <p className="text-gray-400 mb-4">What we commit to:</p>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
-                                <h3 className="font-semibold text-[var(--foreground)] mb-2">GDPR</h3>
-                                <p className="text-sm text-gray-400">EU General Data Protection Regulation</p>
+                                <h3 className="font-semibold text-[var(--foreground)] mb-2">Data Ownership</h3>
+                                <p className="text-sm text-gray-400">Your data belongs to you. Export or delete anytime.</p>
                             </div>
                             <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
-                                <h3 className="font-semibold text-[var(--foreground)] mb-2">CCPA</h3>
-                                <p className="text-sm text-gray-400">California Consumer Privacy Act</p>
+                                <h3 className="font-semibold text-[var(--foreground)] mb-2">No Data Sales</h3>
+                                <p className="text-sm text-gray-400">We never sell or share your data with third parties.</p>
                             </div>
                             <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
-                                <h3 className="font-semibold text-[var(--foreground)] mb-2">SOC 2 Type II</h3>
-                                <p className="text-sm text-gray-400">Security & Availability Controls</p>
+                                <h3 className="font-semibold text-[var(--foreground)] mb-2">Secure Storage</h3>
+                                <p className="text-sm text-gray-400">Data hosted on Supabase with encryption at rest.</p>
                             </div>
                             <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
-                                <h3 className="font-semibold text-[var(--foreground)] mb-2">ISO 27001</h3>
-                                <p className="text-sm text-gray-400">Information Security Management</p>
+                                <h3 className="font-semibold text-[var(--foreground)] mb-2">Early Stage</h3>
+                                <p className="text-sm text-gray-400">We&apos;re in beta. No formal security certifications yet.</p>
                             </div>
                         </div>
                     </section>

@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { useAuth } from '../../providers/AuthProvider';
 import { useRouter } from 'next/navigation';
-import { Loader2, Mail, Lock, User, Building2, ArrowRight, DollarSign } from 'lucide-react';
+import Image from 'next/image';
+import { Loader2, ArrowRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,7 +26,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function LoginPage() {
-    const { signIn, signUp, signInWithGoogle, signInAsGuest } = useAuth();
+    const { signIn, signUp, signInWithGoogle } = useAuth();
     const router = useRouter();
 
     // UI State
@@ -84,9 +85,7 @@ export default function LoginPage() {
                 {/* Logo & Header */}
                 <div className="text-center mb-10">
                     <Link href="/" className="inline-flex items-center justify-center gap-3 mb-8">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--leak)] to-orange-500 flex items-center justify-center">
-                            <DollarSign className="w-7 h-7 text-white" />
-                        </div>
+                        <Image src="/logo.png" alt="RevenueLeak Logo" width={48} height={48} className="h-12 w-12 object-contain shadow-lg rounded-xl" />
                         <span className="text-2xl font-bold text-[var(--foreground)]">
                             RevenueLeak
                         </span>

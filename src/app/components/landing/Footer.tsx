@@ -1,6 +1,5 @@
-// src/app/components/landing/Footer.tsx
+import { Github, Twitter, Linkedin } from 'lucide-react';
 import Link from 'next/link';
-import { Github, Linkedin, Twitter } from 'lucide-react';
 
 const footerLinks = {
   Product: [
@@ -44,16 +43,14 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[var(--leak)] to-orange-500">
-                <span className="text-sm font-bold text-white">R</span>
-              </div>
+              <img src="/logo.png" alt="RevenueLeak Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
                 RevenueLeak
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-500 max-w-xs">
               Detect hidden revenue loss and maximize your agency&apos;s profitability
-              with AI-powered leak detection.
+              with automated leak detection.
             </p>
             {/* Social Links */}
             <div className="mt-6 flex gap-4">

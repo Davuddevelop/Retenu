@@ -11,32 +11,32 @@ const faqs = [
   {
     question: 'How does RevenueLeak detect billing errors?',
     answer:
-      'Our AI-powered engine analyzes your billing data, contracts, time tracking, and invoicing patterns. It compares expected vs. actual billing, identifies anomalies, and flags potential issues like undercharging, missed invoices, scope creep without billing adjustments, and more.',
+      'Our detection engine compares your time tracking data against invoices to find gaps. It checks for unbilled hours, clients exceeding their hour limits, overdue invoices, and months without invoices. Simple logic that catches real problems.',
   },
   {
     question: 'How long does setup take?',
     answer:
-      'Most agencies are up and running in under 5 minutes. Simply connect your billing and invoicing platforms through our secure OAuth integrations, and our AI starts analyzing immediately. No technical expertise required.',
+      'About 5 minutes. Add your clients, import time entries (CSV upload or manual), and add your invoices. The system immediately starts analyzing for issues. No technical expertise required.',
   },
   {
     question: 'What integrations do you support?',
     answer:
-      'We integrate with 50+ platforms including Stripe, QuickBooks, Xero, FreshBooks, HubSpot, Salesforce, Harvest, Toggl, and many more. Can\'t find yours? Contact us - we\'re adding new integrations weekly.',
+      'Currently: CSV import for time entries, Toggl (in progress), and Stripe for payments. More integrations are on the roadmap based on user requests.',
   },
   {
     question: 'Is my financial data secure?',
     answer:
-      'Absolutely. We\'re SOC 2 Type II certified, use bank-level encryption (AES-256), and never store raw financial data. All connections use read-only API access. Your data is never sold or shared.',
+      'Data is stored via Supabase with encryption. You can export or delete all your data anytime. We don\'t sell or share your data. Note: We\'re an early-stage product without formal security certifications yet.',
   },
   {
-    question: 'What\'s the average ROI?',
+    question: 'How much can I recover?',
     answer:
-      'Agencies typically recover 3-5% of their annual revenue, with an average of $47,000 per year. Most customers see positive ROI within the first month, often within the first week.',
+      'Industry research suggests agencies lose 4-10% of revenue to billing issues. Actual recovery depends on your specific situation. Try the demo with your real data to see what it finds.',
   },
   {
     question: 'Can I try it before committing?',
     answer:
-      'Yes! We offer a 14-day free trial with full access to all features. No credit card required. If you\'re not satisfied, there\'s also a 30-day money-back guarantee on all paid plans.',
+      'Yes! The demo mode lets you explore with sample data immediately. You can also use it with your own data completely free during beta.',
   },
 ];
 

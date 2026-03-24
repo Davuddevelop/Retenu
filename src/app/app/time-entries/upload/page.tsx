@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+// Router available for future navigation needs
 import Link from 'next/link';
 import { ArrowLeft, Upload, FileText, CheckCircle2, XCircle, AlertTriangle, Download } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
@@ -21,7 +21,6 @@ interface ParsedRow {
 }
 
 export default function UploadTimeEntriesPage() {
-    const router = useRouter();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [clients, setClients] = useState<Client[]>([]);
     const [file, setFile] = useState<File | null>(null);
@@ -310,7 +309,7 @@ export default function UploadTimeEntriesPage() {
                             </div>
                             <div>
                                 <p className="font-medium text-[var(--foreground)]">team_member</p>
-                                <p className="text-gray-500">Optional, defaults to "Unknown"</p>
+                                <p className="text-gray-500">Optional, defaults to &quot;Unknown&quot;</p>
                             </div>
                             <div>
                                 <p className="font-medium text-[var(--foreground)]">billable</p>

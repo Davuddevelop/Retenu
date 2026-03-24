@@ -1,24 +1,24 @@
 // src/app/api/auth/stripe/connect/route.ts
 // Initiates Stripe Connect OAuth flow
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 const STRIPE_CLIENT_ID = process.env.STRIPE_CLIENT_ID || '';
 const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/stripe/callback`;
 
-function getSupabaseAdmin() {
-    return createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-        {
-            auth: {
-                autoRefreshToken: false,
-                persistSession: false,
-            },
-        }
-    );
-}
+// Supabase admin client for future use
+// function getSupabaseAdmin() {
+//     return createClient(
+//         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+//         process.env.SUPABASE_SERVICE_ROLE_KEY || '',
+//         {
+//             auth: {
+//                 autoRefreshToken: false,
+//                 persistSession: false,
+//             },
+//         }
+//     );
+// }
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);

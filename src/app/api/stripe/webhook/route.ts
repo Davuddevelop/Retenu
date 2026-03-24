@@ -5,8 +5,39 @@ import { headers } from 'next/headers';
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
+// Structured logging helper
+interface LogContext {
+    eventId?: string;
+    eventType?: string;
+    organizationId?: string;
+    connectedAccountId?: string;
+    ip?: string;
+    duration?: number;
+    error?: unknown;
+    [key: string]: unknown;
+}
+
+function log(level: 'info' | 'warn' | 'error', message: string, context?: LogContext) {
+    const timestamp = new Date().toISOString();
+    const logEntry = {
+        timestamp,
+        level,
+        message,
+        service: 'stripe-webhook',
+        ...context,
+    };
+
+    if (level === 'error') {
+        console.error(JSON.stringify(logEntry));
+    } else if (level === 'warn') {
+        console.warn(JSON.stringify(logEntry));
+    } else {
+        console.log(JSON.stringify(logEntry));
+    }
+}
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummyKeyForBuild', {
-    apiVersion: '2026-02-25.clover' as any,
+    apiVersion: '2025-02-24.acacia' as Stripe.LatestApiVersion,
 });
 
 // We support two webhook secrets:
@@ -48,17 +79,20 @@ function getSupabaseAdmin() {
 }
 
 export async function POST(req: Request) {
+    const startTime = Date.now();
     const body = await req.text();
     const headersList = await headers();
     const signature = headersList.get('stripe-signature');
+    const ip = headersList.get('x-forwarded-for') || 'unknown';
 
     if (!signature) {
+        log('warn', 'Webhook request missing signature', { ip });
         return NextResponse.json({ error: 'Missing signature' }, { status: 400 });
     }
 
     // Basic Rate Limiting
-    const ip = headersList.get('x-forwarded-for') || 'unknown';
     if (!checkRateLimit(ip)) {
+        log('warn', 'Rate limit exceeded', { ip });
         return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
@@ -68,6 +102,7 @@ export async function POST(req: Request) {
     const secrets = [connectWebhookSecret, webhookSecret].filter(Boolean);
 
     if (secrets.length === 0) {
+        log('error', 'No webhook secret configured', { ip });
         return NextResponse.json({ error: 'No webhook secret configured' }, { status: 500 });
     }
 
@@ -84,21 +119,30 @@ export async function POST(req: Request) {
     }
 
     if (!verified) {
-        console.error('Webhook signature verification failed with all secrets');
+        log('error', 'Webhook signature verification failed', { ip, secretsAttempted: secrets.length });
         return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
 
     // TypeScript needs this assertion after the loop
     event = event!;
 
+    const eventId = event.id;
+    const eventType = event.type;
+    const connectedAccountId = event.account;
+
+    log('info', 'Webhook event received', {
+        eventId,
+        eventType,
+        connectedAccountId,
+        ip,
+    });
+
     const supabase = getSupabaseAdmin();
+    let organizationId: string | null = null;
 
     try {
         // For Connect webhooks, event.account contains the connected account ID
         // We use this to find the organization
-        const connectedAccountId = event.account;
-
-        let organizationId: string | null = null;
 
         if (connectedAccountId) {
             // This is a Connect webhook - find org by stripe_user_id
@@ -128,10 +172,21 @@ export async function POST(req: Request) {
         }
 
         if (!organizationId) {
-            console.log('No matching organization found for Stripe event');
+            log('warn', 'No matching organization found', {
+                eventId,
+                eventType,
+                connectedAccountId,
+            });
             // Return 200 to acknowledge receipt even if we can't process
             return NextResponse.json({ received: true, processed: false });
         }
+
+        log('info', 'Processing webhook event', {
+            eventId,
+            eventType,
+            organizationId,
+            connectedAccountId,
+        });
 
         // Process the event
         switch (event.type) {
@@ -167,12 +222,32 @@ export async function POST(req: Request) {
                 break;
             }
             default:
-                console.log(`Unhandled event type: ${event.type}`);
+                log('info', 'Unhandled event type', { eventId, eventType, organizationId });
         }
+
+        const duration = Date.now() - startTime;
+        log('info', 'Webhook processed successfully', {
+            eventId,
+            eventType,
+            organizationId,
+            duration,
+        });
 
         return NextResponse.json({ received: true, processed: true });
     } catch (error) {
-        console.error('Error processing webhook:', error);
+        const duration = Date.now() - startTime;
+        log('error', 'Error processing webhook', {
+            eventId,
+            eventType,
+            organizationId: organizationId || undefined,
+            connectedAccountId,
+            duration,
+            error: error instanceof Error ? {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+            } : String(error),
+        });
         return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
     }
 }
@@ -257,10 +332,10 @@ async function handleInvoiceCreated(
         if (clientId) {
             await supabase.from('invoices').insert(invoiceData);
         } else {
-            console.log('Skipping invoice insert - no matching client found for:', {
+            log('warn', 'Skipping invoice insert - no matching client found', {
                 invoiceId: invoice.id,
-                customerEmail,
-                customerName,
+                customerEmail: customerEmail || undefined,
+                customerName: customerName || undefined,
             });
         }
     }

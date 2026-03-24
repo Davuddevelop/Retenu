@@ -161,7 +161,7 @@ export default function TermsOfService() {
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">8. Limitation of Liability</h2>
                         <p className="text-gray-400 mb-4">
-                            RevenueLeak is provided "as is" without warranties of any kind. To the maximum extent permitted by law:
+                            RevenueLeak is provided &quot;as is&quot; without warranties of any kind. To the maximum extent permitted by law:
                         </p>
                         <ul className="list-disc list-inside text-gray-400 space-y-2">
                             <li>We are not liable for any indirect, incidental, or consequential damages</li>
