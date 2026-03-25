@@ -79,7 +79,7 @@ const y = useTransform(scrollYProgress, [0, 1], [0, -100]);
 - Default border-radius on everything
 - Generic blue/purple color schemes
 
-## RevenueLeak Brand Guidelines
+## Obsidian Brand Guidelines
 - Primary accent: Orange gradient `from-[#FF5733] to-[#FF8C00]`
 - Background: Deep charcoal `#0D0D0D` to `#1A1A1A`
 - Glass effects: `bg-white/5 backdrop-blur-md`

@@ -160,6 +160,9 @@ export type DashboardMetrics = {
     total_cost: number;
     total_margin: number;
     margin_percent: number;
+    // Hours
+    total_hours: number;
+    billable_hours: number;
     // Leakage
     total_estimated_leakage: number;
     leakage_by_type: Record<AlertType, number>;
@@ -212,6 +215,8 @@ export const EMPTY_DASHBOARD_METRICS: DashboardMetrics = {
     total_cost: 0,
     total_margin: 0,
     margin_percent: 0,
+    total_hours: 0,
+    billable_hours: 0,
     total_estimated_leakage: 0,
     leakage_by_type: {
         underbilling: 0,

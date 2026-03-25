@@ -34,11 +34,11 @@ export function ROICalculator() {
 
   const [showResults, setShowResults] = useState(false);
 
-  // Calculate potential revenue leaks based on industry averages
+  // Calculate potential Obsidians based on industry averages
   const calculateLeaks = () => {
     const { annualRevenue, numberOfClients, avgHourlyRate, teamSize } = inputs;
 
-    // Industry average: 3-7% revenue leakage
+    // Industry average: 3-7% Obsidianage
     const leakagePercentage = 0.05; // 5% average
     const totalLeakage = annualRevenue * leakagePercentage;
 
@@ -53,7 +53,7 @@ export function ROICalculator() {
     const hoursSavedPerMonth = teamSize * 4; // 4 hours per team member per month
     const timeSavingsValue = hoursSavedPerMonth * avgHourlyRate * 12;
 
-    // Recovery rate with RevenueLeak (assume 80% of leaks can be recovered)
+    // Recovery rate with Obsidian (assume 80% of leaks can be recovered)
     const recoveryRate = 0.80;
     const potentialRecovery = totalLeakage * recoveryRate;
 
@@ -365,7 +365,7 @@ export function ROICalculator() {
                     <div className="relative">
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <p className="text-sm text-gray-400 mb-1">Estimated Annual Revenue Leak</p>
+                          <p className="text-sm text-gray-400 mb-1">Estimated Annual Obsidian</p>
                           <motion.p
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -381,7 +381,7 @@ export function ROICalculator() {
                       </div>
 
                       <div className="mt-6 p-4 rounded-2xl bg-[var(--profit)]/10 border border-[var(--profit)]/20">
-                        <p className="text-sm text-gray-400 mb-1">Potential Recovery with RevenueLeak</p>
+                        <p className="text-sm text-gray-400 mb-1">Potential Recovery with Obsidian</p>
                         <p className="text-3xl font-bold text-[var(--profit)]">
                           {formatCurrency(results.potentialRecovery)}
                         </p>
@@ -396,7 +396,7 @@ export function ROICalculator() {
                   <div className="space-y-3">
                     <h4 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-[var(--leak)]" />
-                      Revenue Leak Breakdown
+                      Obsidian Breakdown
                     </h4>
                     {leakBreakdown.map((leak, index) => (
                       <motion.div
@@ -514,7 +514,7 @@ export function ROICalculator() {
           transition={{ delay: 0.5 }}
           className="text-center text-xs text-gray-600 mt-12 max-w-3xl mx-auto"
         >
-          * Calculations based on industry averages and typical revenue leakage patterns in creative agencies and professional services firms.
+          * Calculations based on industry averages and typical Obsidianage patterns in creative agencies and professional services firms.
           Actual results may vary based on your specific business practices and implementation.
         </motion.p>
       </div>

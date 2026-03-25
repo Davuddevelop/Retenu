@@ -529,6 +529,15 @@ export function calculateDashboardMetrics(
 
     const { grossMargin, marginPercent } = calculateClientMargin(totalRevenue, totalCost);
 
+    // Calculate total hours from time entries in the period
+    const periodTimeEntries = timeEntries.filter(entry =>
+        isWithinInterval(parseISO(entry.date), { start, end })
+    );
+    const totalHours = periodTimeEntries.reduce((sum, entry) => sum + entry.hours, 0);
+    const billableHours = periodTimeEntries
+        .filter(entry => entry.billable)
+        .reduce((sum, entry) => sum + entry.hours, 0);
+
     return {
         period_start: start.toISOString(),
         period_end: end.toISOString(),
@@ -536,6 +545,8 @@ export function calculateDashboardMetrics(
         total_cost: totalCost,
         total_margin: grossMargin,
         margin_percent: marginPercent,
+        total_hours: totalHours,
+        billable_hours: billableHours,
         total_estimated_leakage: totalLeakage,
         leakage_by_type: leakageByType,
         total_invoiced: totalInvoiced,

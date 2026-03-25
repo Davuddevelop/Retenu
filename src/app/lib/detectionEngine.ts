@@ -1,5 +1,5 @@
 // src/app/lib/detectionEngine.ts
-// Revenue leak detection engine - uses real calculations, no hardcoded values
+// Obsidian detection engine - uses real calculations, no hardcoded values
 
 import {
     RevenueAlert,

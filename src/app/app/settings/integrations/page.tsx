@@ -808,7 +808,7 @@ function IntegrationsContent() {
                         </div>
                         <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
                             <p className="text-sm text-gray-500">
-                                Map your external projects to RevenueLeak clients. Time entries from mapped projects will be synced to the corresponding client.
+                                Map your external projects to Obsidian clients. Time entries from mapped projects will be synced to the corresponding client.
                             </p>
                             {externalProjects.length > 0 ? (
                                 externalProjects.map(project => (

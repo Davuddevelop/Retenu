@@ -85,9 +85,9 @@ export default function LoginPage() {
                 {/* Logo & Header */}
                 <div className="text-center mb-10">
                     <Link href="/" className="inline-flex items-center justify-center gap-3 mb-8">
-                        <Image src="/logo.png" alt="RevenueLeak Logo" width={48} height={48} className="h-12 w-12 object-contain shadow-lg rounded-xl" />
+                        <Image src="/logo.png" alt="Obsidian Logo" width={48} height={48} className="h-12 w-12 object-contain shadow-lg rounded-xl" />
                         <span className="text-2xl font-bold text-[var(--foreground)]">
-                            RevenueLeak
+                            Obsidian
                         </span>
                     </Link>
 

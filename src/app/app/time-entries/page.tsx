@@ -6,7 +6,7 @@ import { dataStore } from '../../lib/dataStore';
 import { getDataStatus } from '../../lib/detectionEngine';
 import { TimeEntry, Client } from '../../lib/types';
 import Link from 'next/link';
-import { Plus, Trash2, Upload, ChevronDown, Search } from 'lucide-react';
+import { Plus, Trash2, Upload, ChevronDown, Search, Clock, TrendingUp, DollarSign, Calendar } from 'lucide-react';
 import { DemoModeBanner, NoTimeEntriesEmpty } from '../../components/EmptyStates';
 import { format, parseISO, startOfMonth, endOfMonth } from 'date-fns';
 
@@ -118,9 +118,15 @@ export default function TimeEntriesPage() {
         return true;
     }).sort((a, b) => b.date.localeCompare(a.date));
 
-    // Calculate totals
+    // Calculate totals with more detail
     const totalHours = filteredEntries.reduce((sum, e) => sum + e.hours, 0);
     const billableHours = filteredEntries.filter(e => e.billable).reduce((sum, e) => sum + e.hours, 0);
+    const nonBillableHours = totalHours - billableHours;
+    const billablePercent = totalHours > 0 ? (billableHours / totalHours) * 100 : 0;
+
+    // Get settings for value calculation
+    const settings = dataStore.getSettings();
+    const estimatedValue = billableHours * (settings?.default_internal_hourly_rate || 150);
 
     if (isLoading) {
         return (
@@ -131,29 +137,29 @@ export default function TimeEntriesPage() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 animate-in fade-in duration-500">
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-400">
                         {entries.length > 0
-                            ? `${totalHours.toFixed(1)} hrs total · ${billableHours.toFixed(1)} billable`
-                            : 'No time entries yet'}
+                            ? `${totalHours.toFixed(1)} hrs tracked · ${billablePercent.toFixed(0)}% billable`
+                            : 'Start tracking your time'}
                     </p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Link
                         href="/app/time-entries/upload"
-                        className="px-4 py-2 border border-[var(--border)] text-[var(--foreground)] font-medium rounded-lg text-sm transition-colors hover:bg-[var(--background)] inline-flex items-center gap-2"
+                        className="px-4 py-2.5 border border-[var(--border)] text-[var(--foreground)] font-medium rounded-xl text-sm transition-all hover:bg-[var(--background)] hover:border-[var(--neutral-metric)]/30 inline-flex items-center gap-2"
                     >
                         <Upload className="w-4 h-4" />
                         Import CSV
                     </Link>
                     <Link
                         href="/app/time-entries/new"
-                        className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm transition-colors hover:bg-white/90 inline-flex items-center gap-2"
+                        className="px-4 py-2.5 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-xl text-sm transition-all hover:bg-white/90 hover:scale-[1.02] inline-flex items-center gap-2 shadow-lg shadow-white/5"
                     >
                         <Plus className="w-4 h-4" />
                         Add Entry
@@ -162,11 +168,73 @@ export default function TimeEntriesPage() {
             </div>
 
             {entries.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-lg border border-[var(--border)]">
+                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
                     <NoTimeEntriesEmpty />
                 </div>
             ) : (
                 <>
+                    {/* Summary Cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
+                                    <Clock className="w-4 h-4 text-[var(--neutral-metric)]" />
+                                </div>
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Total</span>
+                            </div>
+                            <p className="text-2xl font-bold text-[var(--foreground)] tabular-nums">
+                                {totalHours.toFixed(1)}h
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{filteredEntries.length} entries</p>
+                        </div>
+
+                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                    <TrendingUp className="w-4 h-4 text-emerald-500" />
+                                </div>
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Billable</span>
+                            </div>
+                            <p className="text-2xl font-bold text-emerald-500 tabular-nums">
+                                {billableHours.toFixed(1)}h
+                            </p>
+                            <div className="mt-2">
+                                <div className="h-1.5 bg-[var(--background)] rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full rounded-full bg-emerald-500 transition-all"
+                                        style={{ width: `${billablePercent}%` }}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-lg bg-gray-500/20 flex items-center justify-center">
+                                    <Calendar className="w-4 h-4 text-gray-400" />
+                                </div>
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Non-Billable</span>
+                            </div>
+                            <p className="text-2xl font-bold text-gray-400 tabular-nums">
+                                {nonBillableHours.toFixed(1)}h
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">{(100 - billablePercent).toFixed(0)}% of total</p>
+                        </div>
+
+                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
+                            <div className="flex items-center gap-3 mb-3">
+                                <div className="w-9 h-9 rounded-lg bg-[var(--profit)]/20 flex items-center justify-center">
+                                    <DollarSign className="w-4 h-4 text-[var(--profit)]" />
+                                </div>
+                                <span className="text-xs text-gray-500 uppercase tracking-wider">Est. Value</span>
+                            </div>
+                            <p className="text-2xl font-bold text-[var(--profit)] tabular-nums">
+                                ${estimatedValue.toLocaleString()}
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">at ${settings?.default_internal_hourly_rate || 150}/hr</p>
+                        </div>
+                    </div>
+
                     {/* Filters */}
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1">
@@ -176,7 +244,7 @@ export default function TimeEntriesPage() {
                                 placeholder="Search by client, team member, or description..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl pl-10 pr-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] transition-all"
                             />
                         </div>
                         <div className="flex gap-3">
@@ -184,7 +252,7 @@ export default function TimeEntriesPage() {
                                 <select
                                     value={filterClient}
                                     onChange={(e) => setFilterClient(e.target.value)}
-                                    className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-lg pl-4 pr-10 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                    className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl pl-4 pr-10 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] transition-all"
                                 >
                                     <option value="all">All Clients</option>
                                     {clients.map(client => (
@@ -197,20 +265,20 @@ export default function TimeEntriesPage() {
                                 type="month"
                                 value={filterMonth}
                                 onChange={(e) => setFilterMonth(e.target.value)}
-                                className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-4 py-2 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] transition-all"
                             />
                         </div>
                     </div>
 
                     {/* Bulk Actions */}
                     {selectedEntries.size > 0 && (
-                        <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 flex items-center justify-between">
-                            <span className="text-sm text-[var(--foreground)]">
+                        <div className="bg-[var(--leak)]/10 border border-[var(--leak)]/20 rounded-xl p-4 flex items-center justify-between animate-in slide-in-from-top-2 duration-200">
+                            <span className="text-sm font-medium text-[var(--foreground)]">
                                 {selectedEntries.size} entr{selectedEntries.size === 1 ? 'y' : 'ies'} selected
                             </span>
                             <button
                                 onClick={handleDeleteSelected}
-                                className="px-3 py-1.5 bg-red-500 text-white text-sm font-medium rounded-lg hover:bg-red-600 transition-colors inline-flex items-center gap-2"
+                                className="px-4 py-2 bg-[var(--leak)] text-white text-sm font-semibold rounded-lg hover:bg-red-600 transition-colors inline-flex items-center gap-2"
                             >
                                 <Trash2 className="w-4 h-4" />
                                 Delete Selected
@@ -219,106 +287,96 @@ export default function TimeEntriesPage() {
                     )}
 
                     {/* Time Entries Table */}
-                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] overflow-hidden">
-                        <table className="w-full text-left text-sm">
-                            <thead className="border-b border-[var(--border)]">
-                                <tr>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 w-10">
-                                        <input
-                                            type="checkbox"
-                                            checked={selectedEntries.size === filteredEntries.length && filteredEntries.length > 0}
-                                            onChange={toggleSelectAll}
-                                            className="rounded border-[var(--border)] bg-[var(--background)]"
-                                        />
-                                    </th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Date</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Client</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Team Member</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500">Description</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-right">Hours</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-center">Billable</th>
-                                    <th className="px-4 py-3 text-xs font-medium text-gray-500 text-right"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[var(--border)]">
-                                {filteredEntries.length === 0 ? (
+                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm min-w-[800px]">
+                                <thead className="border-b border-[var(--border)] bg-[var(--background)]/50">
                                     <tr>
-                                        <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
-                                            No time entries match your filters.
-                                        </td>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 w-10">
+                                            <input
+                                                type="checkbox"
+                                                checked={selectedEntries.size === filteredEntries.length && filteredEntries.length > 0}
+                                                onChange={toggleSelectAll}
+                                                className="rounded border-[var(--border)] bg-[var(--background)]"
+                                            />
+                                        </th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Date</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Client</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Team Member</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Description</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right">Hours</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center">Billable</th>
+                                        <th className="px-4 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right"></th>
                                     </tr>
-                                ) : (
-                                    filteredEntries.map(entry => (
-                                        <tr key={entry.id} className="hover:bg-[var(--background)]/30 transition-colors">
-                                            <td className="px-4 py-3">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={selectedEntries.has(entry.id)}
-                                                    onChange={() => toggleSelectEntry(entry.id)}
-                                                    className="rounded border-[var(--border)] bg-[var(--background)]"
-                                                />
-                                            </td>
-                                            <td className="px-4 py-3 text-[var(--foreground)]">
-                                                {format(parseISO(entry.date), 'MMM dd, yyyy')}
-                                            </td>
-                                            <td className="px-4 py-3 font-medium text-[var(--foreground)]">
-                                                {getClientName(entry.client_id)}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-400">
-                                                {entry.team_member}
-                                            </td>
-                                            <td className="px-4 py-3 text-gray-400 max-w-xs truncate">
-                                                {entry.description || '—'}
-                                            </td>
-                                            <td className="px-4 py-3 text-right font-medium text-[var(--foreground)]">
-                                                {entry.hours.toFixed(1)}
-                                            </td>
-                                            <td className="px-4 py-3 text-center">
-                                                {entry.billable ? (
-                                                    <span className="text-xs font-medium text-green-500">
-                                                        Yes
-                                                    </span>
-                                                ) : (
-                                                    <span className="text-xs font-medium text-gray-500">
-                                                        No
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3 text-right">
-                                                <button
-                                                    onClick={() => handleDeleteEntry(entry.id)}
-                                                    className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
-                                                    title="Delete entry"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+                                </thead>
+                                <tbody className="divide-y divide-[var(--border)]">
+                                    {filteredEntries.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={8} className="px-6 py-12 text-center text-gray-400">
+                                                No time entries match your filters.
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Summary Footer */}
-                    <div className="bg-[var(--card)] rounded-lg border border-[var(--border)] p-6">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">Total Entries</p>
-                                <p className="text-2xl font-semibold text-[var(--foreground)]">{filteredEntries.length}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">Total Hours</p>
-                                <p className="text-2xl font-semibold text-[var(--foreground)]">{totalHours.toFixed(1)}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">Billable</p>
-                                <p className="text-2xl font-semibold text-green-500">{billableHours.toFixed(1)}</p>
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 mb-1">Non-Billable</p>
-                                <p className="text-2xl font-semibold text-gray-400">{(totalHours - billableHours).toFixed(1)}</p>
-                            </div>
+                                    ) : (
+                                        filteredEntries.map(entry => (
+                                            <tr key={entry.id} className="hover:bg-[var(--background)]/50 transition-colors group">
+                                                <td className="px-4 py-3">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={selectedEntries.has(entry.id)}
+                                                        onChange={() => toggleSelectEntry(entry.id)}
+                                                        className="rounded border-[var(--border)] bg-[var(--background)]"
+                                                    />
+                                                </td>
+                                                <td className="px-4 py-3 text-[var(--foreground)]">
+                                                    {format(parseISO(entry.date), 'MMM d, yyyy')}
+                                                </td>
+                                                <td className="px-4 py-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="w-6 h-6 rounded bg-[var(--neutral-metric)]/20 flex items-center justify-center text-[var(--neutral-metric)] font-bold text-[10px]">
+                                                            {getClientName(entry.client_id).charAt(0)}
+                                                        </div>
+                                                        <span className="font-medium text-[var(--foreground)]">
+                                                            {getClientName(entry.client_id)}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-4 py-3 text-gray-400">
+                                                    {entry.team_member}
+                                                </td>
+                                                <td className="px-4 py-3 text-gray-400 max-w-[200px] truncate">
+                                                    {entry.description || <span className="text-gray-600">—</span>}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <span className="font-bold text-[var(--foreground)] tabular-nums">
+                                                        {entry.hours.toFixed(1)}h
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 py-3 text-center">
+                                                    {entry.billable ? (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-emerald-500/10 text-emerald-500 rounded-full">
+                                                            <span className="w-1 h-1 rounded-full bg-emerald-500" />
+                                                            Billable
+                                                        </span>
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold bg-gray-500/10 text-gray-500 rounded-full">
+                                                            Internal
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td className="px-4 py-3 text-right">
+                                                    <button
+                                                        onClick={() => handleDeleteEntry(entry.id)}
+                                                        className="p-2 text-gray-400 hover:text-[var(--leak)] hover:bg-[var(--leak)]/10 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                                        title="Delete entry"
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </>

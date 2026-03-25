@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "RevenueLeak | Financial Intelligence",
+  title: "Obsidian | Financial Intelligence",
   description: "Detect hidden revenue loss and monitor agency profitability.",
 };
 

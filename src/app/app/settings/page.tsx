@@ -172,7 +172,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-[var(--foreground)]">Alert Thresholds</h2>
-                            <p className="text-sm text-gray-500">Define when to trigger revenue leak alerts</p>
+                            <p className="text-sm text-gray-500">Define when to trigger Obsidian alerts</p>
                         </div>
                     </div>
                 </div>
@@ -288,13 +288,13 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-[var(--foreground)]">Tutorial</h2>
-                            <p className="text-sm text-gray-500">Learn how to use RevenueLeak</p>
+                            <p className="text-sm text-gray-500">Learn how to use Obsidian</p>
                         </div>
                     </div>
                 </div>
                 <div className="p-6">
                     <p className="text-sm text-gray-400 mb-4">
-                        Take a guided tour of the dashboard and learn how to detect revenue leaks,
+                        Take a guided tour of the dashboard and learn how to detect Obsidians,
                         manage clients, and set up alerts.
                     </p>
                     <button

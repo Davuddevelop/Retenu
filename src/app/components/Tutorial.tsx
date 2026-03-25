@@ -19,8 +19,8 @@ interface TutorialStep {
 const tutorialSteps: TutorialStep[] = [
     {
         id: 'welcome',
-        title: 'Welcome to RevenueLeak',
-        description: 'RevenueLeak helps you detect and recover lost revenue from underbilling, scope creep, and late payments. Let\'s explore the key features.',
+        title: 'Welcome to Obsidian',
+        description: 'Obsidian helps you detect and recover lost revenue from underbilling, scope creep, and late payments. Let\'s explore the key features.',
         page: '/app',
         position: 'center',
         icon: <DollarSign className="w-6 h-6" />,
@@ -55,7 +55,7 @@ const tutorialSteps: TutorialStep[] = [
     {
         id: 'settings',
         title: 'Configure Your Settings',
-        description: 'Set your hourly rates, cost rates, and alert thresholds here. These settings help us accurately detect revenue leaks for your business.',
+        description: 'Set your hourly rates, cost rates, and alert thresholds here. These settings help us accurately detect Obsidians for your business.',
         page: '/app/settings',
         target: '[data-tutorial="settings-form"]',
         position: 'bottom',
@@ -64,7 +64,7 @@ const tutorialSteps: TutorialStep[] = [
     {
         id: 'complete',
         title: 'You\'re Ready to Start!',
-        description: 'Add your first client and start detecting revenue leaks. The system will analyze your data for unbilled hours, scope creep, and more.',
+        description: 'Add your first client and start detecting Obsidians. The system will analyze your data for unbilled hours, scope creep, and more.',
         page: '/app',
         position: 'center',
         icon: <Check className="w-6 h-6" />,
@@ -427,7 +427,7 @@ export function WelcomeModal({ onStart, onSkip }: WelcomeModalProps) {
 
                     {/* Content */}
                     <h2 className="text-3xl font-bold text-[var(--foreground)] text-center mb-3">
-                        Welcome to RevenueLeak
+                        Welcome to Obsidian
                     </h2>
                     <p className="text-gray-400 text-center mb-8 leading-relaxed text-lg">
                         Recover lost revenue from underbilling, scope creep, and late payments.

@@ -20,7 +20,7 @@ export default function SecurityPage() {
                             <Shield className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h1 className="text-4xl font-bold text-[var(--foreground)]">Security at RevenueLeak</h1>
+                            <h1 className="text-4xl font-bold text-[var(--foreground)]">Security at Obsidian</h1>
                             <p className="text-gray-400 mt-2">Enterprise-grade security protecting your financial data</p>
                         </div>
                     </div>
@@ -323,8 +323,8 @@ export default function SecurityPage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <p className="text-sm font-semibold text-[var(--foreground)] mb-1">Security Email</p>
-                                <a href="mailto:security@revenueleak.com" className="text-[var(--neutral-metric)] hover:underline">
-                                    security@revenueleak.com
+                                <a href="mailto:security@obsidian.com" className="text-[var(--neutral-metric)] hover:underline">
+                                    security@obsidian.com
                                 </a>
                             </div>
                             <div>
@@ -344,7 +344,7 @@ export default function SecurityPage() {
                 <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-500">
-                            © {new Date().getFullYear()} RevenueLeak. All rights reserved.
+                            © {new Date().getFullYear()} Obsidian. All rights reserved.
                         </p>
                         <div className="flex gap-6">
                             <Link href="/terms" className="text-sm text-gray-400 hover:text-[var(--foreground)] transition-colors">

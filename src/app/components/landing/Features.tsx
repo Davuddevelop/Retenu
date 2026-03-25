@@ -28,7 +28,7 @@ const features = [
   {
     icon: AlertTriangle,
     title: 'Real-Time Alerts',
-    description: 'Instant notifications when potential revenue leaks are detected.',
+    description: 'Instant notifications when potential Obsidians are detected.',
     color: 'from-[var(--leak)] to-orange-500',
     span: 'col-span-1',
   },
@@ -64,7 +64,7 @@ const features = [
 ];
 
 const stats = [
-  { value: '4-10%', label: 'Avg Revenue Leakage', icon: TrendingUp },
+  { value: '4-10%', label: 'Avg Obsidianage', icon: TrendingUp },
   { value: '57%', label: 'Agencies Lose $1K-$5K/mo', icon: AlertTriangle },
   { value: '42%', label: 'Face Active Leakage', icon: Shield },
   { value: '99%', label: 'Never Bill All Scope Creep', icon: FileSearch },

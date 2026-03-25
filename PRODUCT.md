@@ -1,8 +1,8 @@
-# RevenueLeak - Product Documentation (Honest Version)
+# Obsidian - Product Documentation (Honest Version)
 
 ## What This Is
 
-RevenueLeak is a tool I'm building to help agencies find money they're losing to billing mistakes. It's currently a working demo/MVP, not a production SaaS yet.
+Obsidian is a tool I'm building to help agencies find money they're losing to billing mistakes. It's currently a working demo/MVP, not a production SaaS yet.
 
 **Current Status:** Demo with local data storage. Core detection logic works. Some integrations started but not complete.
 
@@ -67,7 +67,7 @@ What I can say: If you've ever forgotten to bill for something, or had a client 
 
 ---
 
-## What RevenueLeak Actually Does (Today)
+## What Obsidian Actually Does (Today)
 
 ### Working Features
 
@@ -239,7 +239,7 @@ Before building more, I want to know:
 4. **What integrations matter most?** Toggl? QuickBooks? Something else?
 
 If you're an agency owner testing this, I'd love your feedback:
-- Did it find real revenue leaks in your data?
+- Did it find real Obsidians in your data?
 - What features are missing that you'd need?
 - Would you pay for this? How much?
 
@@ -275,7 +275,7 @@ If you're an agency owner testing this, I'd love your feedback:
 
 | Term | What It Actually Means |
 |------|------------------------|
-| Revenue Leakage | Money you should have collected but didn't |
+| Obsidianage | Money you should have collected but didn't |
 | Detection Engine | If/then logic comparing your numbers |
 | Alert | "Hey, this looks wrong" notification |
 | Scope Creep | Client getting more than they paid for |

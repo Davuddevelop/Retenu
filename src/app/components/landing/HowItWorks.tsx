@@ -27,7 +27,7 @@ const steps = [
     icon: Bell,
     title: 'Get Instant Alerts',
     description:
-      'Receive real-time notifications when potential revenue leaks are detected, with detailed insights on each issue.',
+      'Receive real-time notifications when potential Obsidians are detected, with detailed insights on each issue.',
     color: 'from-[var(--leak)] to-orange-500',
   },
   {

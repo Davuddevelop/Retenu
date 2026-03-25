@@ -1,7 +1,7 @@
 // src/app/components/EmptyStates.tsx
 'use client';
 
-import { Users, FileText, Clock, Settings, TrendingUp, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Users, FileText, Clock, Settings, TrendingUp, Sparkles, ArrowRight, CheckCircle2, PartyPopper } from 'lucide-react';
 import Link from 'next/link';
 
 interface EmptyStateProps {
@@ -12,53 +12,78 @@ interface EmptyStateProps {
         label: string;
         href: string;
     };
+    secondaryAction?: {
+        label: string;
+        href: string;
+    };
     variant?: 'default' | 'success' | 'warning';
 }
 
-export function EmptyState({ icon, title, description, action, variant = 'default' }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, secondaryAction, variant = 'default' }: EmptyStateProps) {
     const bgColor = variant === 'success'
-        ? 'bg-[var(--profit)]/10'
+        ? 'bg-emerald-500/10'
         : variant === 'warning'
         ? 'bg-amber-500/10'
         : 'bg-[var(--background)]';
 
+    const borderColor = variant === 'success'
+        ? 'border-emerald-500/20'
+        : variant === 'warning'
+        ? 'border-amber-500/20'
+        : 'border-[var(--border)]';
+
     return (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center animate-in fade-in duration-500">
-            <div className={`w-16 h-16 rounded-2xl ${bgColor} border border-[var(--border)] flex items-center justify-center mb-6 relative`}>
+            <div className={`w-16 h-16 rounded-2xl ${bgColor} ${borderColor} border flex items-center justify-center mb-6 relative`}>
                 {icon}
                 {variant === 'default' && (
                     <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--card)] border border-[var(--border)] flex items-center justify-center">
                         <Sparkles className="w-3 h-3 text-[var(--neutral-metric)]" />
                     </div>
                 )}
+                {variant === 'success' && (
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[var(--card)] border border-emerald-500/20 flex items-center justify-center">
+                        <PartyPopper className="w-3 h-3 text-emerald-500" />
+                    </div>
+                )}
             </div>
             <h3 className="text-lg font-semibold text-[var(--foreground)] mb-2">{title}</h3>
             <p className="text-sm text-gray-400 max-w-md mb-6 leading-relaxed">{description}</p>
-            {action && (
-                <Link
-                    href={action.href}
-                    className="px-5 py-2.5 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm hover:bg-gray-200 transition-all duration-200 inline-flex items-center gap-2 group"
-                >
-                    {action.label}
-                    <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                </Link>
-            )}
+            <div className="flex items-center gap-3">
+                {action && (
+                    <Link
+                        href={action.href}
+                        className="px-5 py-2.5 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-xl text-sm hover:bg-gray-200 transition-all duration-200 hover:scale-[1.02] inline-flex items-center gap-2 group shadow-lg shadow-white/5"
+                    >
+                        {action.label}
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                )}
+                {secondaryAction && (
+                    <Link
+                        href={secondaryAction.href}
+                        className="px-5 py-2.5 text-gray-400 hover:text-[var(--foreground)] font-medium rounded-xl text-sm transition-all duration-200"
+                    >
+                        {secondaryAction.label}
+                    </Link>
+                )}
+            </div>
         </div>
     );
 }
 
 // ============================================
-// PRE-BUILT EMPTY STATES
+// PRE-BUILT EMPTY STATES (Human-Touch Copy)
 // ============================================
 
 export function NoClientsEmpty() {
     return (
         <EmptyState
             icon={<Users className="w-8 h-8 text-[var(--neutral-metric)]" />}
-            title="No clients added yet"
-            description="Add your first client to start tracking revenue and detecting leaks. It only takes a minute to get started."
+            title="Let's add your first client"
+            description="Once you add a client, we'll start tracking their retainers, time entries, and invoices to catch any revenue leaks before they hurt your bottom line."
             action={{
-                label: 'Add Client',
+                label: 'Add Your First Client',
                 href: '/app/clients/new',
             }}
         />
@@ -68,9 +93,9 @@ export function NoClientsEmpty() {
 export function NoSettingsEmpty() {
     return (
         <EmptyState
-            icon={<Settings className="w-8 h-8 text-gray-500" />}
-            title="Configure your settings"
-            description="Set up your financial assumptions like hourly rates, cost rates, and alert thresholds to get accurate leak detection."
+            icon={<Settings className="w-8 h-8 text-gray-400" />}
+            title="Quick setup needed"
+            description="Tell us your hourly rates and cost structure so we can accurately calculate margins and detect when projects are going off track."
             action={{
                 label: 'Configure Settings',
                 href: '/app/settings',
@@ -82,12 +107,16 @@ export function NoSettingsEmpty() {
 export function NoTimeEntriesEmpty() {
     return (
         <EmptyState
-            icon={<Clock className="w-8 h-8 text-blue-500" />}
-            title="No time entries"
-            description="Upload time entries to calculate margins and detect scope creep. Import from your favorite time tracker."
+            icon={<Clock className="w-8 h-8 text-blue-400" />}
+            title="No time entries yet"
+            description="Import your time entries from Toggl, Clockify, or a CSV file. We'll use this data to detect scope creep and calculate real margins for each client."
             action={{
-                label: 'Upload Time Entries',
+                label: 'Import Time Entries',
                 href: '/app/time-entries/upload',
+            }}
+            secondaryAction={{
+                label: 'Add Manually',
+                href: '/app/time-entries/new',
             }}
         />
     );
@@ -97,11 +126,15 @@ export function NoInvoicesEmpty() {
     return (
         <EmptyState
             icon={<FileText className="w-8 h-8 text-[var(--profit)]" />}
-            title="No invoices"
-            description="Connect Stripe or manually add invoices to track payments and detect late payment issues."
+            title="No invoices tracked"
+            description="Add your invoices to track payment status and catch late payments early. You can connect Stripe for automatic syncing or add them manually."
             action={{
                 label: 'Add Invoice',
                 href: '/app/invoices/new',
+            }}
+            secondaryAction={{
+                label: 'Connect Stripe',
+                href: '/app/settings/integrations',
             }}
         />
     );
@@ -110,9 +143,9 @@ export function NoInvoicesEmpty() {
 export function NoAlertsEmpty() {
     return (
         <EmptyState
-            icon={<CheckCircle2 className="w-8 h-8 text-[var(--profit)]" />}
-            title="No revenue leaks detected"
-            description="Great job! All your clients are healthy with no detected issues. Keep up the good work."
+            icon={<CheckCircle2 className="w-8 h-8 text-emerald-500" />}
+            title="All clear — nice work!"
+            description="No revenue leaks detected across your clients. Your projects are on track, margins are healthy, and payments are coming in on time."
             variant="success"
         />
     );
@@ -121,12 +154,12 @@ export function NoAlertsEmpty() {
 export function NoDataEmpty() {
     return (
         <EmptyState
-            icon={<TrendingUp className="w-8 h-8 text-gray-500" />}
-            title="No data to display"
-            description="Add clients, time entries, and invoices to see your revenue analytics and leak detection."
+            icon={<TrendingUp className="w-8 h-8 text-gray-400" />}
+            title="Nothing to show yet"
+            description="Add some clients, log time entries, and create invoices to see your revenue analytics come to life."
             action={{
                 label: 'Get Started',
-                href: '/app/settings',
+                href: '/app/clients/new',
             }}
         />
     );

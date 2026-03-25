@@ -1,4 +1,4 @@
--- RevenueLeak Database Schema v2
+-- Obsidian Database Schema v2
 -- Run this in Supabase SQL Editor to set up your database
 
 -- Enable UUID extension

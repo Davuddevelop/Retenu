@@ -1,4 +1,4 @@
-# How to Make RevenueLeak Actually Work
+# How to Make Obsidian Actually Work
 
 ## Current State Assessment
 
@@ -207,7 +207,7 @@ Check:
 
 **What's Missing:**
 1. Fetch time entries from Toggl API
-2. Map Toggl projects to RevenueLeak clients
+2. Map Toggl projects to Obsidian clients
 3. Insert time entries into database
 4. Avoid duplicates (check external_id)
 
@@ -225,7 +225,7 @@ GET https://api.track.toggl.com/api/v9/me/time_entries
 **Current State:** Webhook endpoint exists, receives events
 
 **What's Missing:**
-1. When `invoice.paid` event comes in, find matching RevenueLeak invoice
+1. When `invoice.paid` event comes in, find matching Obsidian invoice
 2. Update invoice status to 'paid'
 3. Set paid_date
 
