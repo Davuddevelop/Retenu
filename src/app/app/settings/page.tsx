@@ -172,7 +172,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-[var(--foreground)]">Alert Thresholds</h2>
-                            <p className="text-sm text-gray-500">Define when to trigger Obsidian alerts</p>
+                            <p className="text-sm text-gray-500">Define when to trigger OBSIDIAN alerts</p>
                         </div>
                     </div>
                 </div>
@@ -281,25 +281,19 @@ export default function SettingsPage() {
 
             {/* Tutorial */}
             <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                <div className="px-6 py-4 border-b border-[var(--border)]">
+                <div className="px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
-                            <Sparkles className="w-5 h-5 text-[var(--neutral-metric)]" />
+                        <div className="w-10 h-10 rounded-lg bg-[#1c1c1f] flex items-center justify-center">
+                            <Sparkles className="w-5 h-5 text-gray-400" />
                         </div>
                         <div>
-                            <h2 className="text-lg font-semibold text-[var(--foreground)]">Tutorial</h2>
-                            <p className="text-sm text-gray-500">Learn how to use Obsidian</p>
+                            <h2 className="text-base font-medium text-[var(--foreground)]">Tutorial</h2>
+                            <p className="text-sm text-gray-500">Take a guided tour of OBSIDIAN</p>
                         </div>
                     </div>
-                </div>
-                <div className="p-6">
-                    <p className="text-sm text-gray-400 mb-4">
-                        Take a guided tour of the dashboard and learn how to detect Obsidians,
-                        manage clients, and set up alerts.
-                    </p>
                     <button
                         onClick={handleReplayTutorial}
-                        className="px-4 py-2 bg-gradient-to-r from-[var(--neutral-metric)] to-blue-400 text-white font-medium rounded-lg text-sm hover:opacity-90 transition-opacity"
+                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors"
                     >
                         Replay Tutorial
                     </button>

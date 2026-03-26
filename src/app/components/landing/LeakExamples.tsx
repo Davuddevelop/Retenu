@@ -26,7 +26,7 @@ const leakScenarios = [
     icon: Clock,
     color: 'from-red-500 to-orange-500',
     problem: 'Developer worked 47 hours of overtime on urgent bug fixes, but only 40 hours were logged in the billing system.',
-    detection: 'Obsidian compares time tracking data (Toggl/Clockify) with invoiced hours and flags discrepancies in real-time.',
+    detection: 'OBSIDIAN compares time tracking data (Toggl/Clockify) with invoiced hours and flags discrepancies in real-time.',
     impact: '$7,050',
     impactLabel: 'Lost Revenue',
     stats: {
@@ -66,7 +66,7 @@ const leakScenarios = [
     icon: Calendar,
     color: 'from-purple-500 to-pink-500',
     problem: 'Project milestone completed 2 weeks ago, but invoice was never sent due to team member being on vacation.',
-    detection: 'Obsidian tracks project status updates and automatically flags completed milestones without corresponding invoices.',
+    detection: 'OBSIDIAN tracks project status updates and automatically flags completed milestones without corresponding invoices.',
     impact: '$12,500',
     impactLabel: 'Delayed Payment',
     stats: {
@@ -192,7 +192,7 @@ export function LeakExamples() {
           >
             <Badge className="mb-4">
               <AlertTriangle className="w-3 h-3 mr-1.5" />
-              Common Obsidians
+              Common Leaks
             </Badge>
           </motion.div>
 
@@ -242,8 +242,8 @@ export function LeakExamples() {
             transition={{ delay: 0.2 }}
             className="mt-4 text-lg text-gray-400"
           >
-            <span className="text-[var(--leak)] font-semibold">42% of businesses</span> actively face Obsidianage.
-            Click through real scenarios from agencies like yours—each represents actual loss that Obsidian prevents.
+            <span className="text-[var(--leak)] font-semibold">42% of businesses</span> actively face Leakage.
+            Click through real scenarios from agencies like yours—each represents actual loss that OBSIDIAN prevents.
           </motion.p>
 
           {/* Total Loss Counter - Sticky note style */}
@@ -689,7 +689,7 @@ export function LeakExamples() {
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <CheckCircle2 className="w-5 h-5 text-[var(--profit)]" />
-                      <h4 className="font-semibold text-[var(--foreground)]">How Obsidian Detects It</h4>
+                      <h4 className="font-semibold text-[var(--foreground)]">How OBSIDIAN Detects It</h4>
                     </div>
                     <p className="text-gray-300 leading-relaxed pl-7">
                       {activeScenario.detection}
@@ -827,7 +827,7 @@ export function LeakExamples() {
                 <Link href="/login">
                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                     <Button size="lg" className="min-w-[220px] group shadow-xl shadow-[var(--leak)]/30 rounded-2xl">
-                      Find My Obsidians
+                      Find My Leaks
                       <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                     </Button>
                   </motion.div>

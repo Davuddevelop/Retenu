@@ -219,7 +219,7 @@ export default function AlertsPage() {
                     <p className="text-base text-gray-500">No alerts match your filters.</p>
                 </div>
             ) : (
-                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden">
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden" data-tutorial="alerts-table">
                     <table className="w-full text-left">
                         <thead className="border-b border-[#1c1c1f]">
                             <tr>

@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { ArrowLeft, Save, Clock, Plus, Minus } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
 import { Client } from '../../../lib/types';
+import { useData } from '../../../providers/DataProvider';
+import { createBrowserClient } from '@supabase/ssr';
 
 interface TimeEntryRow {
     id: string;
@@ -30,14 +32,14 @@ const createEmptyRow = (): TimeEntryRow => ({
 
 export default function NewTimeEntryPage() {
     const router = useRouter();
+    const { mode, organizationId: orgIdFromContext, clients: allClients, refreshTimeEntries } = useData();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [clients, setClients] = useState<Client[]>([]);
     const [rows, setRows] = useState<TimeEntryRow[]>([createEmptyRow()]);
 
-    useEffect(() => {
-        setClients(dataStore.getActiveClients());
-    }, []);
+    const clients = mode === 'supabase'
+        ? allClients.filter(c => c.status === 'active')
+        : dataStore.getActiveClients();
 
     const handleRowChange = (id: string, field: keyof TimeEntryRow, value: string | boolean) => {
         setRows(prev => prev.map(row =>
@@ -76,21 +78,47 @@ export default function NewTimeEntryPage() {
                 throw new Error('Please add at least one valid time entry with a client and hours.');
             }
 
-            const org = dataStore.getOrganization();
-            const organizationId = org?.id || 'default-org';
+            if (mode === 'supabase') {
+                if (!orgIdFromContext) throw new Error('Organization not found');
 
-            // Create time entries
-            const entries = validRows.map(row => ({
-                client_id: row.client_id,
-                organization_id: organizationId,
-                hours: parseFloat(row.hours),
-                date: row.date,
-                team_member: row.team_member.trim() || 'Unknown',
-                description: row.description.trim(),
-                billable: row.billable,
-            }));
+                const supabase = createBrowserClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                );
 
-            dataStore.addTimeEntries(entries);
+                const entries = validRows.map(row => ({
+                    client_id: row.client_id,
+                    organization_id: orgIdFromContext,
+                    hours: parseFloat(row.hours),
+                    date: row.date,
+                    team_member: row.team_member.trim() || 'Unknown',
+                    description: row.description.trim(),
+                    billable: row.billable,
+                    source: 'manual'
+                }));
+
+                const { error: insertError } = await supabase.from('time_entries').insert(entries);
+                
+                if (insertError) throw insertError;
+                
+                await refreshTimeEntries();
+            } else {
+                const org = dataStore.getOrganization();
+                const organizationId = org?.id || 'default-org';
+
+                // Create time entries
+                const entries = validRows.map(row => ({
+                    client_id: row.client_id,
+                    organization_id: organizationId,
+                    hours: parseFloat(row.hours),
+                    date: row.date,
+                    team_member: row.team_member.trim() || 'Unknown',
+                    description: row.description.trim(),
+                    billable: row.billable,
+                }));
+
+                dataStore.addTimeEntries(entries);
+            }
 
             // Redirect to time entries list
             router.push('/app/time-entries');
@@ -104,7 +132,7 @@ export default function NewTimeEntryPage() {
     const totalHours = rows.reduce((sum, row) => sum + (parseFloat(row.hours) || 0), 0);
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl">
+        <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto">
             {/* Back Link */}
             <Link
                 href="/app/time-entries"

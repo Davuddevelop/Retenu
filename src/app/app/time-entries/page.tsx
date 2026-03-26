@@ -141,7 +141,7 @@ export default function TimeEntriesPage() {
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" data-tutorial="time-entries-header">
                 <div>
                     <p className="text-sm text-gray-400">
                         {entries.length > 0

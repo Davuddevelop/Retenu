@@ -113,8 +113,8 @@ export default function TopNav() {
 
                     {/* Logo on mobile */}
                     <Link href="/app" className="md:hidden flex items-center gap-2 text-lg font-bold tracking-tight text-[var(--foreground)]">
-                        <Image src="/logo-removebg-preview.png" alt="Obsidian Logo" width={24} height={24} className="h-6 w-6 object-contain" />
-                        Obsidian
+                        <Image src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" width={24} height={24} className="h-6 w-6 object-contain" />
+                        OBSIDIAN
                     </Link>
 
                     {/* Page title on desktop */}
@@ -153,8 +153,8 @@ export default function TopNav() {
                         onClick={() => setMobileMenuOpen(false)}
                         className="flex items-center gap-2 text-xl font-bold tracking-tight text-[var(--foreground)]"
                     >
-                        <Image src="/logo-removebg-preview.png" alt="Obsidian Logo" width={24} height={24} className="h-6 w-6 object-contain" />
-                        Obsidian
+                        <Image src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" width={24} height={24} className="h-6 w-6 object-contain" />
+                        OBSIDIAN
                     </Link>
                     <button
                         onClick={() => setMobileMenuOpen(false)}

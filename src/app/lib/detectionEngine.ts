@@ -1,5 +1,5 @@
 // src/app/lib/detectionEngine.ts
-// Obsidian detection engine - uses real calculations, no hardcoded values
+// OBSIDIAN detection engine - uses real calculations, no hardcoded values
 
 import {
     RevenueAlert,

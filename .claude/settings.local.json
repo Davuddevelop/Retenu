@@ -16,7 +16,10 @@
       "Bash(npx eslint:*)",
       "WebFetch(domain:www.eleken.co)",
       "WebFetch(domain:goodface.agency)",
-      "WebFetch(domain:nicelydone.club)"
+      "WebFetch(domain:nicelydone.club)",
+      "WebFetch(domain:www.vectorlogo.zone)",
+      "WebFetch(domain:worldvectorlogo.com)",
+      "WebFetch(domain:simpleicons.org)"
     ]
   }
 }

@@ -31,7 +31,7 @@ export default function TermsOfService() {
                                 <div>
                                     <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">Agreement to Terms</h2>
                                     <p className="text-gray-400 leading-relaxed">
-                                        By accessing or using Obsidian, you agree to be bound by these Terms of Service.
+                                        By accessing or using OBSIDIAN, you agree to be bound by these Terms of Service.
                                         If you do not agree to these terms, please do not use our service.
                                     </p>
                                 </div>
@@ -43,7 +43,7 @@ export default function TermsOfService() {
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">1. Service Description</h2>
                         <p className="text-gray-400 leading-relaxed mb-4">
-                            Obsidian provides automated Obsidian detection and financial analytics for agencies and service businesses.
+                            OBSIDIAN provides automated revenue leak detection and financial analytics for agencies and service businesses.
                             Our service analyzes your billing, time tracking, and invoicing data to identify:
                         </p>
                         <ul className="list-disc list-inside text-gray-400 space-y-2">
@@ -57,7 +57,7 @@ export default function TermsOfService() {
                     {/* Account Requirements */}
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">2. Account Requirements</h2>
-                        <p className="text-gray-400 mb-4">To use Obsidian, you must:</p>
+                        <p className="text-gray-400 mb-4">To use OBSIDIAN, you must:</p>
                         <ul className="list-disc list-inside text-gray-400 space-y-2 mb-4">
                             <li>Be at least 18 years old or the age of majority in your jurisdiction</li>
                             <li>Provide accurate, current, and complete information during registration</li>
@@ -161,7 +161,7 @@ export default function TermsOfService() {
                     <section className="mb-12">
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">8. Limitation of Liability</h2>
                         <p className="text-gray-400 mb-4">
-                            Obsidian is provided &quot;as is&quot; without warranties of any kind. To the maximum extent permitted by law:
+                            OBSIDIAN is provided &quot;as is&quot; without warranties of any kind. To the maximum extent permitted by law:
                         </p>
                         <ul className="list-disc list-inside text-gray-400 space-y-2">
                             <li>We are not liable for any indirect, incidental, or consequential damages</li>
@@ -225,7 +225,7 @@ export default function TermsOfService() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-500">
-                            © {new Date().getFullYear()} Obsidian. All rights reserved.
+                            © {new Date().getFullYear()} OBSIDIAN. All rights reserved.
                         </p>
                         <div className="flex gap-6">
                             <Link href="/terms" className="text-sm text-gray-400 hover:text-[var(--foreground)] transition-colors">

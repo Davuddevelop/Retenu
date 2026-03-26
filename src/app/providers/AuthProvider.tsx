@@ -77,13 +77,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
     }, [router]);
 
+    const ensureOrganization = async (userId: string, email: string, companyName?: string) => {
+        try {
+            const { data: org } = await supabase
+                .from('organizations')
+                .select('id')
+                .eq('owner_id', userId)
+                .single();
+
+            if (!org) {
+                await supabase.from('organizations').insert({
+                    name: companyName || email.split('@')[0] + "'s Agency",
+                    owner_id: userId,
+                });
+            }
+        } catch (e) {
+            console.error('Error ensuring organization:', e);
+        }
+    };
+
     const signIn = async (email: string, password: string) => {
         try {
-            const { error } = await supabase.auth.signInWithPassword({
+            const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
             if (error) throw error;
+            
+            if (data?.user) {
+                await ensureOrganization(data.user.id, data.user.email || '');
+            }
+            
             return { error: null };
         } catch (error) {
             return { error: error as Error };
@@ -92,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const signUp = async (email: string, password: string, metadata?: { fullName: string, companyName: string }) => {
         try {
-            const { error } = await supabase.auth.signUp({
+            const { data, error } = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
@@ -101,6 +125,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 },
             });
             if (error) throw error;
+            
+            if (data?.user && data?.session) {
+                await ensureOrganization(data.user.id, data.user.email || '', metadata?.companyName);
+            }
+            
             return { error: null };
         } catch (error) {
             return { error: error as Error };

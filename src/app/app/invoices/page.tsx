@@ -181,7 +181,7 @@ export default function InvoicesPage() {
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
             {/* Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4" data-tutorial="invoices-header">
                 <div>
                     <p className="text-sm text-gray-400">
                         {invoices.length > 0

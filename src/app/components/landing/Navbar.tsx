@@ -25,9 +25,9 @@ export function Navbar() {
           <div className="flex h-16 items-center justify-between px-6">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo-removebg-preview.png" alt="Obsidian Logo" width={32} height={32} className="h-8 w-8 object-contain" />
+              <Image src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" width={32} height={32} className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
-                Obsidian
+                OBSIDIAN
               </span>
             </Link>
 

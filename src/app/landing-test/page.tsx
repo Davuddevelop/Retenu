@@ -143,7 +143,7 @@ function DashboardPreview() {
         <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-3 h-3 rounded-full bg-[#FF5733]" />
-            <span className="text-sm font-medium text-gray-400">Obsidianage Detected</span>
+            <span className="text-sm font-medium text-gray-400">Leakage Detected</span>
           </div>
           <span className="text-xs text-gray-500">Live</span>
         </div>
@@ -486,7 +486,7 @@ export default function LandingPage() {
               <Link href="/security" className="hover:text-white transition-colors">Security</Link>
             </div>
             <div className="text-sm text-gray-500">
-              © 2024 Obsidian. All rights reserved.
+              © 2024 OBSIDIAN. All rights reserved.
             </div>
           </div>
         </div>

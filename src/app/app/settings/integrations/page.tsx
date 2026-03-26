@@ -7,22 +7,38 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import {
     ArrowLeft,
-    Plug,
-    CheckCircle,
-    XCircle,
+    Check,
+    X,
     RefreshCw,
     ExternalLink,
     Eye,
     EyeOff,
-    Clock,
-    CreditCard,
-    Timer,
-    AlertTriangle,
     Loader2,
-    Shield,
-    Lock,
 } from 'lucide-react';
 import { useData } from '../../../providers/DataProvider';
+
+// Official Brand Logos as SVG components
+// Stripe - from stripe.com brand assets
+const StripeLogo = () => (
+    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor">
+        <path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.305 2.525-3.236 2.525-5.732 0-4.128-2.524-5.851-6.591-7.305z" />
+    </svg>
+);
+
+// Toggl Track - official icon from toggl.com/track/media-toolkit
+const TogglLogo = () => (
+    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor">
+        <path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm-.883 4.322h1.766v8.757h-1.766zm-.74 2.053v1.789a4.448 4.448 0 1 0 3.247 0V6.375a6.146 6.146 0 1 1-5.669 10.552 6.145 6.145 0 0 1 2.421-10.552z" />
+    </svg>
+);
+
+// Clockify - official icon from clockify.me/brand-assets
+const ClockifyLogo = () => (
+    <svg viewBox="0 0 64 64" className="w-6 h-6">
+        <path d="M35.606 54.4c2.964 0 5.8-.6 8.377-1.642l7.183 7.185C46.56 62.522 41.258 64 35.606 64 17.932 64 3.602 49.672 3.602 32S17.932 0 35.606 0A31.85 31.85 0 0 1 51.03 3.964l-7.063 7.065a22.25 22.25 0 0 0-8.359-1.636c-12.378 0-22.412 10.077-22.412 22.5S23.228 54.4 35.606 54.4z" fill="#03A9F4"/>
+        <path d="M41.413 21.997L56.12 7.293l4.2 4.206-14.706 14.704zm-5.96 15.026a5.22 5.22 0 0 1-5.21-5.23c0-2.886 2.332-5.23 5.2-5.23s5.2 2.343 5.2 5.23a5.22 5.22 0 0 1-5.21 5.23zM60.398 52.2l-4.2 4.2-14.706-14.704 4.2-4.2z" fill="#222"/>
+    </svg>
+);
 
 interface Integration {
     id: string;
@@ -43,18 +59,18 @@ interface SyncStatus {
 const INTEGRATION_CONFIG = {
     stripe: {
         name: 'Stripe',
-        description: 'Sync invoices and payments via Stripe Connect',
-        icon: CreditCard,
-        color: 'purple',
-        useOAuth: true, // Uses Stripe Connect OAuth
+        description: 'Sync invoices and payments',
+        logo: StripeLogo,
+        color: '#635BFF',
+        useOAuth: true,
         docsUrl: 'https://stripe.com/docs/connect',
     },
     toggl: {
         name: 'Toggl Track',
-        description: 'Import time entries from Toggl',
-        icon: Timer,
-        color: 'pink',
-        useOAuth: true, // Uses OAuth 2.0
+        description: 'Import time entries',
+        logo: TogglLogo,
+        color: '#E57CD8',
+        useOAuth: true,
         fields: [
             { key: 'api_key', label: 'API Token', placeholder: 'Your Toggl API token', secret: true },
             { key: 'workspace_id', label: 'Workspace ID', placeholder: '1234567', secret: false },
@@ -63,10 +79,10 @@ const INTEGRATION_CONFIG = {
     },
     clockify: {
         name: 'Clockify',
-        description: 'Import time entries from Clockify',
-        icon: Clock,
-        color: 'blue',
-        useOAuth: false, // Uses API key
+        description: 'Import time entries',
+        logo: ClockifyLogo,
+        color: '#03A9F4',
+        useOAuth: false,
         fields: [
             { key: 'api_key', label: 'API Key', placeholder: 'Your Clockify API key', secret: true },
             { key: 'workspace_id', label: 'Workspace ID', placeholder: 'abc123def456', secret: false },
@@ -91,30 +107,27 @@ function IntegrationsContent() {
     const [externalProjects, setExternalProjects] = useState<Array<{ id: string | number; name: string }>>([]);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
-    // Handle OAuth callback messages from URL
     useEffect(() => {
         const success = searchParams.get('success');
         const error = searchParams.get('error');
 
         if (success) {
             const messages: Record<string, string> = {
-                stripe_connected: 'Stripe account connected successfully!',
-                toggl_connected: 'Toggl account connected successfully! Now let\'s map your projects to clients.',
-                clockify_connected: 'Clockify account connected successfully! Now let\'s map your projects to clients.',
+                stripe_connected: 'Stripe connected successfully!',
+                toggl_connected: 'Toggl connected! Map your projects to clients.',
+                clockify_connected: 'Clockify connected! Map your projects to clients.',
             };
             setNotification({
                 type: 'success',
-                message: messages[success] || 'Integration connected successfully!',
+                message: messages[success] || 'Integration connected!',
             });
 
-            // Auto-open mapping modal for time tracking integrations
             if (success === 'toggl_connected') {
                 setTimeout(() => handleFetchProjects('toggl'), 1000);
             } else if (success === 'clockify_connected') {
                 setTimeout(() => handleFetchProjects('clockify'), 1000);
             }
 
-            // Clean URL
             window.history.replaceState({}, '', '/app/settings/integrations');
         }
 
@@ -126,12 +139,10 @@ function IntegrationsContent() {
             window.history.replaceState({}, '', '/app/settings/integrations');
         }
 
-        // Auto-dismiss notification
         const timer = setTimeout(() => setNotification(null), 5000);
         return () => clearTimeout(timer);
     }, [searchParams]);
 
-    // Load integrations
     useEffect(() => {
         loadIntegrations();
     }, [organizationId, mode]);
@@ -140,7 +151,6 @@ function IntegrationsContent() {
         setIsLoading(true);
 
         if (mode === 'local') {
-            // Load from localStorage
             const stored = localStorage.getItem('revenueLeak_integrations');
             if (stored) {
                 setIntegrations(JSON.parse(stored));
@@ -153,12 +163,10 @@ function IntegrationsContent() {
                 setIntegrations(initial);
             }
         } else if (organizationId) {
-            // Fetch from Supabase via API
             try {
                 const response = await fetch(`/api/integrations?organization_id=${organizationId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    // Ensure all providers are represented
                     const providers = ['stripe', 'toggl', 'clockify'] as const;
                     const integrationsMap = new Map(data.integrations?.map((i: Integration) => [i.provider, i]));
 
@@ -185,12 +193,7 @@ function IntegrationsContent() {
             setIntegrations(updated);
             localStorage.setItem('revenueLeak_integrations', JSON.stringify(updated));
         }
-        // In Supabase mode, the API handles saving
     };
-
-    // ============================================
-    // OAUTH CONNECTION HANDLERS
-    // ============================================
 
     const handleStripeConnect = () => {
         if (!organizationId) {
@@ -198,7 +201,6 @@ function IntegrationsContent() {
             return;
         }
         setConnectingProvider('stripe');
-        // Redirect to Stripe Connect OAuth
         window.location.href = `/api/auth/stripe/connect?organization_id=${organizationId}`;
     };
 
@@ -207,15 +209,9 @@ function IntegrationsContent() {
             setNotification({ type: 'error', message: 'Organization not found' });
             return;
         }
-
-        // Prefer OAuth flow instead of API keys
         setConnectingProvider('toggl');
         window.location.href = `/api/auth/toggl/connect?organization_id=${organizationId}`;
     };
-
-    // ============================================
-    // API KEY CONNECTION HANDLERS
-    // ============================================
 
     const handleClockifyConnect = async () => {
         if (!formData.api_key) {
@@ -242,7 +238,6 @@ function IntegrationsContent() {
                 throw new Error(data.error || 'Connection failed');
             }
 
-            // Update local state
             const updated: Integration = {
                 id: 'clockify',
                 provider: 'clockify',
@@ -258,9 +253,8 @@ function IntegrationsContent() {
             await saveIntegration(updated);
             setEditingId(null);
             setFormData({});
-            setNotification({ type: 'success', message: 'Clockify connected! Now let\'s map your projects to clients.' });
+            setNotification({ type: 'success', message: 'Clockify connected!' });
             loadIntegrations();
-            // Auto-open mapping modal
             setTimeout(() => handleFetchProjects('clockify'), 500);
         } catch (err) {
             setNotification({
@@ -281,7 +275,6 @@ function IntegrationsContent() {
         setConnectingProvider('toggl');
 
         try {
-            // Validate the API key by fetching user info
             const auth = btoa(`${formData.api_key}:api_token`);
             const response = await fetch('https://api.track.toggl.com/api/v9/me', {
                 headers: { 'Authorization': `Basic ${auth}` },
@@ -293,7 +286,6 @@ function IntegrationsContent() {
 
             const userData = await response.json();
 
-            // Save to local state (or Supabase in production)
             const updated: Integration = {
                 id: 'toggl',
                 provider: 'toggl',
@@ -309,9 +301,8 @@ function IntegrationsContent() {
             await saveIntegration(updated);
             setEditingId(null);
             setFormData({});
-            setNotification({ type: 'success', message: 'Toggl connected! Now let\'s map your projects to clients.' });
+            setNotification({ type: 'success', message: 'Toggl connected!' });
             loadIntegrations();
-            // Auto-open mapping modal
             setTimeout(() => handleFetchProjects('toggl'), 500);
         } catch (err) {
             setNotification({
@@ -323,10 +314,6 @@ function IntegrationsContent() {
         }
     };
 
-    // ============================================
-    // SYNC HANDLERS
-    // ============================================
-
     const handleSync = async (provider: 'toggl' | 'clockify') => {
         const integration = integrations.find(i => i.provider === provider);
         if (!integration?.enabled) return;
@@ -334,7 +321,6 @@ function IntegrationsContent() {
         setSyncStatus(prev => ({ ...prev, [provider]: { loading: true } }));
 
         try {
-            // Get client mapping
             const mapping = localStorage.getItem(`revenueLeak_mapping_${provider}`);
             const clientMappingData = mapping ? JSON.parse(mapping) : {};
 
@@ -357,11 +343,10 @@ function IntegrationsContent() {
                 ...prev,
                 [provider]: {
                     loading: false,
-                    success: `Synced ${data.imported} entries (${data.skipped} skipped, ${data.unmapped} unmapped)`,
+                    success: `Synced ${data.imported} entries`,
                 },
             }));
 
-            // Update last sync time
             const updated: Integration = {
                 ...integration,
                 last_sync_at: new Date().toISOString(),
@@ -399,7 +384,6 @@ function IntegrationsContent() {
             const data = await response.json();
             setExternalProjects(data.projects || []);
 
-            // Load existing mapping
             const mapping = localStorage.getItem(`revenueLeak_mapping_${provider}`);
             if (mapping) {
                 setClientMapping(JSON.parse(mapping));
@@ -408,7 +392,7 @@ function IntegrationsContent() {
             console.error('Failed to fetch projects:', err);
             setNotification({
                 type: 'error',
-                message: 'Failed to fetch projects from ' + INTEGRATION_CONFIG[provider].name,
+                message: 'Failed to fetch projects',
             });
         }
     };
@@ -446,88 +430,46 @@ function IntegrationsContent() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-500" />
+                <Loader2 className="w-6 h-6 animate-spin text-gray-500" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500 max-w-4xl">
+        <div className="space-y-6 max-w-3xl mx-auto">
+            {/* Header */}
             <div className="flex items-center gap-4">
                 <Link
                     href="/app/settings"
-                    className="p-2 hover:bg-[var(--border)] rounded-lg transition-colors"
+                    className="text-gray-500 hover:text-white transition-colors"
                 >
-                    <ArrowLeft className="w-5 h-5 text-gray-400" />
+                    <ArrowLeft className="w-5 h-5" />
                 </Link>
                 <div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)]">Integrations</h1>
-                    <p className="text-gray-400 mt-1">Connect external services to sync data automatically.</p>
+                    <h1 className="text-xl font-medium text-white">Integrations</h1>
+                    <p className="text-sm text-gray-500">Connect services to sync data automatically.</p>
                 </div>
             </div>
 
-            {/* Security Trust Banner */}
-            <div className="bg-gradient-to-br from-[var(--profit)]/10 to-transparent border border-[var(--profit)]/20 rounded-2xl p-6">
-                <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-[var(--profit)]/20 flex items-center justify-center flex-shrink-0">
-                        <Shield className="w-6 h-6 text-[var(--profit)]" />
-                    </div>
-                    <div className="flex-1">
-                        <h3 className="text-lg font-bold text-[var(--foreground)] mb-2">
-                            Your API Keys Are Safe
-                        </h3>
-                        <p className="text-gray-400 text-sm mb-4 leading-relaxed">
-                            All credentials are encrypted with AES-256 and stored in isolated, secure databases.
-                            We only request <strong className="text-[var(--foreground)]">read-only</strong> access and never modify your data.
-                        </p>
-                        <div className="flex flex-wrap gap-3 text-sm">
-                            <div className="flex items-center gap-2 text-gray-400">
-                                <Lock className="w-4 h-4 text-[var(--profit)]" />
-                                <span>Encrypted at rest & in transit</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400">
-                                <Eye className="w-4 h-4 text-[var(--profit)]" />
-                                <span>Read-only access</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-gray-400">
-                                <CheckCircle className="w-4 h-4 text-[var(--profit)]" />
-                                <span>Secure Supabase storage</span>
-                            </div>
-                        </div>
-                        <Link
-                            href="/security"
-                            target="_blank"
-                            className="inline-flex items-center gap-2 text-sm text-[var(--neutral-metric)] hover:text-blue-400 transition-colors mt-4"
-                        >
-                            Learn more about our security
-                            <ExternalLink className="w-4 h-4" />
-                        </Link>
-                    </div>
-                </div>
-            </div>
-
-            {/* Global Notification */}
+            {/* Notification */}
             {notification && (
                 <div
-                    className={`p-4 rounded-lg flex items-center gap-3 ${notification.type === 'success'
-                        ? 'bg-green-500/10 border border-green-500/30 text-green-400'
-                        : 'bg-red-500/10 border border-red-500/30 text-red-400'
-                        }`}
+                    className={`px-4 py-3 rounded-lg flex items-center gap-3 text-sm ${
+                        notification.type === 'success'
+                            ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
+                            : 'bg-red-500/10 border border-red-500/20 text-red-400'
+                    }`}
                 >
-                    {notification.type === 'success' ? (
-                        <CheckCircle className="w-5 h-5" />
-                    ) : (
-                        <AlertTriangle className="w-5 h-5" />
-                    )}
+                    {notification.type === 'success' ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
                     {notification.message}
                 </div>
             )}
 
             {/* Integration Cards */}
-            <div className="space-y-4">
+            <div className="space-y-3" data-tutorial="integrations-list">
                 {integrations.map(integration => {
                     const config = INTEGRATION_CONFIG[integration.provider];
-                    const Icon = config.icon;
+                    const Logo = config.logo;
                     const isEditing = editingId === integration.id;
                     const status = syncStatus[integration.provider];
                     const isConnecting = connectingProvider === integration.provider;
@@ -535,43 +477,24 @@ function IntegrationsContent() {
                     return (
                         <div
                             key={integration.id}
-                            className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden"
+                            className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden"
                         >
                             {/* Header */}
-                            <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
+                            <div className="px-5 py-4 flex items-center justify-between">
                                 <div className="flex items-center gap-4">
                                     <div
-                                        className={`w-12 h-12 rounded-xl flex items-center justify-center ${config.color === 'purple'
-                                            ? 'bg-purple-500/20'
-                                            : config.color === 'pink'
-                                                ? 'bg-pink-500/20'
-                                                : 'bg-blue-500/20'
-                                            }`}
+                                        className="w-10 h-10 rounded-md flex items-center justify-center"
+                                        style={{ backgroundColor: `${config.color}15`, color: config.color }}
                                     >
-                                        <Icon
-                                            className={`w-6 h-6 ${config.color === 'purple'
-                                                ? 'text-purple-400'
-                                                : config.color === 'pink'
-                                                    ? 'text-pink-400'
-                                                    : 'text-blue-400'
-                                                }`}
-                                        />
+                                        <Logo />
                                     </div>
                                     <div>
                                         <div className="flex items-center gap-2">
-                                            <h3 className="text-lg font-semibold text-[var(--foreground)]">
-                                                {config.name}
-                                            </h3>
+                                            <h3 className="font-medium text-white">{config.name}</h3>
                                             {integration.enabled ? (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/20 text-green-400 text-xs font-medium rounded-full">
-                                                    <CheckCircle className="w-3 h-3" />
-                                                    Connected
-                                                </span>
+                                                <span className="text-xs text-emerald-400">Connected</span>
                                             ) : (
-                                                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-500/20 text-gray-400 text-xs font-medium rounded-full">
-                                                    <XCircle className="w-3 h-3" />
-                                                    Not Connected
-                                                </span>
+                                                <span className="text-xs text-gray-500">Not connected</span>
                                             )}
                                         </div>
                                         <p className="text-sm text-gray-500">{config.description}</p>
@@ -581,81 +504,54 @@ function IntegrationsContent() {
                                     href={config.docsUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="p-2 hover:bg-[var(--border)] rounded-lg transition-colors"
-                                    title="View documentation"
+                                    className="text-gray-500 hover:text-white transition-colors"
                                 >
-                                    <ExternalLink className="w-4 h-4 text-gray-500" />
+                                    <ExternalLink className="w-4 h-4" />
                                 </a>
                             </div>
 
                             {/* Content */}
-                            <div className="p-6">
-                                {/* Stripe - OAuth Connect */}
+                            <div className="px-5 pb-5">
+                                {/* Stripe */}
                                 {integration.provider === 'stripe' && !integration.enabled && (
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Connect your Stripe account using Stripe Connect. This securely links your Stripe account to automatically sync invoices and payments.
-                                        </p>
-                                        <button
-                                            onClick={handleStripeConnect}
-                                            disabled={isConnecting}
-                                            className="px-4 py-2 bg-purple-600 text-white font-medium rounded-lg text-sm hover:bg-purple-700 transition-colors inline-flex items-center gap-2 disabled:opacity-50"
-                                        >
-                                            {isConnecting ? (
-                                                <Loader2 className="w-4 h-4 animate-spin" />
-                                            ) : (
-                                                <Plug className="w-4 h-4" />
-                                            )}
-                                            Connect with Stripe
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={handleStripeConnect}
+                                        disabled={isConnecting}
+                                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                                    >
+                                        {isConnecting && <Loader2 className="w-4 h-4 animate-spin" />}
+                                        Connect Stripe
+                                    </button>
                                 )}
 
-                                {/* Toggl - OAuth or API Key */}
+                                {/* Toggl */}
                                 {integration.provider === 'toggl' && !integration.enabled && !isEditing && (
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Connect your Toggl Track account to import time entries automatically.
-                                        </p>
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={handleTogglConnect}
-                                                disabled={isConnecting}
-                                                className="px-4 py-2 bg-pink-600 text-white font-medium rounded-lg text-sm hover:bg-pink-700 transition-colors inline-flex items-center gap-2 disabled:opacity-50"
-                                            >
-                                                {isConnecting ? (
-                                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                                ) : (
-                                                    <Plug className="w-4 h-4" />
-                                                )}
-                                                Connect Toggl
-                                            </button>
-                                        </div>
-                                    </div>
+                                    <button
+                                        onClick={handleTogglConnect}
+                                        disabled={isConnecting}
+                                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                                    >
+                                        {isConnecting && <Loader2 className="w-4 h-4 animate-spin" />}
+                                        Connect Toggl
+                                    </button>
                                 )}
 
-                                {/* Clockify - API Key */}
+                                {/* Clockify */}
                                 {integration.provider === 'clockify' && !integration.enabled && !isEditing && (
-                                    <div>
-                                        <p className="text-sm text-gray-500 mb-4">
-                                            Enter your Clockify API key to import time entries.
-                                        </p>
-                                        <button
-                                            onClick={() => setEditingId('clockify')}
-                                            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg text-sm hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
-                                        >
-                                            <Plug className="w-4 h-4" />
-                                            Connect Clockify
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={() => setEditingId('clockify')}
+                                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors"
+                                    >
+                                        Connect Clockify
+                                    </button>
                                 )}
 
-                                {/* API Key Entry Form */}
+                                {/* API Key Form */}
                                 {isEditing && 'fields' in config && (
                                     <div className="space-y-4">
                                         {config.fields?.map(field => (
                                             <div key={field.key}>
-                                                <label className="block text-sm font-medium text-gray-300 mb-2">
+                                                <label className="block text-sm text-gray-400 mb-1.5">
                                                     {field.label}
                                                 </label>
                                                 <div className="relative">
@@ -666,39 +562,35 @@ function IntegrationsContent() {
                                                             setFormData(prev => ({ ...prev, [field.key]: e.target.value }))
                                                         }
                                                         placeholder={field.placeholder}
-                                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] pr-10"
+                                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[#333] pr-10"
                                                     />
                                                     {field.secret && (
                                                         <button
                                                             type="button"
                                                             onClick={() => toggleSecret(field.key)}
-                                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300"
+                                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                                                         >
-                                                            {showSecrets[field.key] ? (
-                                                                <EyeOff className="w-4 h-4" />
-                                                            ) : (
-                                                                <Eye className="w-4 h-4" />
-                                                            )}
+                                                            {showSecrets[field.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                         </button>
                                                     )}
                                                 </div>
                                             </div>
                                         ))}
-                                        <div className="flex gap-3 pt-2">
+                                        <div className="flex gap-3">
                                             <button
                                                 onClick={integration.provider === 'clockify' ? handleClockifyConnect : handleTogglApiConnect}
                                                 disabled={isConnecting}
-                                                className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm hover:bg-gray-200 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                                                className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
                                             >
                                                 {isConnecting && <Loader2 className="w-4 h-4 animate-spin" />}
-                                                Save & Connect
+                                                Connect
                                             </button>
                                             <button
                                                 onClick={() => {
                                                     setEditingId(null);
                                                     setFormData({});
                                                 }}
-                                                className="px-4 py-2 bg-[var(--background)] text-[var(--foreground)] font-medium rounded-lg text-sm hover:bg-[var(--border)] transition-colors border border-[var(--border)]"
+                                                className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors"
                                             >
                                                 Cancel
                                             </button>
@@ -709,65 +601,50 @@ function IntegrationsContent() {
                                 {/* Connected State */}
                                 {integration.enabled && (
                                     <div className="space-y-4">
-                                        {/* Connection Details */}
-                                        {integration.api_key && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-gray-500">API Key</span>
-                                                <span className="text-gray-300 font-mono">
-                                                    ••••••••{integration.api_key.slice(-4)}
-                                                </span>
+                                        <div className="flex items-center gap-6 text-sm">
+                                            {integration.api_key && (
+                                                <div>
+                                                    <span className="text-gray-500">API Key</span>
+                                                    <span className="ml-2 text-gray-300 font-mono">••••{integration.api_key.slice(-4)}</span>
+                                                </div>
+                                            )}
+                                            {integration.workspace_id && (
+                                                <div>
+                                                    <span className="text-gray-500">Workspace</span>
+                                                    <span className="ml-2 text-gray-300">
+                                                        {(integration.config?.workspace_name as string) || integration.workspace_id}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div>
+                                                <span className="text-gray-500">Last sync</span>
+                                                <span className="ml-2 text-gray-300">{formatLastSync(integration.last_sync_at)}</span>
                                             </div>
-                                        )}
-                                        {!!(integration.config as any)?.stripe_user_id && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-gray-500">Account ID</span>
-                                                <span className="text-gray-300 font-mono">
-                                                    {String((integration.config as any)?.stripe_user_id).slice(0, 20)}...
-                                                </span>
-                                            </div>
-                                        )}
-                                        {integration.workspace_id && (
-                                            <div className="flex items-center justify-between text-sm">
-                                                <span className="text-gray-500">Workspace</span>
-                                                <span className="text-gray-300">
-                                                    {(integration.config?.workspace_name as string) || integration.workspace_id}
-                                                </span>
-                                            </div>
-                                        )}
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="text-gray-500">Last Synced</span>
-                                            <span className="text-gray-300">{formatLastSync(integration.last_sync_at)}</span>
                                         </div>
 
-                                        {/* Sync Status */}
+                                        {/* Status */}
                                         {status?.error && (
-                                            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2 text-sm text-red-400">
-                                                <AlertTriangle className="w-4 h-4" />
-                                                {status.error}
-                                            </div>
+                                            <p className="text-sm text-red-400">{status.error}</p>
                                         )}
                                         {status?.success && (
-                                            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg flex items-center gap-2 text-sm text-green-400">
-                                                <CheckCircle className="w-4 h-4" />
-                                                {status.success}
-                                            </div>
+                                            <p className="text-sm text-emerald-400">{status.success}</p>
                                         )}
 
                                         {/* Actions */}
-                                        <div className="flex flex-wrap gap-3 pt-2">
+                                        <div className="flex gap-3">
                                             {(integration.provider === 'toggl' || integration.provider === 'clockify') && (
                                                 <>
                                                     <button
                                                         onClick={() => handleSync(integration.provider as any)}
                                                         disabled={status?.loading}
-                                                        className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm hover:bg-gray-200 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                                                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
                                                     >
                                                         <RefreshCw className={`w-4 h-4 ${status?.loading ? 'animate-spin' : ''}`} />
-                                                        {status?.loading ? 'Syncing...' : 'Sync Now'}
+                                                        {status?.loading ? 'Syncing...' : 'Sync'}
                                                     </button>
                                                     <button
                                                         onClick={() => handleFetchProjects(integration.provider as any)}
-                                                        className="px-4 py-2 bg-[var(--background)] text-[var(--foreground)] font-medium rounded-lg text-sm hover:bg-[var(--border)] transition-colors border border-[var(--border)]"
+                                                        className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors"
                                                     >
                                                         Configure Mapping
                                                     </button>
@@ -775,7 +652,7 @@ function IntegrationsContent() {
                                             )}
                                             <button
                                                 onClick={() => handleDisconnect(integration.provider)}
-                                                className="px-4 py-2 bg-red-500/10 text-red-400 font-medium rounded-lg text-sm hover:bg-red-500/20 transition-colors border border-red-500/30"
+                                                className="px-4 py-2 text-red-400 hover:text-red-300 text-sm transition-colors"
                                             >
                                                 Disconnect
                                             </button>
@@ -790,67 +667,60 @@ function IntegrationsContent() {
 
             {/* Client Mapping Modal */}
             {showMapping && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] w-full max-w-2xl max-h-[80vh] overflow-hidden">
-                        <div className="px-6 py-4 border-b border-[var(--border)] flex items-center justify-between">
-                            <h3 className="text-lg font-semibold text-[var(--foreground)]">
-                                Map {INTEGRATION_CONFIG[showMapping as keyof typeof INTEGRATION_CONFIG].name} Projects to Clients
+                <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+                    <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] w-full max-w-xl max-h-[80vh] overflow-hidden">
+                        <div className="px-5 py-4 border-b border-[#1c1c1f] flex items-center justify-between">
+                            <h3 className="font-medium text-white">
+                                Map {INTEGRATION_CONFIG[showMapping as keyof typeof INTEGRATION_CONFIG].name} Projects
                             </h3>
                             <button
                                 onClick={() => {
                                     setShowMapping(null);
                                     setExternalProjects([]);
                                 }}
-                                className="p-2 hover:bg-[var(--border)] rounded-lg transition-colors"
+                                className="text-gray-500 hover:text-white transition-colors"
                             >
-                                <XCircle className="w-5 h-5 text-gray-500" />
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
-                        <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
-                            <p className="text-sm text-gray-500">
-                                Map your external projects to Obsidian clients. Time entries from mapped projects will be synced to the corresponding client.
-                            </p>
+                        <div className="p-5 space-y-3 max-h-[50vh] overflow-y-auto">
                             {externalProjects.length > 0 ? (
                                 externalProjects.map(project => (
                                     <div key={project.id} className="flex items-center gap-4">
-                                        <div className="flex-1">
-                                            <span className="text-sm text-[var(--foreground)]">{project.name}</span>
-                                        </div>
-                                        <div className="w-48">
-                                            <select
-                                                value={clientMapping[String(project.id)] || ''}
-                                                onChange={(e) =>
-                                                    setClientMapping(prev => ({
-                                                        ...prev,
-                                                        [String(project.id)]: e.target.value,
-                                                    }))
-                                                }
-                                                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
-                                            >
-                                                <option value="">Skip this project</option>
-                                                {clients.map((client: any) => (
-                                                    <option key={client.id} value={client.id}>
-                                                        {client.name}
-                                                    </option>
-                                                ))}
-                                            </select>
-                                        </div>
+                                        <span className="flex-1 text-sm text-white truncate">{project.name}</span>
+                                        <select
+                                            value={clientMapping[String(project.id)] || ''}
+                                            onChange={(e) =>
+                                                setClientMapping(prev => ({
+                                                    ...prev,
+                                                    [String(project.id)]: e.target.value,
+                                                }))
+                                            }
+                                            className="w-40 bg-[#0a0a0b] border border-[#1c1c1f] rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:border-[#333]"
+                                        >
+                                            <option value="">Skip</option>
+                                            {clients.map((client: any) => (
+                                                <option key={client.id} value={client.id}>
+                                                    {client.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 ))
                             ) : (
                                 <div className="text-center py-8 text-gray-500">
-                                    <RefreshCw className="w-8 h-8 mx-auto mb-2 animate-spin" />
-                                    <p>Loading projects...</p>
+                                    <Loader2 className="w-6 h-6 mx-auto mb-2 animate-spin" />
+                                    <p className="text-sm">Loading projects...</p>
                                 </div>
                             )}
                         </div>
-                        <div className="px-6 py-4 border-t border-[var(--border)] flex justify-end gap-3">
+                        <div className="px-5 py-4 border-t border-[#1c1c1f] flex justify-end gap-3">
                             <button
                                 onClick={() => {
                                     setShowMapping(null);
                                     setExternalProjects([]);
                                 }}
-                                className="px-4 py-2 bg-[var(--background)] text-[var(--foreground)] font-medium rounded-lg text-sm hover:bg-[var(--border)] transition-colors border border-[var(--border)]"
+                                className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors"
                             >
                                 Cancel
                             </button>
@@ -864,44 +734,21 @@ function IntegrationsContent() {
                                     setExternalProjects([]);
                                     setNotification({ type: 'success', message: 'Mapping saved!' });
                                 }}
-                                className="px-4 py-2 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-lg text-sm hover:bg-gray-200 transition-colors"
+                                className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors"
                             >
-                                Save Mapping
+                                Save
                             </button>
                         </div>
                     </div>
                 </div>
             )}
-
-            {/* Help Section */}
-            <div className="bg-[var(--background)] rounded-xl border border-[var(--border)] p-6">
-                <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Getting Started</h3>
-                <ul className="space-y-2 text-sm text-gray-500">
-                    <li className="flex items-start gap-2">
-                        <span className="font-mono text-xs bg-[var(--card)] px-1.5 py-0.5 rounded">1</span>
-                        <span>For Stripe, click &quot;Connect with Stripe&quot; to securely link your account via Stripe Connect</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="font-mono text-xs bg-[var(--card)] px-1.5 py-0.5 rounded">2</span>
-                        <span>For time tracking, connect Toggl or Clockify with your API key/token</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="font-mono text-xs bg-[var(--card)] px-1.5 py-0.5 rounded">3</span>
-                        <span>Configure project-to-client mapping to route time entries correctly</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                        <span className="font-mono text-xs bg-[var(--card)] px-1.5 py-0.5 rounded">4</span>
-                        <span>Click &quot;Sync Now&quot; to import your time entries</span>
-                    </li>
-                </ul>
-            </div>
         </div>
     );
 }
 
 export default function IntegrationsPage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-[var(--foreground)]" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-6 h-6 animate-spin text-gray-500" /></div>}>
             <IntegrationsContent />
         </Suspense>
     );

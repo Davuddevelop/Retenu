@@ -12,7 +12,7 @@ const testimonials = [
     company: 'Pixel Perfect Agency',
     avatar: 'SC',
     content:
-      'Obsidian found $32,000 in missed invoices in our first week. The ROI was immediate and the setup was surprisingly simple.',
+      'OBSIDIAN found $32,000 in missed invoices in our first week. The ROI was immediate and the setup was surprisingly simple.',
     stats: { recovered: '$32K', time: '1 week' },
   },
   {

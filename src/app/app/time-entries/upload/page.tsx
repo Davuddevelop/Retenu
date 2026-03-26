@@ -209,7 +209,7 @@ export default function UploadTimeEntriesPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-4xl">
+        <div className="space-y-6 animate-in fade-in duration-500 max-w-4xl mx-auto">
             {/* Back Link */}
             <Link
                 href="/app/time-entries"

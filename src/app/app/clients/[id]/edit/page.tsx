@@ -135,7 +135,7 @@ export default function EditClientPage() {
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl">
+        <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl mx-auto">
             {/* Back Link */}
             <Link
                 href={`/app/clients/${clientId}`}

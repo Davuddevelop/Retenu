@@ -1,73 +1,171 @@
 // src/app/components/Tutorial.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, TrendingUp, AlertTriangle, Users, Check, Settings, BarChart3, DollarSign } from 'lucide-react';
+import {
+    X,
+    ArrowRight,
+    ArrowLeft,
+    TrendingUp,
+    AlertTriangle,
+    Users,
+    Check,
+    Settings,
+    BarChart3,
+    DollarSign,
+    Clock,
+    FileText,
+    Plug,
+    PieChart
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface TutorialStep {
     id: string;
     title: string;
     description: string;
-    page: string; // Which page to navigate to
-    target?: string; // CSS selector for element to highlight
+    tip?: string;
+    page: string;
+    target?: string;
     position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
     icon: React.ReactNode;
+    action?: string;
 }
 
 const tutorialSteps: TutorialStep[] = [
     {
         id: 'welcome',
-        title: 'Welcome to Obsidian',
-        description: 'Obsidian helps you detect and recover lost revenue from underbilling, scope creep, and late payments. Let\'s explore the key features.',
+        title: 'Welcome to OBSIDIAN',
+        description: 'OBSIDIAN detects revenue leaks in your agency—unbilled hours, scope creep, late payments, and missing invoices. Most agencies lose 4-10% of revenue to these gaps.',
+        tip: 'This quick tour will show you how to find and recover lost revenue.',
         page: '/app',
         position: 'center',
-        icon: <DollarSign className="w-6 h-6" />,
+        icon: <DollarSign className="w-5 h-5" />,
     },
     {
-        id: 'dashboard-metrics',
-        title: 'Track Your Revenue Health',
-        description: 'See your total revenue, detected leakage, and margin at a glance. The red card shows how much money you\'re losing - this is what we help you recover.',
+        id: 'revenue-at-risk',
+        title: 'Revenue at Risk',
+        description: 'This is your primary metric. It shows the total amount of money currently at risk across all your clients—from unbilled work, scope creep, and overdue payments.',
+        tip: 'Click on the breakdown to see where the leakage is coming from.',
         page: '/app',
         target: '[data-tutorial="metrics"]',
         position: 'bottom',
-        icon: <BarChart3 className="w-6 h-6" />,
+        icon: <AlertTriangle className="w-5 h-5" />,
     },
     {
-        id: 'alerts',
-        title: 'Revenue Alerts',
-        description: 'Every alert represents money you can recover. Click on alerts to see details and take action. We automatically detect unbilled work, over-hours, missing invoices, and overdue payments.',
+        id: 'stats-overview',
+        title: 'Key Metrics',
+        description: 'Quick overview of your business health: active clients, total revenue, logged hours, and unpaid invoices. Click any card to drill down.',
+        tip: 'Red numbers indicate issues that need attention.',
+        page: '/app',
+        target: '[data-tutorial="stats-grid"]',
+        position: 'bottom',
+        icon: <BarChart3 className="w-5 h-5" />,
+    },
+    {
+        id: 'chart',
+        title: 'Revenue Trends',
+        description: 'Track revenue and leakage over time. The red area shows detected leakage each month—spikes indicate periods with billing issues.',
+        tip: 'Use the timeframe buttons (3M, 6M, 12M) to adjust the view.',
+        page: '/app',
+        target: '[data-tutorial="chart"]',
+        position: 'top',
+        icon: <TrendingUp className="w-5 h-5" />,
+    },
+    {
+        id: 'alerts-section',
+        title: 'Active Alerts',
+        description: 'Every alert represents recoverable revenue. We detect: unbilled hours, scope creep (over hour limits), missing invoices, and late payments.',
+        tip: 'Alerts are sorted by severity and impact. Address critical ones first.',
         page: '/app',
         target: '[data-tutorial="alerts"]',
         position: 'top',
-        icon: <AlertTriangle className="w-6 h-6" />,
+        icon: <AlertTriangle className="w-5 h-5" />,
+    },
+    {
+        id: 'sidebar-nav',
+        title: 'Navigation',
+        description: 'Access all sections from the sidebar: Dashboard for overview, Clients to manage accounts, Time Entries for hours, Invoices for billing, and Alerts for issues.',
+        page: '/app',
+        target: '[data-tutorial="sidebar"]',
+        position: 'right',
+        icon: <PieChart className="w-5 h-5" />,
     },
     {
         id: 'clients-page',
-        title: 'Manage Your Clients',
-        description: 'Add clients here to start tracking their revenue health. For each client, you can see their profitability, upload time entries, and track invoices.',
+        title: 'Client Management',
+        description: 'Add and manage your clients here. Each client has a retainer amount, hour limit, and custom rates. We track profitability and detect issues per client.',
+        tip: 'Click "Add Client" to create your first client, or click a client row to see details.',
         page: '/app/clients',
         target: '[data-tutorial="clients-list"]',
         position: 'bottom',
-        icon: <Users className="w-6 h-6" />,
+        icon: <Users className="w-5 h-5" />,
+        action: 'View clients',
+    },
+    {
+        id: 'time-entries',
+        title: 'Time Tracking',
+        description: 'Log hours manually or import from CSV, Toggl, or Clockify. We compare logged hours against retainers to detect underbilling and scope creep.',
+        tip: 'Billable vs non-billable hours affect your margin calculations.',
+        page: '/app/time-entries',
+        target: '[data-tutorial="time-entries-header"]',
+        position: 'bottom',
+        icon: <Clock className="w-5 h-5" />,
+        action: 'View time entries',
+    },
+    {
+        id: 'invoices',
+        title: 'Invoice Management',
+        description: 'Track all invoices—sent, paid, and overdue. We detect missing invoices (work done but not billed) and late payments automatically.',
+        tip: 'The collection rate shows what percentage of invoiced amount has been paid.',
+        page: '/app/invoices',
+        target: '[data-tutorial="invoices-header"]',
+        position: 'bottom',
+        icon: <FileText className="w-5 h-5" />,
+        action: 'View invoices',
+    },
+    {
+        id: 'alerts-page',
+        title: 'All Alerts',
+        description: 'See every detected issue across all clients. Filter by type (unbilled, scope creep, etc.) or severity (critical, high, medium).',
+        tip: 'Each alert shows the estimated dollar impact—this is money you can recover.',
+        page: '/app/alerts',
+        target: '[data-tutorial="alerts-table"]',
+        position: 'bottom',
+        icon: <AlertTriangle className="w-5 h-5" />,
+        action: 'View all alerts',
     },
     {
         id: 'settings',
-        title: 'Configure Your Settings',
-        description: 'Set your hourly rates, cost rates, and alert thresholds here. These settings help us accurately detect Obsidians for your business.',
+        title: 'Settings',
+        description: 'Configure your default rates (hourly billing and cost rates), currency, and alert thresholds. These settings affect how we calculate margins and detect leaks.',
+        tip: 'Set your margin warning threshold to get alerted when client profitability drops.',
         page: '/app/settings',
         target: '[data-tutorial="settings-form"]',
         position: 'bottom',
-        icon: <Settings className="w-6 h-6" />,
+        icon: <Settings className="w-5 h-5" />,
+        action: 'Open settings',
+    },
+    {
+        id: 'integrations',
+        title: 'Integrations',
+        description: 'Connect Stripe to sync invoices automatically, or Toggl/Clockify to import time entries. This keeps your data up-to-date without manual work.',
+        tip: 'After connecting, map your external projects to OBSIDIAN clients.',
+        page: '/app/settings/integrations',
+        target: '[data-tutorial="integrations-list"]',
+        position: 'bottom',
+        icon: <Plug className="w-5 h-5" />,
+        action: 'View integrations',
     },
     {
         id: 'complete',
-        title: 'You\'re Ready to Start!',
-        description: 'Add your first client and start detecting Obsidians. The system will analyze your data for unbilled hours, scope creep, and more.',
+        title: 'You\'re all set!',
+        description: 'Start by adding your first client, then import time entries and invoices. OBSIDIAN will automatically analyze your data and surface revenue leaks.',
+        tip: 'You can replay this tutorial anytime from Settings.',
         page: '/app',
         position: 'center',
-        icon: <Check className="w-6 h-6" />,
+        icon: <Check className="w-5 h-5" />,
     },
 ];
 
@@ -84,62 +182,53 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     const step = tutorialSteps[currentStep];
 
     useEffect(() => {
-        // Navigate to the page for this step
         if (step.page && window.location.pathname !== step.page) {
-            // eslint-disable-next-line react-hooks/set-state-in-effect
             setIsNavigating(true);
             router.push(step.page);
-            // Wait for navigation
             const timer = setTimeout(() => {
                 setIsNavigating(false);
-            }, 300);
+            }, 400);
             return () => clearTimeout(timer);
         }
     }, [currentStep, step.page, router]);
 
+    const updatePosition = useCallback(() => {
+        if (!step.target) return;
+
+        const element = document.querySelector(step.target);
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            setHighlightPosition({
+                top: rect.top,
+                left: rect.left,
+                width: rect.width,
+                height: rect.height,
+            });
+        }
+    }, [step.target]);
+
     useEffect(() => {
         if (step.target && !isNavigating) {
-            const updatePosition = () => {
-                const element = document.querySelector(step.target!);
-                if (element) {
-                    const rect = element.getBoundingClientRect();
-
-                    // Use current viewport position
-                    setHighlightPosition({
-                        top: rect.top,
-                        left: rect.left,
-                        width: rect.width,
-                        height: rect.height,
-                    });
-                }
-            };
-
-            // Initial position update
-            setTimeout(() => {
+            // Initial position update with delay for page render
+            const initTimer = setTimeout(() => {
                 updatePosition();
                 const element = document.querySelector(step.target!);
                 if (element) {
-                    // Scroll element into view
                     element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    // Update position after scroll completes
-                    setTimeout(updatePosition, 800);
+                    setTimeout(updatePosition, 500);
                 }
-            }, 600);
+            }, 500);
 
-            // Update position on scroll and resize
-            const handleUpdate = () => {
-                requestAnimationFrame(updatePosition);
-            };
-
-            window.addEventListener('scroll', handleUpdate, true);
-            window.addEventListener('resize', handleUpdate);
+            window.addEventListener('scroll', updatePosition, true);
+            window.addEventListener('resize', updatePosition);
 
             return () => {
-                window.removeEventListener('scroll', handleUpdate, true);
-                window.removeEventListener('resize', handleUpdate);
+                clearTimeout(initTimer);
+                window.removeEventListener('scroll', updatePosition, true);
+                window.removeEventListener('resize', updatePosition);
             };
         }
-    }, [currentStep, step.target, isNavigating]);
+    }, [currentStep, step.target, isNavigating, updatePosition]);
 
     const handleNext = () => {
         if (currentStep < tutorialSteps.length - 1) {
@@ -155,31 +244,20 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
         }
     };
 
-    const handleSkip = () => {
-        onSkip();
-    };
-
-    const getTooltipPosition = () => {
+    const getTooltipStyle = (): React.CSSProperties => {
         if (step.position === 'center' || !step.target || highlightPosition.width === 0) {
             return {
-                position: 'fixed' as const,
+                position: 'fixed',
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                maxHeight: 'calc(100vh - 100px)',
-                overflowY: 'auto' as const,
             };
         }
 
-        const baseStyle: React.CSSProperties = {
-            position: 'fixed' as const,
-        };
+        const padding = 20;
+        const viewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
+        const viewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
 
-        const padding = 24;
-        const viewportHeight = window.innerHeight;
-        const viewportWidth = window.innerWidth;
-
-        // Calculate position with boundary checks
         let top = highlightPosition.top;
         let left = highlightPosition.left;
         let transform = '';
@@ -189,9 +267,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 top = highlightPosition.top + highlightPosition.height + padding;
                 left = highlightPosition.left + highlightPosition.width / 2;
                 transform = 'translateX(-50%)';
-
-                // Check if tooltip would go off bottom of screen
-                if (top > viewportHeight - 300) {
+                if (top > viewportHeight - 280) {
                     top = highlightPosition.top - padding;
                     transform = 'translate(-50%, -100%)';
                 }
@@ -200,9 +276,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 top = highlightPosition.top - padding;
                 left = highlightPosition.left + highlightPosition.width / 2;
                 transform = 'translate(-50%, -100%)';
-
-                // Check if tooltip would go off top of screen
-                if (top < 100) {
+                if (top < 150) {
                     top = highlightPosition.top + highlightPosition.height + padding;
                     transform = 'translateX(-50%)';
                 }
@@ -211,9 +285,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 top = highlightPosition.top + highlightPosition.height / 2;
                 left = highlightPosition.left + highlightPosition.width + padding;
                 transform = 'translateY(-50%)';
-
-                // Check if tooltip would go off right of screen
-                if (left > viewportWidth - 400) {
+                if (left > viewportWidth - 420) {
                     left = highlightPosition.left - padding;
                     transform = 'translate(-100%, -50%)';
                 }
@@ -222,9 +294,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 top = highlightPosition.top + highlightPosition.height / 2;
                 left = highlightPosition.left - padding;
                 transform = 'translate(-100%, -50%)';
-
-                // Check if tooltip would go off left of screen
-                if (left < 100) {
+                if (left < 420) {
                     left = highlightPosition.left + highlightPosition.width + padding;
                     transform = 'translateY(-50%)';
                 }
@@ -232,26 +302,26 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
         }
 
         return {
-            ...baseStyle,
+            position: 'fixed',
             top: `${top}px`,
             left: `${left}px`,
             transform,
-            maxHeight: 'calc(100vh - 100px)',
-            overflowY: 'auto' as const,
         };
     };
+
+    const hasHighlight = step.target && highlightPosition.width > 0 && !isNavigating;
 
     return (
         <AnimatePresence>
             <div className="fixed inset-0 z-50 pointer-events-none">
-                {/* Overlay - allows clicks to pass through highlighted areas */}
+                {/* Overlay with cutout */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
-                    className="absolute inset-0 bg-black/70"
+                    className="absolute inset-0 bg-black/80"
                     style={{
-                        clipPath: step.target && highlightPosition.width > 0 && !isNavigating
+                        clipPath: hasHighlight
                             ? `polygon(
                                 0% 0%,
                                 0% 100%,
@@ -268,119 +338,110 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                     }}
                 />
 
-                {/* Highlight area */}
-                {step.target && highlightPosition.width > 0 && !isNavigating && (
-                    <>
-                        {/* Animated pulsing ring */}
-                        <motion.div
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ duration: 0.3 }}
-                            className="absolute rounded-2xl pointer-events-none"
-                            style={{
-                                top: `${highlightPosition.top - 8}px`,
-                                left: `${highlightPosition.left - 8}px`,
-                                width: `${highlightPosition.width + 16}px`,
-                                height: `${highlightPosition.height + 16}px`,
-                                boxShadow: '0 0 0 4px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.4)',
-                                border: '2px solid rgba(59, 130, 246, 0.8)',
-                            }}
-                        />
-                    </>
+                {/* Highlight border */}
+                {hasHighlight && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="absolute rounded-lg pointer-events-none"
+                        style={{
+                            top: `${highlightPosition.top - 6}px`,
+                            left: `${highlightPosition.left - 6}px`,
+                            width: `${highlightPosition.width + 12}px`,
+                            height: `${highlightPosition.height + 12}px`,
+                            border: '2px solid #FF5733',
+                            boxShadow: '0 0 0 4px rgba(255, 87, 51, 0.2)',
+                        }}
+                    />
                 )}
 
-                {/* Tooltip */}
+                {/* Tooltip Card */}
                 <motion.div
                     key={step.id}
-                    initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.3, delay: isNavigating ? 0.3 : 0 }}
-                    className="absolute max-w-lg w-full px-4 pointer-events-auto"
-                    style={getTooltipPosition()}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2, delay: isNavigating ? 0.3 : 0 }}
+                    className="absolute w-[400px] max-w-[calc(100vw-32px)] pointer-events-auto"
+                    style={getTooltipStyle()}
                 >
-                    <div className="bg-[var(--card)] border-2 border-[var(--border)] rounded-2xl p-6 shadow-2xl relative">
-                        {/* Gradient accent */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-[var(--neutral-metric)]/5 to-transparent rounded-2xl pointer-events-none" />
-
-                        {/* Close button */}
-                        <button
-                            onClick={handleSkip}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-[var(--foreground)] transition-colors z-10"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-
-                        <div className="relative">
-                            {/* Icon */}
-                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[var(--leak)] to-orange-400 flex items-center justify-center text-white mb-4 shadow-lg">
-                                {step.icon}
+                    <div className="bg-[#111113] border border-[#2a2a2f] rounded-lg shadow-2xl overflow-hidden">
+                        {/* Header */}
+                        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1c1c1f]">
+                            <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-md bg-[#1c1c1f] flex items-center justify-center text-[#FF5733]">
+                                    {step.icon}
+                                </div>
+                                <div>
+                                    <h3 className="text-sm font-medium text-white">{step.title}</h3>
+                                    <p className="text-xs text-gray-500">Step {currentStep + 1} of {tutorialSteps.length}</p>
+                                </div>
                             </div>
+                            <button
+                                onClick={onSkip}
+                                className="p-1.5 text-gray-500 hover:text-white hover:bg-[#1c1c1f] rounded-md transition-colors"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
 
-                            {/* Content */}
-                            <h3 className="text-xl font-bold text-[var(--foreground)] mb-3 pr-8">
-                                {step.title}
-                            </h3>
-                            <p className="text-gray-400 text-sm leading-relaxed mb-6">
+                        {/* Content */}
+                        <div className="px-5 py-4">
+                            <p className="text-sm text-gray-300 leading-relaxed mb-3">
                                 {step.description}
                             </p>
+                            {step.tip && (
+                                <div className="flex items-start gap-2 px-3 py-2.5 bg-[#0a0a0b] rounded-md border border-[#1c1c1f]">
+                                    <span className="text-[#FF5733] text-xs font-medium mt-0.5">TIP</span>
+                                    <p className="text-xs text-gray-400 leading-relaxed">{step.tip}</p>
+                                </div>
+                            )}
+                        </div>
 
-                            {/* Progress */}
-                            <div className="mb-6">
-                                <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-                                    <span>Step {currentStep + 1} of {tutorialSteps.length}</span>
-                                    <span>{Math.round(((currentStep + 1) / tutorialSteps.length) * 100)}%</span>
-                                </div>
-                                <div className="flex items-center gap-1.5">
-                                    {tutorialSteps.map((_, index) => (
-                                        <div
-                                            key={index}
-                                            className={`h-1.5 rounded-full transition-all duration-300 ${index === currentStep
-                                                    ? 'flex-1 bg-gradient-to-r from-[var(--leak)] to-orange-400'
-                                                    : index < currentStep
-                                                        ? 'w-1.5 bg-[var(--profit)]'
-                                                        : 'w-1.5 bg-[var(--border)]'
-                                                }`}
-                                        />
-                                    ))}
-                                </div>
+                        {/* Progress bar */}
+                        <div className="px-5">
+                            <div className="h-1 bg-[#1c1c1f] rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-[#FF5733] transition-all duration-300"
+                                    style={{ width: `${((currentStep + 1) / tutorialSteps.length) * 100}%` }}
+                                />
                             </div>
+                        </div>
 
-                            {/* Navigation */}
-                            <div className="flex items-center justify-between gap-3">
-                                <button
-                                    onClick={handleSkip}
-                                    className="text-sm text-gray-400 hover:text-[var(--foreground)] transition-colors font-medium"
-                                >
-                                    Skip tutorial
-                                </button>
-                                <div className="flex items-center gap-2">
-                                    {currentStep > 0 && (
-                                        <button
-                                            onClick={handlePrevious}
-                                            className="px-4 py-2.5 text-sm font-medium text-[var(--foreground)] border border-[var(--border)] rounded-xl hover:bg-[var(--background)] transition-all inline-flex items-center gap-2"
-                                        >
-                                            <ArrowLeft className="w-4 h-4" />
-                                            Back
-                                        </button>
-                                    )}
+                        {/* Footer */}
+                        <div className="flex items-center justify-between px-5 py-4">
+                            <button
+                                onClick={onSkip}
+                                className="text-xs text-gray-500 hover:text-white transition-colors"
+                            >
+                                Skip tutorial
+                            </button>
+                            <div className="flex items-center gap-2">
+                                {currentStep > 0 && (
                                     <button
-                                        onClick={handleNext}
-                                        className="px-5 py-2.5 text-sm font-semibold bg-gradient-to-r from-[var(--leak)] to-orange-400 text-white rounded-xl hover:opacity-90 transition-all inline-flex items-center gap-2 shadow-lg"
+                                        onClick={handlePrevious}
+                                        className="px-3 py-2 text-sm text-gray-400 hover:text-white hover:bg-[#1c1c1f] rounded-md transition-colors inline-flex items-center gap-1.5"
                                     >
-                                        {currentStep === tutorialSteps.length - 1 ? (
-                                            <>
-                                                Get Started
-                                                <Check className="w-4 h-4" />
-                                            </>
-                                        ) : (
-                                            <>
-                                                Next
-                                                <ArrowRight className="w-4 h-4" />
-                                            </>
-                                        )}
+                                        <ArrowLeft className="w-3.5 h-3.5" />
+                                        Back
                                     </button>
-                                </div>
+                                )}
+                                <button
+                                    onClick={handleNext}
+                                    className="px-4 py-2 bg-[#FF5733] hover:bg-[#E84118] text-white text-sm font-medium rounded-md transition-colors inline-flex items-center gap-1.5"
+                                >
+                                    {currentStep === tutorialSteps.length - 1 ? (
+                                        <>
+                                            Get Started
+                                            <Check className="w-3.5 h-3.5" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            Next
+                                            <ArrowRight className="w-3.5 h-3.5" />
+                                        </>
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -390,7 +451,7 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     );
 }
 
-// Welcome Modal (shown before tutorial)
+// Welcome Modal
 interface WelcomeModalProps {
     onStart: () => void;
     onSkip: () => void;
@@ -399,87 +460,80 @@ interface WelcomeModalProps {
 export function WelcomeModal({ onStart, onSkip }: WelcomeModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            {/* Overlay */}
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/80"
                 onClick={onSkip}
             />
 
-            {/* Modal */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                transition={{ duration: 0.3 }}
-                className="relative max-w-lg w-full bg-[var(--card)] border-2 border-[var(--border)] rounded-2xl p-8 shadow-2xl"
+                exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                transition={{ duration: 0.2 }}
+                className="relative w-full max-w-md bg-[#111113] border border-[#2a2a2f] rounded-lg shadow-2xl overflow-hidden"
             >
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-br from-[var(--leak)]/10 via-transparent to-[var(--neutral-metric)]/5 rounded-2xl pointer-events-none" />
-
-                <div className="relative">
-                    {/* Icon */}
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-[var(--leak)] to-orange-400 flex items-center justify-center text-white mb-6 mx-auto shadow-xl">
-                        <DollarSign className="w-10 h-10" />
+                {/* Header */}
+                <div className="px-6 pt-6 pb-4 text-center">
+                    <div className="w-14 h-14 rounded-lg bg-[#1c1c1f] flex items-center justify-center mx-auto mb-4">
+                        <DollarSign className="w-7 h-7 text-[#FF5733]" />
                     </div>
-
-                    {/* Content */}
-                    <h2 className="text-3xl font-bold text-[var(--foreground)] text-center mb-3">
-                        Welcome to Obsidian
+                    <h2 className="text-xl font-medium text-white mb-2">
+                        Welcome to OBSIDIAN
                     </h2>
-                    <p className="text-gray-400 text-center mb-8 leading-relaxed text-lg">
-                        Recover lost revenue from underbilling, scope creep, and late payments.
+                    <p className="text-sm text-gray-400">
+                        Revenue leak detection for agencies
                     </p>
+                </div>
 
-                    {/* Features list */}
-                    <div className="space-y-4 mb-8">
-                        {[
-                            {
-                                icon: <BarChart3 className="w-5 h-5" />,
-                                title: 'Track Revenue Health',
-                                text: 'See exactly where money is leaking in real-time'
-                            },
-                            {
-                                icon: <AlertTriangle className="w-5 h-5" />,
-                                title: 'Smart Alerts',
-                                text: 'Get notified about underbilling and scope creep instantly'
-                            },
-                            {
-                                icon: <TrendingUp className="w-5 h-5" />,
-                                title: 'Find Hidden Revenue',
-                                text: 'Detect 4-10% of revenue typically lost to billing gaps'
-                            },
-                        ].map((feature, index) => (
-                            <div key={index} className="flex items-start gap-4">
-                                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[var(--leak)] to-orange-400 flex items-center justify-center text-white flex-shrink-0">
-                                    {feature.icon}
-                                </div>
-                                <div className="flex-1 pt-1">
-                                    <p className="text-sm font-semibold text-[var(--foreground)] mb-0.5">{feature.title}</p>
-                                    <p className="text-sm text-gray-400">{feature.text}</p>
-                                </div>
+                {/* Features */}
+                <div className="px-6 py-4 space-y-3">
+                    {[
+                        {
+                            icon: <AlertTriangle className="w-4 h-4" />,
+                            title: 'Detect Revenue Leaks',
+                            text: 'Find unbilled hours, scope creep, and late payments'
+                        },
+                        {
+                            icon: <BarChart3 className="w-4 h-4" />,
+                            title: 'Track Profitability',
+                            text: 'Monitor margins and revenue health per client'
+                        },
+                        {
+                            icon: <Plug className="w-4 h-4" />,
+                            title: 'Sync Your Data',
+                            text: 'Connect Stripe, Toggl, or Clockify automatically'
+                        },
+                    ].map((feature, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-[#0a0a0b] rounded-md border border-[#1c1c1f]">
+                            <div className="w-8 h-8 rounded-md bg-[#1c1c1f] flex items-center justify-center text-[#FF5733] flex-shrink-0">
+                                {feature.icon}
                             </div>
-                        ))}
-                    </div>
+                            <div>
+                                <p className="text-sm font-medium text-white">{feature.title}</p>
+                                <p className="text-xs text-gray-500">{feature.text}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
 
-                    {/* Actions */}
-                    <div className="flex flex-col gap-3">
-                        <button
-                            onClick={onStart}
-                            className="w-full px-6 py-3.5 bg-gradient-to-r from-[var(--leak)] to-orange-500 text-white font-bold rounded-xl hover:opacity-90 transition-all inline-flex items-center justify-center gap-2 group shadow-lg"
-                        >
-                            Start Quick Tour
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </button>
-                        <button
-                            onClick={onSkip}
-                            className="w-full px-6 py-3 text-gray-400 hover:text-[var(--foreground)] font-medium rounded-xl transition-colors"
-                        >
-                            Skip for now
-                        </button>
-                    </div>
+                {/* Actions */}
+                <div className="px-6 py-5 border-t border-[#1c1c1f] space-y-2">
+                    <button
+                        onClick={onStart}
+                        className="w-full px-4 py-3 bg-[#FF5733] hover:bg-[#E84118] text-white font-medium rounded-md transition-colors inline-flex items-center justify-center gap-2"
+                    >
+                        Take a Quick Tour
+                        <ArrowRight className="w-4 h-4" />
+                    </button>
+                    <button
+                        onClick={onSkip}
+                        className="w-full px-4 py-2.5 text-gray-500 hover:text-white text-sm transition-colors"
+                    >
+                        Skip for now
+                    </button>
                 </div>
             </motion.div>
         </div>
@@ -493,27 +547,20 @@ export function useTutorial() {
     const [initialized, setInitialized] = useState(false);
 
     useEffect(() => {
-        // Only run once on mount
         if (initialized) return;
 
-        // Check if user has seen tutorial
         const hasSeenTutorial = localStorage.getItem('hasSeenTutorial');
         const isGuestMode = document.cookie.includes('guest_mode=true');
-
-        // For guest mode, check a separate flag
         const guestHasSeenTutorial = isGuestMode && sessionStorage.getItem('guestSeenTutorial');
 
         if (!hasSeenTutorial && !guestHasSeenTutorial) {
-            // Small delay to let page load
             setTimeout(() => {
                 setShowWelcome(true);
-            }, 500);
+            }, 600);
         }
 
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setInitialized(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [initialized]);
 
     const startTutorial = () => {
         setShowWelcome(false);
@@ -525,10 +572,8 @@ export function useTutorial() {
         const isGuestMode = document.cookie.includes('guest_mode=true');
 
         if (isGuestMode) {
-            // For guest mode, use sessionStorage so it persists during the session
             sessionStorage.setItem('guestSeenTutorial', 'true');
         } else {
-            // For regular users, use localStorage for permanent storage
             localStorage.setItem('hasSeenTutorial', 'true');
         }
     };

@@ -5,10 +5,10 @@ export default function HeroDemo() {
     return (
         <ResponsiveHeroBanner
             badgeLabel="New"
-            badgeText="Automated Obsidian Detection"
+            badgeText="Automated OBSIDIAN Detection"
             title="Stop Losing Revenue"
             titleLine2="Before It's Too Late"
-            description="Obsidian detects billing errors, undercharging, and missed invoices in real-time. Find the 4-10% of revenue agencies typically lose."
+            description="OBSIDIAN detects billing errors, undercharging, and missed invoices in real-time. Find the 4-10% of revenue agencies typically lose."
             primaryButtonText="Start Free Trial"
             primaryButtonHref="/login"
             secondaryButtonText="Watch Demo"

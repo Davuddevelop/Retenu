@@ -317,7 +317,7 @@ export default function DashboardPage() {
                     </section>
 
                     {/* Stats Grid - Stripe-style minimal cards */}
-                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <section className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tutorial="stats-grid">
                         <Link href="/app/clients" className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-[#2a2a2f] transition-colors">
                             <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Clients</p>
                             <p className="text-2xl font-light text-white tabular-nums">{stats.total_clients}</p>
@@ -351,7 +351,7 @@ export default function DashboardPage() {
                     </section>
 
                     {/* Chart Section - Clean, minimal */}
-                    <section>
+                    <section data-tutorial="chart">
                         <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-6">
                             <div className="flex items-center justify-between mb-6">
                                 <div>

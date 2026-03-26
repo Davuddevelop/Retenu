@@ -8,12 +8,19 @@ import { ArrowLeft, Save, FileText } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
 import { Client, Invoice } from '../../../lib/types';
 import { addDays, format } from 'date-fns';
+import { useData } from '../../../providers/DataProvider';
+import { createBrowserClient } from '@supabase/ssr';
 
 export default function NewInvoicePage() {
     const router = useRouter();
+    const { mode, organizationId: orgIdFromContext, clients: allClients, refreshInvoices } = useData();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [clients, setClients] = useState<Client[]>([]);
+
+    // Get active clients from context or datastore based on mode
+    const clients = mode === 'supabase' 
+        ? allClients.filter(c => c.status === 'active')
+        : dataStore.getActiveClients();
 
     const today = new Date().toISOString().split('T')[0];
     const defaultDueDate = format(addDays(new Date(), 30), 'yyyy-MM-dd');
@@ -26,10 +33,6 @@ export default function NewInvoicePage() {
         status: 'sent' as Invoice['status'],
         notes: '',
     });
-
-    useEffect(() => {
-        setClients(dataStore.getActiveClients());
-    }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -50,29 +53,52 @@ export default function NewInvoicePage() {
                 throw new Error('Invoice amount must be greater than 0');
             }
 
-            const org = dataStore.getOrganization();
-            const organizationId = org?.id || 'default-org';
-
             // Determine status based on dates
             let status = formData.status;
             if (status === 'sent') {
-                const today = new Date();
-                const dueDate = new Date(formData.due_date);
-                if (dueDate < today) {
+                const invoiceDate = new Date();
+                const dueDateObj = new Date(formData.due_date);
+                if (dueDateObj < invoiceDate) {
                     status = 'overdue';
                 }
             }
 
-            dataStore.createInvoice({
-                client_id: formData.client_id,
-                organization_id: organizationId,
-                amount: parseFloat(formData.amount),
-                status: status,
-                issue_date: formData.issue_date,
-                due_date: formData.due_date,
-                paid_date: status === 'paid' ? today : null,
-                stripe_invoice_id: null,
-            });
+            if (mode === 'supabase') {
+                if (!orgIdFromContext) throw new Error('Organization not found');
+
+                const supabase = createBrowserClient(
+                    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+                    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+                );
+
+                const { error: insertError } = await supabase.from('invoices').insert({
+                    client_id: formData.client_id,
+                    organization_id: orgIdFromContext,
+                    amount: parseFloat(formData.amount),
+                    status: status,
+                    issue_date: formData.issue_date,
+                    due_date: formData.due_date,
+                    paid_date: status === 'paid' ? today : null,
+                });
+                
+                if (insertError) throw insertError;
+                
+                await refreshInvoices();
+            } else {
+                const org = dataStore.getOrganization();
+                const organizationId = org?.id || 'default-org';
+                
+                dataStore.createInvoice({
+                    client_id: formData.client_id,
+                    organization_id: organizationId,
+                    amount: parseFloat(formData.amount),
+                    status: status,
+                    issue_date: formData.issue_date,
+                    due_date: formData.due_date,
+                    paid_date: status === 'paid' ? today : null,
+                    stripe_invoice_id: null,
+                });
+            }
 
             // Redirect to invoices list
             router.push('/app/invoices');
@@ -98,7 +124,7 @@ export default function NewInvoicePage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl">
+        <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl mx-auto">
             {/* Back Link */}
             <Link
                 href="/app/invoices"

@@ -370,7 +370,7 @@ export default function LandingV2() {
           <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-10">
               <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo-removebg-preview.png" alt="Obsidian" width={28} height={28} className="h-7 w-7 object-contain" />
+                <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={28} height={28} className="h-7 w-7 object-contain" />
                 <span className="text-lg font-bold tracking-[0.15em]">OBSIDIAN</span>
               </Link>
 
@@ -589,7 +589,7 @@ export default function LandingV2() {
                 <div className="relative">
                   <Image
                     src="/dashboard obsidian.png"
-                    alt="Obsidian Dashboard - Revenue leak detection for agencies"
+                    alt="OBSIDIAN Dashboard - Revenue leak detection for agencies"
                     width={1920}
                     height={1080}
                     className="w-full h-auto"
@@ -1250,7 +1250,7 @@ export default function LandingV2() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo-removebg-preview.png" alt="Obsidian" width={24} height={24} className="h-6 w-6 object-contain" />
+                <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={24} height={24} className="h-6 w-6 object-contain" />
                 <span className="font-bold tracking-[0.15em]">OBSIDIAN</span>
               </Link>
               <span className="text-sm text-gray-600">© {new Date().getFullYear()}</span>
