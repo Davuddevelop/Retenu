@@ -16,7 +16,6 @@ import {
   ArrowUpRight,
   Minus,
   Plus,
-  Coffee,
   Menu,
   X
 } from 'lucide-react';
@@ -296,8 +295,8 @@ export default function LandingV2() {
     target: heroRef,
     offset: ['start start', 'end start']
   });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], [0, -50]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 0.8], [0, -30]);
 
   // Smooth scroll to section
   const scrollToSection = useCallback((sectionId: string) => {
@@ -355,8 +354,8 @@ export default function LandingV2() {
       answer: "Most agencies find something in the first session—usually takes about 15-20 minutes to import your data and see what pops up. One user found $12,400 in unbilled hours from a single project they'd closed out 3 months ago. Your mileage will vary, but if there's money leaking, it tends to show up fast."
     },
     {
-      question: "What happens when you start charging?",
-      answer: "Beta users get locked in at whatever rate we launch with—probably around $49/month for most agencies. We'll give you plenty of notice before anything changes. Right now we just want people using it and telling us what's broken."
+      question: "How much does it cost?",
+      answer: "We offer simple, transparent pricing starting at $49/month for most agencies. No hidden fees, no long-term contracts. You can cancel anytime."
     }
   ];
 
@@ -370,8 +369,8 @@ export default function LandingV2() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-10">
-              <Link href="/landing-v2" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo.png" alt="Obsidian" width={28} height={28} className="h-7 w-7 object-contain" />
+              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <Image src="/logo-removebg-preview.png" alt="Obsidian" width={28} height={28} className="h-7 w-7 object-contain" />
                 <span className="text-lg font-bold tracking-[0.15em]">OBSIDIAN</span>
               </Link>
 
@@ -401,6 +400,9 @@ export default function LandingV2() {
             </div>
 
             <div className="flex items-center gap-3">
+              <Link href="/app" className="hidden sm:block text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
+                Demo
+              </Link>
               <Link href="/login" className="hidden sm:block text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
                 Log in
               </Link>
@@ -447,6 +449,13 @@ export default function LandingV2() {
                 </button>
               ))}
               <Link
+                href="/app"
+                className="px-4 py-3 text-[#FF5733] hover:text-white transition-colors font-medium"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Try Demo
+              </Link>
+              <Link
                 href="/login"
                 className="px-4 py-3 text-gray-400 hover:text-white transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
@@ -465,18 +474,6 @@ export default function LandingV2() {
         className="relative pt-32 pb-16 px-6"
       >
         <div className="max-w-5xl mx-auto">
-          {/* Casual status badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex justify-center mb-12"
-          >
-            <div className="inline-flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-full text-sm">
-              <Coffee className="w-4 h-4 text-[#FF5733]" />
-              <span className="text-gray-400">Still in beta, still free</span>
-            </div>
-          </motion.div>
-
           {/* Main headline - more conversational */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -515,15 +512,26 @@ export default function LandingV2() {
             transition={{ delay: 0.3 }}
             className="flex flex-col items-center gap-4 mb-8"
           >
-            <Link
-              href="/login"
-              className="group px-8 py-4 bg-[#FF5733] hover:bg-[#E84118] text-lg font-medium transition-all rounded-lg flex items-center gap-3"
-            >
-              See what you&apos;re missing
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <Link
+                href="/login"
+                className="group px-8 py-4 bg-[#FF5733] hover:bg-[#E84118] text-lg font-medium transition-all rounded-lg flex items-center gap-3"
+              >
+                Start Free Trial
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+              <Link
+                href="/app"
+                className="group px-8 py-4 border border-white/20 hover:border-white/40 hover:bg-white/5 text-lg font-medium transition-all rounded-lg flex items-center gap-3"
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                Try Live Demo
+              </Link>
+            </div>
             <span className="text-sm text-gray-500">
-              Free while we&apos;re in beta. No card needed.
+              No credit card needed. Explore with sample data.
             </span>
           </motion.div>
 
@@ -580,7 +588,7 @@ export default function LandingV2() {
                 {/* Dashboard Screenshot */}
                 <div className="relative">
                   <Image
-                    src="/dashboard-screenshot.png"
+                    src="/dashboard obsidian.png"
                     alt="Obsidian Dashboard - Revenue leak detection for agencies"
                     width={1920}
                     height={1080}
@@ -1049,27 +1057,37 @@ export default function LandingV2() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
-              Free while we figure things out
+              Simple, transparent pricing
             </h2>
             <p className="text-gray-500 text-lg mb-12">
-              We&apos;re still in beta. Use everything, pay nothing. When we launch paid plans,
-              beta users get locked in at whatever rate we start with.
+              Choose the plan that fits your agency. All plans include a 14-day free trial.
             </p>
+          </motion.div>
 
-            <div className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 max-w-md mx-auto">
-              <div className="text-sm text-[#FF5733] font-medium mb-2">Beta Access</div>
-              <div className="text-5xl font-light mb-2">$0</div>
-              <div className="text-gray-500 mb-8">Free while in beta</div>
+          {/* Pricing Cards */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {/* Starter Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 }}
+              className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 flex flex-col"
+            >
+              <div className="text-sm text-gray-400 font-medium mb-2">Starter</div>
+              <div className="text-4xl font-light mb-2">$29<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-gray-500 mb-6">For small agencies</div>
 
-              <ul className="space-y-3 text-left mb-8">
+              <ul className="space-y-3 text-left mb-8 flex-1">
                 {[
-                  'Unlimited clients',
-                  'All detection features',
-                  'CSV + Toggl import',
-                  'Export your data anytime',
+                  'Up to 5 clients',
+                  'Unbilled hours detection',
+                  'Late payment alerts',
+                  'CSV import',
+                  'Email support',
                 ].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-gray-400">
-                    <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                  <li key={i} className="flex items-center gap-3 text-gray-400 text-sm">
+                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -1077,16 +1095,97 @@ export default function LandingV2() {
 
               <Link
                 href="/login"
-                className="block w-full py-4 bg-[#FF5733] hover:bg-[#E84118] text-center font-medium rounded-lg transition-colors"
+                className="block w-full py-3 border border-white/10 hover:border-white/20 text-center font-medium rounded-lg transition-colors"
               >
-                Get started free
+                Start free trial
               </Link>
+            </motion.div>
 
-              <p className="text-xs text-gray-600 mt-4">
-                No credit card. No commitment. Just try it.
-              </p>
-            </div>
-          </motion.div>
+            {/* Pro Plan - Highlighted */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-[#0C0C0E] border-2 border-[#FF5733] rounded-2xl p-8 flex flex-col relative"
+            >
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-[#FF5733] text-xs font-medium rounded-full">
+                Most Popular
+              </div>
+              <div className="text-sm text-[#FF5733] font-medium mb-2">Pro</div>
+              <div className="text-4xl font-light mb-2">$49<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-gray-500 mb-6">For growing agencies</div>
+
+              <ul className="space-y-3 text-left mb-8 flex-1">
+                {[
+                  'Unlimited clients',
+                  'All detection features',
+                  'Scope creep tracking',
+                  'CSV + Toggl integration',
+                  'Export reports',
+                  'Priority support',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-400 text-sm">
+                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/login"
+                className="block w-full py-3 bg-[#FF5733] hover:bg-[#E84118] text-center font-medium rounded-lg transition-colors"
+              >
+                Start free trial
+              </Link>
+            </motion.div>
+
+            {/* Enterprise Plan */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 flex flex-col"
+            >
+              <div className="text-sm text-gray-400 font-medium mb-2">Enterprise</div>
+              <div className="text-4xl font-light mb-2">$99<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-gray-500 mb-6">For large agencies</div>
+
+              <ul className="space-y-3 text-left mb-8 flex-1">
+                {[
+                  'Everything in Pro',
+                  'Multiple team members',
+                  'Custom integrations',
+                  'API access',
+                  'Dedicated account manager',
+                  'Custom onboarding',
+                ].map((item, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-400 text-sm">
+                    <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              <Link
+                href="/login"
+                className="block w-full py-3 border border-white/10 hover:border-white/20 text-center font-medium rounded-lg transition-colors"
+              >
+                Contact sales
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Money-back guarantee */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center text-sm text-gray-500 mt-8"
+          >
+            14-day free trial on all plans. No credit card required. Cancel anytime.
+          </motion.p>
         </div>
       </section>
 
@@ -1150,8 +1249,8 @@ export default function LandingV2() {
         <div className="max-w-5xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-6">
-              <Link href="/landing-v2" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo.png" alt="Obsidian" width={24} height={24} className="h-6 w-6 object-contain" />
+              <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                <Image src="/logo-removebg-preview.png" alt="Obsidian" width={24} height={24} className="h-6 w-6 object-contain" />
                 <span className="font-bold tracking-[0.15em]">OBSIDIAN</span>
               </Link>
               <span className="text-sm text-gray-600">© {new Date().getFullYear()}</span>

@@ -43,7 +43,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2">
-              <img src="/logo.png" alt="Obsidian Logo" className="h-8 w-8 object-contain" />
+              <img src="/logo-removebg-preview.png" alt="Obsidian Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
                 Obsidian
               </span>

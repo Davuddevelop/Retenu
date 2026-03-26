@@ -36,7 +36,7 @@ const faqs = [
   {
     question: 'Can I try it before committing?',
     answer:
-      'Yes! The demo mode lets you explore with sample data immediately. You can also use it with your own data completely free during beta.',
+      'Yes! The demo mode lets you explore with sample data immediately. Start your free trial to use it with your own data.',
   },
 ];
 

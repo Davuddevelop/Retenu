@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Save, Users } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
 import { Client } from '../../../lib/types';
 
@@ -35,7 +35,6 @@ export default function NewClientPage() {
         setError(null);
 
         try {
-            // Validate required fields
             if (!formData.name.trim()) {
                 throw new Error('Client name is required');
             }
@@ -63,8 +62,6 @@ export default function NewClientPage() {
             };
 
             dataStore.addClient(newClient);
-
-            // Redirect to clients list
             router.push('/app/clients');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to add client');
@@ -74,44 +71,39 @@ export default function NewClientPage() {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 max-w-2xl">
+        <div className="space-y-6 max-w-xl mx-auto">
             {/* Back Link */}
             <Link
                 href="/app/clients"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-[var(--foreground)] transition-colors text-sm"
+                className="inline-flex items-center gap-2 text-gray-500 hover:text-white transition-colors text-sm"
             >
                 <ArrowLeft className="w-4 h-4" />
-                Back to Clients
+                Clients
             </Link>
 
             {/* Header */}
-            <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[var(--neutral-metric)]/20 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-[var(--neutral-metric)]" />
-                </div>
-                <div>
-                    <h1 className="text-2xl font-bold text-[var(--foreground)]">Add New Client</h1>
-                    <p className="text-gray-400">Create a new client to track revenue and detect leaks.</p>
-                </div>
+            <div>
+                <h1 className="text-xl font-medium text-white">Add Client</h1>
+                <p className="text-sm text-gray-500 mt-1">Create a new client to track revenue.</p>
             </div>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
-                    <div className="p-4 bg-[var(--leak)]/10 border border-[var(--leak)]/20 rounded-lg">
-                        <p className="text-sm text-[var(--leak)]">{error}</p>
+                    <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                        <p className="text-sm text-red-400">{error}</p>
                     </div>
                 )}
 
                 {/* Basic Info */}
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                    <div className="px-6 py-4 border-b border-[var(--border)]">
-                        <h2 className="text-lg font-semibold text-[var(--foreground)]">Basic Information</h2>
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
+                    <div className="px-4 py-3 border-b border-[#1c1c1f]">
+                        <h2 className="text-sm font-medium text-white">Basic Information</h2>
                     </div>
-                    <div className="p-6 space-y-4">
+                    <div className="p-4 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Client Name <span className="text-[var(--leak)]">*</span>
+                            <label className="block text-sm text-gray-400 mb-1.5">
+                                Client Name <span className="text-red-400">*</span>
                             </label>
                             <input
                                 type="text"
@@ -119,13 +111,13 @@ export default function NewClientPage() {
                                 value={formData.name}
                                 onChange={handleChange}
                                 placeholder="e.g., Acme Corp"
-                                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                 required
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="block text-sm text-gray-400 mb-1.5">
                                 Start Date
                             </label>
                             <input
@@ -133,12 +125,12 @@ export default function NewClientPage() {
                                 name="start_date"
                                 value={formData.start_date}
                                 onChange={handleChange}
-                                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                             />
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                            <label className="block text-sm text-gray-400 mb-1.5">
                                 Agreed Deliverables
                             </label>
                             <textarea
@@ -146,26 +138,26 @@ export default function NewClientPage() {
                                 value={formData.agreed_deliverables}
                                 onChange={handleChange}
                                 placeholder="e.g., 4 Blog Posts, 2 Newsletters per month"
-                                rows={3}
-                                className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] resize-none"
+                                rows={2}
+                                className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md px-3 py-2 text-white text-sm focus:outline-none focus:border-[#333] resize-none"
                             />
                         </div>
                     </div>
                 </div>
 
                 {/* Financial Settings */}
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                    <div className="px-6 py-4 border-b border-[var(--border)]">
-                        <h2 className="text-lg font-semibold text-[var(--foreground)]">Financial Settings</h2>
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
+                    <div className="px-4 py-3 border-b border-[#1c1c1f]">
+                        <h2 className="text-sm font-medium text-white">Financials</h2>
                     </div>
-                    <div className="p-6 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-4 space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Monthly Retainer <span className="text-[var(--leak)]">*</span>
+                                <label className="block text-sm text-gray-400 mb-1.5">
+                                    Monthly Retainer <span className="text-red-400">*</span>
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                                     <input
                                         type="number"
                                         name="agreed_monthly_retainer"
@@ -174,15 +166,15 @@ export default function NewClientPage() {
                                         placeholder="5000"
                                         min="0"
                                         step="100"
-                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md pl-7 pr-3 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                         required
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Monthly Hour Limit
+                                <label className="block text-sm text-gray-400 mb-1.5">
+                                    Hour Limit
                                 </label>
                                 <div className="relative">
                                     <input
@@ -193,65 +185,64 @@ export default function NewClientPage() {
                                         placeholder="40"
                                         min="0"
                                         step="1"
-                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-4 pr-12 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md pl-3 pr-10 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                     />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">hrs</span>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">hrs</span>
                                 </div>
-                                <p className="text-xs text-gray-500 mt-1">Leave empty for unlimited</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Rate Overrides (Optional) */}
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden">
-                    <div className="px-6 py-4 border-b border-[var(--border)]">
-                        <h2 className="text-lg font-semibold text-[var(--foreground)]">Rate Overrides</h2>
-                        <p className="text-sm text-gray-500 mt-1">Optional. Leave empty to use organization defaults.</p>
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
+                    <div className="px-4 py-3 border-b border-[#1c1c1f]">
+                        <h2 className="text-sm font-medium text-white">Rate Overrides</h2>
+                        <p className="text-xs text-gray-500 mt-0.5">Optional. Leave empty for defaults.</p>
                     </div>
-                    <div className="p-6 space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4">
+                        <div className="grid grid-cols-3 gap-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Custom Hourly Rate
+                                <label className="block text-xs text-gray-500 mb-1.5">
+                                    Hourly Rate
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                                     <input
                                         type="number"
                                         name="custom_hourly_rate"
                                         value={formData.custom_hourly_rate}
                                         onChange={handleChange}
-                                        placeholder="Use default"
+                                        placeholder="—"
                                         min="0"
                                         step="1"
-                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md pl-7 pr-3 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Custom Cost Rate
+                                <label className="block text-xs text-gray-500 mb-1.5">
+                                    Cost Rate
                                 </label>
                                 <div className="relative">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
                                     <input
                                         type="number"
                                         name="custom_cost_rate"
                                         value={formData.custom_cost_rate}
                                         onChange={handleChange}
-                                        placeholder="Use default"
+                                        placeholder="—"
                                         min="0"
                                         step="1"
-                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-10 pr-4 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md pl-7 pr-3 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                     />
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-300 mb-2">
-                                    Min Margin Threshold
+                                <label className="block text-xs text-gray-500 mb-1.5">
+                                    Min Margin
                                 </label>
                                 <div className="relative">
                                     <input
@@ -259,13 +250,13 @@ export default function NewClientPage() {
                                         name="custom_margin_threshold"
                                         value={formData.custom_margin_threshold}
                                         onChange={handleChange}
-                                        placeholder="Use default"
+                                        placeholder="—"
                                         min="0"
                                         max="100"
                                         step="1"
-                                        className="w-full bg-[var(--background)] border border-[var(--border)] rounded-lg pl-4 pr-10 py-2.5 text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)]"
+                                        className="w-full bg-[#0a0a0b] border border-[#1c1c1f] rounded-md pl-3 pr-8 py-2 text-white text-sm focus:outline-none focus:border-[#333]"
                                     />
-                                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">%</span>
                                 </div>
                             </div>
                         </div>
@@ -273,19 +264,18 @@ export default function NewClientPage() {
                 </div>
 
                 {/* Submit */}
-                <div className="flex items-center justify-end gap-4">
+                <div className="flex items-center justify-end gap-3 pt-2">
                     <Link
                         href="/app/clients"
-                        className="px-6 py-2.5 text-gray-400 hover:text-[var(--foreground)] font-medium rounded-lg text-sm transition-colors"
+                        className="px-4 py-2 text-gray-400 hover:text-white text-sm transition-colors"
                     >
                         Cancel
                     </Link>
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="px-6 py-2.5 bg-[var(--foreground)] text-[var(--card)] font-bold rounded-lg text-sm hover:bg-gray-200 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50"
                     >
-                        <Save className="w-4 h-4" />
                         {isSubmitting ? 'Adding...' : 'Add Client'}
                     </button>
                 </div>

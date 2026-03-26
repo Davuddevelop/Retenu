@@ -95,7 +95,7 @@ export function Hero() {
             </div>
             <div className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-[var(--profit)]" />
-              <span>Free During Beta</span>
+              <span>14-Day Free Trial</span>
             </div>
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-[var(--profit)]" />

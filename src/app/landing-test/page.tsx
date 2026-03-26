@@ -247,7 +247,7 @@ export default function LandingPage() {
                 className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF5733]/10 border border-[#FF5733]/20 rounded-full text-sm mb-6"
               >
                 <span className="text-[#FF5733]">●</span>
-                <span className="text-gray-300">Early Access - Free During Beta</span>
+                <span className="text-gray-300">Revenue Leak Detection for Agencies</span>
               </motion.div>
 
               <motion.h1
@@ -302,7 +302,7 @@ export default function LandingPage() {
               >
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-[#FF5733]" />
-                  <span>Free during beta</span>
+                  <span>14-day free trial</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-[#FF5733]" />

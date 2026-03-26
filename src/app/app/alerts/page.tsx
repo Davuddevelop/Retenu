@@ -4,21 +4,10 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../../providers/DataProvider';
 import Link from 'next/link';
-import { ArrowRight, ChevronDown, AlertTriangle, TrendingDown, Clock, FileWarning, DollarSign, Flame } from 'lucide-react';
+import { ChevronRight, ChevronDown } from 'lucide-react';
 import { NoAlertsEmpty } from '../../components/EmptyStates';
-import { parseISO, formatDistanceToNow } from 'date-fns';
-import type { RevenueAlert } from '../../lib/types';
 
-// Format currency with cents for human touch
-const formatCurrency = (val: number, showCents = false) => {
-    if (showCents) {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-        }).format(val);
-    }
+const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -26,60 +15,24 @@ const formatCurrency = (val: number, showCents = false) => {
     }).format(val);
 };
 
-// Get icon for alert type
-const getAlertIcon = (type: RevenueAlert['alert_type']) => {
+const getAlertLabel = (type: string) => {
     switch (type) {
-        case 'underbilling':
-            return DollarSign;
-        case 'scope_creep':
-            return TrendingDown;
-        case 'missing_invoice':
-            return FileWarning;
-        case 'late_payment':
-            return Clock;
-        case 'low_margin':
-        case 'negative_margin':
-            return AlertTriangle;
-        default:
-            return AlertTriangle;
+        case 'underbilling': return 'Unbilled hours';
+        case 'scope_creep': return 'Scope creep';
+        case 'missing_invoice': return 'Missing invoice';
+        case 'late_payment': return 'Late payment';
+        case 'low_margin': return 'Low margin';
+        case 'negative_margin': return 'Negative margin';
+        default: return (type as string).replace(/_/g, ' ');
     }
 };
 
-// Get severity color
-const getSeverityStyles = (severity: string) => {
+const getSeverityLabel = (severity: string) => {
     switch (severity) {
-        case 'critical':
-            return {
-                bg: 'bg-red-500/10',
-                border: 'border-red-500/30',
-                text: 'text-red-500',
-                dot: 'bg-red-500',
-                label: 'Critical'
-            };
-        case 'high':
-            return {
-                bg: 'bg-orange-500/10',
-                border: 'border-orange-500/30',
-                text: 'text-orange-500',
-                dot: 'bg-orange-500',
-                label: 'High'
-            };
-        case 'medium':
-            return {
-                bg: 'bg-amber-500/10',
-                border: 'border-amber-500/30',
-                text: 'text-amber-500',
-                dot: 'bg-amber-500',
-                label: 'Medium'
-            };
-        default:
-            return {
-                bg: 'bg-gray-500/10',
-                border: 'border-gray-500/30',
-                text: 'text-gray-400',
-                dot: 'bg-gray-400',
-                label: 'Low'
-            };
+        case 'critical': return { label: 'Critical', color: 'text-red-400' };
+        case 'high': return { label: 'High', color: 'text-[#FF5733]' };
+        case 'medium': return { label: 'Medium', color: 'text-yellow-500' };
+        default: return { label: 'Low', color: 'text-gray-500' };
     }
 };
 
@@ -92,29 +45,9 @@ export default function AlertsPage() {
 
     const getClientName = (clientId: string) => {
         const client = clients.find(c => c.id === clientId);
-        return client?.name || 'Unknown Client';
+        return client?.name || 'Unknown';
     };
 
-    const getAlertLabel = (type: RevenueAlert['alert_type']) => {
-        switch (type) {
-            case 'underbilling':
-                return 'Underbilling';
-            case 'scope_creep':
-                return 'Scope Creep';
-            case 'missing_invoice':
-                return 'Missing Invoice';
-            case 'late_payment':
-                return 'Late Payment';
-            case 'low_margin':
-                return 'Low Margin';
-            case 'negative_margin':
-                return 'Negative Margin';
-            default:
-                return (type as string).replace(/_/g, ' ');
-        }
-    };
-
-    // Filter and sort alerts (critical first)
     const filteredAlerts = useMemo(() => {
         const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
         return alerts
@@ -132,17 +65,14 @@ export default function AlertsPage() {
             });
     }, [alerts, filterType, filterSeverity, filterClient]);
 
-    // Calculate summary stats
     const stats = useMemo(() => {
         const totalLeakage = filteredAlerts.reduce((sum, a) => sum + a.estimated_leakage, 0);
         const criticalCount = filteredAlerts.filter(a => a.severity === 'critical').length;
         const highCount = filteredAlerts.filter(a => a.severity === 'high').length;
         const affectedClients = new Set(filteredAlerts.map(a => a.client_id)).size;
-
         return { totalLeakage, criticalCount, highCount, affectedClients };
     }, [filteredAlerts]);
 
-    // Group alerts by type
     const alertsByType = useMemo(() => {
         return alerts.reduce((acc, alert) => {
             acc[alert.alert_type] = (acc[alert.alert_type] || 0) + 1;
@@ -153,131 +83,56 @@ export default function AlertsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--foreground)]" />
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400" />
             </div>
         );
     }
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Header */}
-            <div>
-                <p className="text-sm text-gray-400">
-                    {alerts.length > 0
-                        ? `${alerts.length} issue${alerts.length !== 1 ? 's' : ''} detected · ${stats.affectedClients} client${stats.affectedClients !== 1 ? 's' : ''} affected`
-                        : 'All clear — no issues detected'}
-                </p>
-            </div>
-
-            {alerts.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]">
-                    <NoAlertsEmpty />
+        <div className="space-y-8">
+            {/* Stats Bar */}
+            {alerts.length > 0 && (
+                <div className="flex items-center gap-8 text-base">
+                    <div>
+                        <span className="text-gray-500">Total at risk</span>
+                        <span className="ml-3 text-[#FF5733] font-semibold tabular-nums text-lg">{formatCurrency(stats.totalLeakage)}</span>
+                    </div>
+                    <div className="w-px h-5 bg-[#222]" />
+                    <div>
+                        <span className="text-gray-500">Critical</span>
+                        <span className={`ml-3 font-semibold tabular-nums text-lg ${stats.criticalCount > 0 ? 'text-red-400' : 'text-white'}`}>{stats.criticalCount}</span>
+                    </div>
+                    <div className="w-px h-5 bg-[#222]" />
+                    <div>
+                        <span className="text-gray-500">High</span>
+                        <span className={`ml-3 font-semibold tabular-nums text-lg ${stats.highCount > 0 ? 'text-[#FF5733]' : 'text-white'}`}>{stats.highCount}</span>
+                    </div>
+                    <div className="w-px h-5 bg-[#222]" />
+                    <div>
+                        <span className="text-gray-500">Clients affected</span>
+                        <span className="ml-3 text-white font-semibold tabular-nums text-lg">{stats.affectedClients}</span>
+                    </div>
                 </div>
-            ) : (
-                <>
-                    {/* Summary Cards */}
-                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-9 h-9 rounded-lg bg-[var(--leak)]/20 flex items-center justify-center">
-                                    <DollarSign className="w-4 h-4 text-[var(--leak)]" />
-                                </div>
-                                <span className="text-xs text-gray-500 uppercase tracking-wider">Leakage</span>
-                            </div>
-                            <p className="text-2xl font-bold text-[var(--leak)] tabular-nums">
-                                {formatCurrency(stats.totalLeakage)}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">potential revenue loss</p>
-                        </div>
+            )}
 
-                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-9 h-9 rounded-lg bg-red-500/20 flex items-center justify-center">
-                                    <Flame className="w-4 h-4 text-red-500" />
-                                </div>
-                                <span className="text-xs text-gray-500 uppercase tracking-wider">Critical</span>
-                            </div>
-                            <p className={`text-2xl font-bold tabular-nums ${stats.criticalCount > 0 ? 'text-red-500' : 'text-[var(--foreground)]'}`}>
-                                {stats.criticalCount}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">
-                                {stats.criticalCount > 0 ? 'need immediate action' : 'none right now'}
-                            </p>
-                        </div>
+            {/* Header */}
+            <div className="flex items-center justify-between">
+                <p className="text-base text-gray-500">
+                    {alerts.length > 0
+                        ? `${filteredAlerts.length} issue${filteredAlerts.length !== 1 ? 's' : ''}`
+                        : 'No issues detected'}
+                </p>
 
-                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-9 h-9 rounded-lg bg-orange-500/20 flex items-center justify-center">
-                                    <AlertTriangle className="w-4 h-4 text-orange-500" />
-                                </div>
-                                <span className="text-xs text-gray-500 uppercase tracking-wider">High</span>
-                            </div>
-                            <p className={`text-2xl font-bold tabular-nums ${stats.highCount > 0 ? 'text-orange-500' : 'text-[var(--foreground)]'}`}>
-                                {stats.highCount}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">high priority issues</p>
-                        </div>
-
-                        <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="w-9 h-9 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
-                                    <TrendingDown className="w-4 h-4 text-[var(--neutral-metric)]" />
-                                </div>
-                                <span className="text-xs text-gray-500 uppercase tracking-wider">Clients</span>
-                            </div>
-                            <p className="text-2xl font-bold text-[var(--foreground)] tabular-nums">
-                                {stats.affectedClients}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-1">need attention</p>
-                        </div>
-                    </div>
-
-                    {/* Alert Type Filters */}
-                    <div className="flex flex-wrap gap-2">
-                        <button
-                            onClick={() => setFilterType('all')}
-                            className={`px-3 py-1.5 text-sm font-medium rounded-xl transition-all ${filterType === 'all'
-                                    ? 'bg-[var(--foreground)] text-[var(--card)] shadow-lg shadow-white/10'
-                                    : 'bg-[var(--card)] text-gray-400 hover:text-[var(--foreground)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/30'
-                                }`}
-                        >
-                            All ({alerts.length})
-                        </button>
-                        {[
-                            { type: 'underbilling', label: 'Underbilling' },
-                            { type: 'scope_creep', label: 'Scope Creep' },
-                            { type: 'missing_invoice', label: 'Missing Invoice' },
-                            { type: 'late_payment', label: 'Late Payment' },
-                            { type: 'low_margin', label: 'Low Margin' },
-                            { type: 'negative_margin', label: 'Negative Margin' },
-                        ].map(item => {
-                            const count = alertsByType[item.type] || 0;
-                            const isActive = filterType === item.type;
-                            if (count === 0) return null;
-                            return (
-                                <button
-                                    key={item.type}
-                                    onClick={() => setFilterType(isActive ? 'all' : item.type)}
-                                    className={`px-3 py-1.5 text-sm font-medium rounded-xl transition-all ${isActive
-                                            ? 'bg-[var(--foreground)] text-[var(--card)] shadow-lg shadow-white/10'
-                                            : 'bg-[var(--card)] text-gray-400 hover:text-[var(--foreground)] border border-[var(--border)] hover:border-[var(--neutral-metric)]/30'
-                                        }`}
-                                >
-                                    {item.label} ({count})
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    {/* Additional Filters */}
-                    <div className="flex flex-wrap gap-3">
+                {/* Filters */}
+                {alerts.length > 0 && (
+                    <div className="flex items-center gap-3">
                         <div className="relative">
                             <select
                                 value={filterSeverity}
                                 onChange={(e) => setFilterSeverity(e.target.value)}
-                                className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl pl-4 pr-10 py-2.5 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] transition-all"
+                                className="appearance-none bg-[#111113] border border-[#1c1c1f] rounded-lg pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-[#333]"
                             >
-                                <option value="all">All Severity</option>
+                                <option value="all">All severity</option>
                                 <option value="critical">Critical</option>
                                 <option value="high">High</option>
                                 <option value="medium">Medium</option>
@@ -290,9 +145,9 @@ export default function AlertsPage() {
                             <select
                                 value={filterClient}
                                 onChange={(e) => setFilterClient(e.target.value)}
-                                className="appearance-none bg-[var(--card)] border border-[var(--border)] rounded-xl pl-4 pr-10 py-2.5 text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--neutral-metric)] transition-all"
+                                className="appearance-none bg-[#111113] border border-[#1c1c1f] rounded-lg pl-4 pr-10 py-2.5 text-sm text-white focus:outline-none focus:border-[#333]"
                             >
-                                <option value="all">All Clients</option>
+                                <option value="all">All clients</option>
                                 {clients.map(client => (
                                     <option key={client.id} value={client.id}>{client.name}</option>
                                 ))}
@@ -300,114 +155,131 @@ export default function AlertsPage() {
                             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
                         </div>
 
-                        {(filterType !== 'all' || filterSeverity !== 'all' || filterClient !== 'all') && (
+                        {(filterSeverity !== 'all' || filterClient !== 'all') && (
                             <button
                                 onClick={() => {
-                                    setFilterType('all');
                                     setFilterSeverity('all');
                                     setFilterClient('all');
                                 }}
-                                className="px-4 py-2.5 text-sm text-gray-400 hover:text-[var(--foreground)] transition-colors"
+                                className="text-sm text-gray-500 hover:text-white transition-colors px-2"
                             >
-                                Clear filters
+                                Clear
                             </button>
                         )}
                     </div>
+                )}
+            </div>
 
-                    {/* Alerts List */}
-                    <div className="space-y-3">
-                        {filteredAlerts.length === 0 ? (
-                            <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-12 text-center">
-                                <p className="text-sm text-gray-400">
-                                    No alerts match your current filters.
-                                </p>
-                            </div>
-                        ) : (
-                            filteredAlerts.map((alert) => {
-                                const severityStyles = getSeverityStyles(alert.severity);
-                                const AlertIcon = getAlertIcon(alert.alert_type);
+            {/* Type Filters */}
+            {alerts.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    <button
+                        onClick={() => setFilterType('all')}
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                            filterType === 'all'
+                                ? 'bg-white text-black'
+                                : 'text-gray-400 hover:text-white'
+                        }`}
+                    >
+                        All
+                    </button>
+                    {[
+                        { type: 'underbilling', label: 'Unbilled' },
+                        { type: 'scope_creep', label: 'Scope creep' },
+                        { type: 'missing_invoice', label: 'Missing invoice' },
+                        { type: 'late_payment', label: 'Late payment' },
+                        { type: 'low_margin', label: 'Low margin' },
+                    ].map(item => {
+                        const count = alertsByType[item.type] || 0;
+                        if (count === 0) return null;
+                        return (
+                            <button
+                                key={item.type}
+                                onClick={() => setFilterType(filterType === item.type ? 'all' : item.type)}
+                                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                    filterType === item.type
+                                        ? 'bg-white text-black'
+                                        : 'text-gray-400 hover:text-white'
+                                }`}
+                            >
+                                {item.label} ({count})
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
 
+            {/* Alerts List */}
+            {alerts.length === 0 ? (
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
+                    <NoAlertsEmpty />
+                </div>
+            ) : filteredAlerts.length === 0 ? (
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-12 text-center">
+                    <p className="text-base text-gray-500">No alerts match your filters.</p>
+                </div>
+            ) : (
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden">
+                    <table className="w-full text-left">
+                        <thead className="border-b border-[#1c1c1f]">
+                            <tr>
+                                <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">Issue</th>
+                                <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">Client</th>
+                                <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">Severity</th>
+                                <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Impact</th>
+                                <th className="px-6 py-4 w-12"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#1c1c1f]">
+                            {filteredAlerts.map((alert) => {
+                                const severity = getSeverityLabel(alert.severity);
                                 return (
-                                    <div
-                                        key={alert.id}
-                                        className={`bg-[var(--card)] rounded-xl border ${severityStyles.border} overflow-hidden hover:border-[var(--neutral-metric)]/30 transition-all group`}
-                                    >
-                                        <div className="p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                                            <div className="flex items-start gap-4 flex-1 min-w-0">
-                                                {/* Icon */}
-                                                <div className={`w-10 h-10 rounded-xl ${severityStyles.bg} flex items-center justify-center flex-shrink-0`}>
-                                                    <AlertIcon className={`w-5 h-5 ${severityStyles.text}`} />
-                                                </div>
-
-                                                {/* Content */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                                        <h4 className="text-sm font-semibold text-[var(--foreground)]">
-                                                            {getAlertLabel(alert.alert_type)}
-                                                        </h4>
-                                                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-semibold ${severityStyles.bg} ${severityStyles.text} rounded-full`}>
-                                                            <span className={`w-1.5 h-1.5 rounded-full ${severityStyles.dot} ${alert.severity === 'critical' ? 'animate-pulse' : ''}`} />
-                                                            {severityStyles.label}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-sm text-gray-400 mb-2 line-clamp-2">{alert.message}</p>
-                                                    <div className="flex items-center gap-3 text-xs text-gray-500">
-                                                        <span className="flex items-center gap-1.5">
-                                                            <span className="w-5 h-5 rounded bg-[var(--neutral-metric)]/20 flex items-center justify-center text-[var(--neutral-metric)] font-bold text-[9px]">
-                                                                {getClientName(alert.client_id).charAt(0)}
-                                                            </span>
-                                                            {getClientName(alert.client_id)}
-                                                        </span>
-                                                        <span className="text-gray-600">·</span>
-                                                        <span>{formatDistanceToNow(parseISO(alert.created_at), { addSuffix: true })}</span>
-                                                    </div>
-                                                </div>
+                                    <tr key={alert.id} className="hover:bg-[#0a0a0b] transition-colors group">
+                                        <td className="px-6 py-5">
+                                            <div>
+                                                <span className="text-white font-medium text-base">{getAlertLabel(alert.alert_type)}</span>
+                                                <p className="text-sm text-gray-500 mt-1 line-clamp-1 max-w-lg">{alert.message}</p>
                                             </div>
-
-                                            {/* Impact & Action */}
-                                            <div className="flex items-center gap-4 lg:ml-4">
-                                                {alert.estimated_leakage > 0 && (
-                                                    <div className="text-right">
-                                                        <p className="text-[10px] text-gray-500 uppercase tracking-wider mb-0.5">Impact</p>
-                                                        <p className="text-lg font-bold text-[var(--leak)] tabular-nums">
-                                                            {formatCurrency(alert.estimated_leakage, true)}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                <Link
-                                                    href={`/app/clients/${alert.client_id}`}
-                                                    className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)] rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    Review
-                                                    <ArrowRight className="w-4 h-4" />
-                                                </Link>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-md bg-[#1c1c1f] flex items-center justify-center text-gray-400 text-xs font-medium">
+                                                    {getClientName(alert.client_id).slice(0, 2).toUpperCase()}
+                                                </div>
+                                                <span className="text-gray-300">{getClientName(alert.client_id)}</span>
                                             </div>
-                                        </div>
-                                    </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className={`text-base font-medium ${severity.color}`}>{severity.label}</span>
+                                        </td>
+                                        <td className="px-6 py-5 text-right">
+                                            {alert.estimated_leakage > 0 ? (
+                                                <span className="text-[#FF5733] font-semibold tabular-nums text-base">{formatCurrency(alert.estimated_leakage)}</span>
+                                            ) : (
+                                                <span className="text-gray-500">—</span>
+                                            )}
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <Link
+                                                href={`/app/clients/${alert.client_id}`}
+                                                className="text-gray-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                                <ChevronRight className="w-5 h-5" />
+                                            </Link>
+                                        </td>
+                                    </tr>
                                 );
-                            })
-                        )}
-                    </div>
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            )}
 
-                    {/* Summary tip */}
-                    {stats.criticalCount > 0 && (
-                        <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-4">
-                            <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                                    <Flame className="w-4 h-4 text-red-500" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-medium text-[var(--foreground)]">
-                                        You have {stats.criticalCount} critical issue{stats.criticalCount !== 1 ? 's' : ''} requiring immediate attention
-                                    </p>
-                                    <p className="text-xs text-gray-400 mt-1">
-                                        These issues are actively costing you money. Address them first.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </>
+            {/* Critical warning */}
+            {stats.criticalCount > 0 && (
+                <p className="text-base text-gray-500">
+                    <span className="text-red-400 font-medium">{stats.criticalCount} critical</span> issue{stats.criticalCount !== 1 ? 's' : ''} requiring immediate attention.
+                </p>
             )}
         </div>
     );

@@ -6,10 +6,9 @@ import { runDetectionEngine, getDataStatus } from '../../lib/detectionEngine';
 import { dataStore } from '../../lib/dataStore';
 import { Client, RevenueAlert, TimeEntry } from '../../lib/types';
 import Link from 'next/link';
-import { ArrowRight, Plus, Users, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Plus, ChevronRight } from 'lucide-react';
 import { DemoModeBanner, NoClientsEmpty } from '../../components/EmptyStates';
 
-// Format currency with specific cents for human-touch feel
 const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
@@ -35,7 +34,6 @@ export default function ClientsPage() {
         setIsLoading(false);
     }, []);
 
-    // Calculate stats for summary cards
     const stats = useMemo(() => {
         const activeClients = clients.filter(c => c.status === 'active');
         const totalRetainer = activeClients.reduce((sum, c) => sum + c.agreed_monthly_retainer, 0);
@@ -50,7 +48,6 @@ export default function ClientsPage() {
         };
     }, [clients, alerts]);
 
-    // Get hours worked for a client this month
     const getClientHoursThisMonth = (clientId: string) => {
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -67,7 +64,7 @@ export default function ClientsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--foreground)]" />
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400" />
             </div>
         );
     }
@@ -76,80 +73,48 @@ export default function ClientsPage() {
     const inactiveClients = clients.filter(c => c.status !== 'active');
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="space-y-6">
             {isDemoMode && <DemoModeBanner onDisable={handleDisableDemo} />}
 
-            {/* Summary Cards */}
+            {/* Compact Stats Bar */}
             {clients.length > 0 && (
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-9 h-9 rounded-lg bg-[var(--neutral-metric)]/20 flex items-center justify-center">
-                                <Users className="w-4 h-4 text-[var(--neutral-metric)]" />
-                            </div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">Active</span>
-                        </div>
-                        <p className="text-2xl font-bold text-[var(--foreground)] tabular-nums">
-                            {stats.activeCount}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                            {stats.activeCount === 1 ? 'client' : 'clients'}
-                        </p>
+                <div className="flex items-center gap-6 text-sm">
+                    <div>
+                        <span className="text-gray-500">Active</span>
+                        <span className="ml-2 text-white font-medium tabular-nums">{stats.activeCount}</span>
                     </div>
-
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-9 h-9 rounded-lg bg-[var(--profit)]/20 flex items-center justify-center">
-                                <TrendingUp className="w-4 h-4 text-[var(--profit)]" />
-                            </div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">MRR</span>
-                        </div>
-                        <p className="text-2xl font-bold text-[var(--foreground)] tabular-nums">
-                            {formatCurrency(stats.totalRetainer)}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">monthly recurring</p>
+                    <div className="w-px h-4 bg-[#222]" />
+                    <div>
+                        <span className="text-gray-500">MRR</span>
+                        <span className="ml-2 text-white font-medium tabular-nums">{formatCurrency(stats.totalRetainer)}</span>
                     </div>
-
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-9 h-9 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
-                            </div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">Healthy</span>
-                        </div>
-                        <p className="text-2xl font-bold text-emerald-500 tabular-nums">
-                            {stats.healthyClients}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">no issues</p>
+                    <div className="w-px h-4 bg-[#222]" />
+                    <div>
+                        <span className="text-gray-500">Healthy</span>
+                        <span className="ml-2 text-white font-medium tabular-nums">{stats.healthyClients}</span>
                     </div>
-
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] p-4">
-                        <div className="flex items-center gap-3 mb-3">
-                            <div className="w-9 h-9 rounded-lg bg-[var(--leak)]/20 flex items-center justify-center">
-                                <AlertTriangle className="w-4 h-4 text-[var(--leak)]" />
+                    {stats.clientsWithAlerts > 0 && (
+                        <>
+                            <div className="w-px h-4 bg-[#222]" />
+                            <div>
+                                <span className="text-gray-500">Attention</span>
+                                <span className="ml-2 text-[#FF5733] font-medium tabular-nums">{stats.clientsWithAlerts}</span>
                             </div>
-                            <span className="text-xs text-gray-500 uppercase tracking-wider">Attention</span>
-                        </div>
-                        <p className="text-2xl font-bold text-[var(--leak)] tabular-nums">
-                            {stats.clientsWithAlerts}
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">need review</p>
-                    </div>
+                        </>
+                    )}
                 </div>
             )}
 
             {/* Header */}
             <div className="flex justify-between items-center">
-                <div>
-                    <p className="text-sm text-gray-400">
-                        {clients.length > 0
-                            ? `Showing ${activeClients.length} active client${activeClients.length !== 1 ? 's' : ''}`
-                            : 'Get started by adding your first client'}
-                    </p>
-                </div>
+                <p className="text-sm text-gray-500">
+                    {clients.length > 0
+                        ? `${activeClients.length} active client${activeClients.length !== 1 ? 's' : ''}`
+                        : 'Get started by adding your first client'}
+                </p>
                 <Link
                     href="/app/clients/new"
-                    className="px-4 py-2.5 bg-[var(--foreground)] text-[var(--card)] font-medium rounded-xl text-sm transition-all hover:bg-white/90 hover:scale-[1.02] inline-flex items-center gap-2 shadow-lg shadow-white/5"
+                    className="px-3 py-1.5 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors inline-flex items-center gap-1.5"
                 >
                     <Plus className="w-4 h-4" />
                     Add Client
@@ -158,143 +123,106 @@ export default function ClientsPage() {
 
             {/* Client List */}
             {clients.length === 0 ? (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)]" data-tutorial="clients-list">
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]" data-tutorial="clients-list">
                     <NoClientsEmpty />
                 </div>
             ) : (
-                <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden" data-tutorial="clients-list">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-sm min-w-[700px]">
-                            <thead className="border-b border-[var(--border)] bg-[var(--background)]/50">
-                                <tr>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Client</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Monthly Retainer</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Hours This Month</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Health</th>
-                                    <th className="px-6 py-4 text-xs font-semibold text-gray-400 uppercase tracking-wider text-right"></th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-[var(--border)]">
-                                {activeClients.map(client => {
-                                    const clientAlerts = alerts.filter(a => a.client_id === client.id);
-                                    const hoursThisMonth = getClientHoursThisMonth(client.id);
-                                    const hourLimit = client.hour_limit;
-                                    const hoursPercent = hourLimit ? (hoursThisMonth / hourLimit) * 100 : 0;
-                                    const isOverHours = hourLimit && hoursThisMonth > hourLimit;
+                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden" data-tutorial="clients-list">
+                    <table className="w-full text-left text-sm">
+                        <thead className="border-b border-[#1c1c1f]">
+                            <tr>
+                                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Client</th>
+                                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Retainer</th>
+                                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Hours</th>
+                                <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide">Status</th>
+                                <th className="px-4 py-3 w-10"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#1c1c1f]">
+                            {activeClients.map(client => {
+                                const clientAlerts = alerts.filter(a => a.client_id === client.id);
+                                const hoursThisMonth = getClientHoursThisMonth(client.id);
+                                const hourLimit = client.hour_limit;
+                                const isOverHours = hourLimit && hoursThisMonth > hourLimit;
 
-                                    return (
-                                        <tr key={client.id} className="hover:bg-[var(--background)]/50 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[var(--neutral-metric)]/20 to-[var(--neutral-metric)]/5 flex items-center justify-center text-[var(--neutral-metric)] font-bold text-sm">
-                                                        {client.name.charAt(0).toUpperCase()}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-semibold text-[var(--foreground)]">{client.name}</p>
-                                                        <p className="text-xs text-gray-500">
-                                                            {clientAlerts.length > 0 ? `${clientAlerts.length} issue${clientAlerts.length > 1 ? 's' : ''} found` : 'No issues'}
-                                                        </p>
-                                                    </div>
+                                return (
+                                    <tr key={client.id} className="hover:bg-[#0a0a0b] transition-colors group">
+                                        <td className="px-4 py-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-md bg-[#1c1c1f] flex items-center justify-center text-gray-400 text-xs font-medium">
+                                                    {client.name.slice(0, 2).toUpperCase()}
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <p className="font-semibold text-[var(--foreground)] tabular-nums">
-                                                    {formatCurrency(client.agreed_monthly_retainer)}
-                                                </p>
-                                                <p className="text-xs text-gray-500">per month</p>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex-1 max-w-[100px]">
-                                                        <p className={`font-semibold tabular-nums ${isOverHours ? 'text-[var(--leak)]' : 'text-[var(--foreground)]'}`}>
-                                                            {hoursThisMonth.toFixed(1)}h
-                                                        </p>
-                                                        {hourLimit && (
-                                                            <div className="mt-1.5">
-                                                                <div className="h-1.5 bg-[var(--background)] rounded-full overflow-hidden">
-                                                                    <div
-                                                                        className={`h-full rounded-full transition-all ${
-                                                                            hoursPercent > 100 ? 'bg-[var(--leak)]' :
-                                                                            hoursPercent > 80 ? 'bg-amber-500' :
-                                                                            'bg-[var(--profit)]'
-                                                                        }`}
-                                                                        style={{ width: `${Math.min(hoursPercent, 100)}%` }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <span className="text-xs text-gray-500">
-                                                        / {hourLimit !== null ? `${hourLimit}h` : '∞'}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {clientAlerts.length > 0 ? (
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-[var(--leak)]/10 text-[var(--leak)] rounded-full">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-[var(--leak)] animate-pulse" />
-                                                        {clientAlerts.length} alert{clientAlerts.length !== 1 ? 's' : ''}
-                                                    </span>
-                                                ) : (
-                                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-500 rounded-full">
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                                                        Healthy
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <Link
-                                                    href={`/app/clients/${client.id}`}
-                                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-400 hover:text-[var(--foreground)] hover:bg-[var(--background)] rounded-lg transition-all opacity-0 group-hover:opacity-100"
-                                                >
-                                                    View
-                                                    <ArrowRight className="w-4 h-4" />
-                                                </Link>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                                <span className="font-medium text-white">{client.name}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className="text-white tabular-nums">{formatCurrency(client.agreed_monthly_retainer)}</span>
+                                            <span className="text-gray-500">/mo</span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <span className={`tabular-nums ${isOverHours ? 'text-[#FF5733]' : 'text-white'}`}>
+                                                {hoursThisMonth.toFixed(1)}
+                                            </span>
+                                            <span className="text-gray-500">
+                                                {hourLimit ? ` / ${hourLimit}h` : 'h'}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            {clientAlerts.length > 0 ? (
+                                                <span className="text-[#FF5733] text-sm">
+                                                    {clientAlerts.length} alert{clientAlerts.length !== 1 ? 's' : ''}
+                                                </span>
+                                            ) : (
+                                                <span className="text-gray-500 text-sm">Healthy</span>
+                                            )}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <Link
+                                                href={`/app/clients/${client.id}`}
+                                                className="text-gray-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
+                                            >
+                                                <ChevronRight className="w-4 h-4" />
+                                            </Link>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
             )}
 
-            {/* Inactive Clients Section */}
+            {/* Inactive Clients */}
             {inactiveClients.length > 0 && (
                 <div>
-                    <p className="text-sm text-gray-500 mb-3 flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-gray-500" />
-                        Inactive Clients ({inactiveClients.length})
+                    <p className="text-xs text-gray-500 mb-2 uppercase tracking-wide">
+                        Inactive ({inactiveClients.length})
                     </p>
-                    <div className="bg-[var(--card)] rounded-xl border border-[var(--border)] overflow-hidden opacity-60 hover:opacity-80 transition-opacity">
+                    <div className="bg-[#111113] rounded-lg border border-[#1c1c1f] overflow-hidden">
                         <table className="w-full text-left text-sm">
-                            <tbody className="divide-y divide-[var(--border)]">
+                            <tbody className="divide-y divide-[#1c1c1f]">
                                 {inactiveClients.map(client => (
-                                    <tr key={client.id} className="hover:bg-[var(--background)]/30 transition-colors group">
-                                        <td className="px-6 py-4">
+                                    <tr key={client.id} className="hover:bg-[#0a0a0b] transition-colors group opacity-50">
+                                        <td className="px-4 py-3">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-gray-500/10 flex items-center justify-center text-gray-500 font-medium text-sm">
-                                                    {client.name.charAt(0).toUpperCase()}
+                                                <div className="w-8 h-8 rounded-md bg-[#1c1c1f] flex items-center justify-center text-gray-500 text-xs font-medium">
+                                                    {client.name.slice(0, 2).toUpperCase()}
                                                 </div>
-                                                <span className="font-medium text-gray-400">{client.name}</span>
+                                                <span className="text-gray-400">{client.name}</span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-gray-500 tabular-nums">
+                                        <td className="px-4 py-3 text-gray-500 tabular-nums">
                                             {formatCurrency(client.agreed_monthly_retainer)}/mo
                                         </td>
-                                        <td className="px-6 py-4">
-                                            <span className="text-xs text-gray-500 capitalize px-2 py-0.5 bg-gray-500/10 rounded">
-                                                {client.status}
-                                            </span>
+                                        <td className="px-4 py-3">
+                                            <span className="text-xs text-gray-500 capitalize">{client.status}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="px-4 py-3 w-10">
                                             <Link
                                                 href={`/app/clients/${client.id}`}
-                                                className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-400 transition-colors opacity-0 group-hover:opacity-100"
+                                                className="text-gray-600 hover:text-gray-400 transition-colors opacity-0 group-hover:opacity-100"
                                             >
-                                                View
-                                                <ArrowRight className="w-4 h-4" />
+                                                <ChevronRight className="w-4 h-4" />
                                             </Link>
                                         </td>
                                     </tr>

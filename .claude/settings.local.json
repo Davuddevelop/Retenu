@@ -15,7 +15,8 @@
       "Bash(npx next lint:*)",
       "Bash(npx eslint:*)",
       "WebFetch(domain:www.eleken.co)",
-      "WebFetch(domain:goodface.agency)"
+      "WebFetch(domain:goodface.agency)",
+      "WebFetch(domain:nicelydone.club)"
     ]
   }
 }

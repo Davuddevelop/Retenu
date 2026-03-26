@@ -45,7 +45,7 @@ export default function SecurityPage() {
                         { name: 'Data Ownership', desc: 'Your data, your control', icon: <Eye className="w-6 h-6" /> },
                         { name: 'Secure Hosting', desc: 'Supabase infrastructure', icon: <Lock className="w-6 h-6" /> },
                         { name: 'Encrypted Storage', desc: 'Data encrypted at rest', icon: <Key className="w-6 h-6" /> },
-                        { name: 'Beta Product', desc: 'Security improving with each release', icon: <FileCheck className="w-6 h-6" /> },
+                        { name: 'Regular Updates', desc: 'Continuous security improvements', icon: <FileCheck className="w-6 h-6" /> },
                     ].map((cert) => (
                         <div key={cert.name} className="p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)]">
                             <div className="w-12 h-12 rounded-xl bg-[var(--profit)]/20 flex items-center justify-center text-[var(--profit)] mb-4">

@@ -238,8 +238,8 @@ export default function PrivacyPolicy() {
                                 <p className="text-sm text-gray-400">Data hosted on Supabase with encryption at rest.</p>
                             </div>
                             <div className="p-4 bg-[var(--card)] border border-[var(--border)] rounded-xl">
-                                <h3 className="font-semibold text-[var(--foreground)] mb-2">Early Stage</h3>
-                                <p className="text-sm text-gray-400">We&apos;re in beta. No formal security certifications yet.</p>
+                                <h3 className="font-semibold text-[var(--foreground)] mb-2">Security First</h3>
+                                <p className="text-sm text-gray-400">We follow industry best practices for data protection.</p>
                             </div>
                         </div>
                     </section>
