@@ -316,37 +316,133 @@ export default function DashboardPage() {
                         </div>
                     </section>
 
-                    {/* Stats Grid - Stripe-style minimal cards */}
+                    {/* Stats Grid - Cards with visual variety */}
                     <section className="grid grid-cols-2 lg:grid-cols-4 gap-4" data-tutorial="stats-grid">
-                        <Link href="/app/clients" className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-[#2a2a2f] transition-colors">
-                            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Clients</p>
-                            <p className="text-2xl font-light text-white tabular-nums">{stats.total_clients}</p>
-                            <p className="text-xs text-gray-500 mt-1">{stats.healthy_clients} healthy</p>
+                        {/* Clients Card - Blue accent */}
+                        <Link
+                            href="/app/clients"
+                            className="group relative bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-blue-500/30 transition-all duration-300 overflow-hidden"
+                        >
+                            {/* Accent gradient on hover */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            {/* Corner accent */}
+                            <div className="absolute top-0 left-0 w-1 h-8 bg-gradient-to-b from-blue-500 to-blue-500/0 rounded-tr-full" />
+
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Clients</p>
+                                    <Users className="w-4 h-4 text-blue-500/50 group-hover:text-blue-500 transition-colors" />
+                                </div>
+                                <p className="text-2xl font-light text-white tabular-nums group-hover:text-blue-50 transition-colors">{stats.total_clients}</p>
+                                <div className="flex items-center gap-1.5 mt-1.5">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    <p className="text-xs text-gray-500">{stats.healthy_clients} healthy</p>
+                                </div>
+                            </div>
                         </Link>
 
-                        <Link href="/app/invoices" className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-[#2a2a2f] transition-colors">
-                            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Revenue</p>
-                            <p className="text-2xl font-light text-white tabular-nums">{formatMoneyShort(stats.total_revenue)}</p>
-                            <p className="text-xs text-gray-500 mt-1">{stats.margin_percent.toFixed(0)}% margin</p>
+                        {/* Revenue Card - Green accent with bar */}
+                        <Link
+                            href="/app/invoices"
+                            className="group relative bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-emerald-500/30 transition-all duration-300 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute top-0 left-0 w-1 h-8 bg-gradient-to-b from-emerald-500 to-emerald-500/0 rounded-tr-full" />
+
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Revenue</p>
+                                    <TrendingUp className="w-4 h-4 text-emerald-500/50 group-hover:text-emerald-500 transition-colors" />
+                                </div>
+                                <p className="text-2xl font-light text-white tabular-nums group-hover:text-emerald-50 transition-colors">{formatMoneyShort(stats.total_revenue)}</p>
+                                {/* Mini margin bar */}
+                                <div className="mt-2">
+                                    <div className="flex items-center justify-between text-xs mb-1">
+                                        <span className="text-gray-500">Margin</span>
+                                        <span className="text-emerald-500 tabular-nums">{stats.margin_percent.toFixed(0)}%</span>
+                                    </div>
+                                    <div className="h-1 bg-[#1c1c1f] rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-emerald-500/80 to-emerald-400 rounded-full transition-all duration-500"
+                                            style={{ width: `${Math.min(stats.margin_percent, 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </Link>
 
-                        <Link href="/app/time-entries" className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-[#2a2a2f] transition-colors">
-                            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Hours</p>
-                            <p className="text-2xl font-light text-white tabular-nums">{stats.total_hours.toFixed(0)}</p>
-                            <p className="text-xs text-gray-500 mt-1">{stats.billable_hours.toFixed(0)} billable</p>
+                        {/* Hours Card - Amber accent with ring */}
+                        <Link
+                            href="/app/time-entries"
+                            className="group relative bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-amber-500/30 transition-all duration-300 overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                            <div className="absolute top-0 left-0 w-1 h-8 bg-gradient-to-b from-amber-500 to-amber-500/0 rounded-tr-full" />
+
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Hours</p>
+                                    <Clock className="w-4 h-4 text-amber-500/50 group-hover:text-amber-500 transition-colors" />
+                                </div>
+                                <p className="text-2xl font-light text-white tabular-nums group-hover:text-amber-50 transition-colors">{stats.total_hours.toFixed(0)}</p>
+                                {/* Billable vs Total indicator */}
+                                <div className="flex items-center gap-2 mt-1.5">
+                                    <div className="flex-1 h-1.5 bg-[#1c1c1f] rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-gradient-to-r from-amber-500/80 to-amber-400 rounded-full"
+                                            style={{ width: `${stats.total_hours > 0 ? (stats.billable_hours / stats.total_hours) * 100 : 0}%` }}
+                                        />
+                                    </div>
+                                    <span className="text-xs text-gray-500 tabular-nums">{stats.billable_hours.toFixed(0)} billable</span>
+                                </div>
+                            </div>
                         </Link>
 
-                        <Link href="/app/invoices" className="bg-[#111113] rounded-lg border border-[#1c1c1f] p-4 hover:border-[#2a2a2f] transition-colors">
-                            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Unpaid</p>
-                            <p className={`text-2xl font-light tabular-nums ${stats.total_overdue > 0 ? 'text-red-400' : 'text-white'}`}>
-                                {formatMoneyShort(stats.total_unpaid)}
-                            </p>
-                            {stats.total_overdue > 0 && (
-                                <p className="text-xs text-red-400 mt-1">{formatMoneyShort(stats.total_overdue)} overdue</p>
-                            )}
-                            {stats.total_overdue === 0 && (
-                                <p className="text-xs text-gray-500 mt-1">All on time</p>
-                            )}
+                        {/* Unpaid Card - Red/Orange accent with status */}
+                        <Link
+                            href="/app/invoices"
+                            className={`group relative bg-[#111113] rounded-lg border p-4 transition-all duration-300 overflow-hidden ${
+                                stats.total_overdue > 0
+                                    ? 'border-red-500/20 hover:border-red-500/40'
+                                    : 'border-[#1c1c1f] hover:border-[#FF5733]/30'
+                            }`}
+                        >
+                            <div className={`absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
+                                stats.total_overdue > 0 ? 'from-red-500/5' : 'from-[#FF5733]/5'
+                            } to-transparent`} />
+                            <div className={`absolute top-0 left-0 w-1 h-8 bg-gradient-to-b rounded-tr-full ${
+                                stats.total_overdue > 0 ? 'from-red-500 to-red-500/0' : 'from-[#FF5733] to-[#FF5733]/0'
+                            }`} />
+
+                            <div className="relative">
+                                <div className="flex items-center justify-between mb-2">
+                                    <p className="text-xs text-gray-500 uppercase tracking-wide">Unpaid</p>
+                                    {stats.total_overdue > 0 ? (
+                                        <div className="relative">
+                                            <FileText className="w-4 h-4 text-red-500/50 group-hover:text-red-500 transition-colors" />
+                                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                        </div>
+                                    ) : (
+                                        <FileText className="w-4 h-4 text-[#FF5733]/50 group-hover:text-[#FF5733] transition-colors" />
+                                    )}
+                                </div>
+                                <p className={`text-2xl font-light tabular-nums transition-colors ${
+                                    stats.total_overdue > 0 ? 'text-red-400 group-hover:text-red-300' : 'text-white group-hover:text-orange-50'
+                                }`}>
+                                    {formatMoneyShort(stats.total_unpaid)}
+                                </p>
+                                {stats.total_overdue > 0 ? (
+                                    <div className="flex items-center gap-1.5 mt-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                                        <p className="text-xs text-red-400">{formatMoneyShort(stats.total_overdue)} overdue</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-1.5 mt-1.5">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                        <p className="text-xs text-gray-500">All on time</p>
+                                    </div>
+                                )}
+                            </div>
                         </Link>
                     </section>
 

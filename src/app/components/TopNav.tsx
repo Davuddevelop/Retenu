@@ -36,7 +36,10 @@ export default function TopNav() {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [guestBannerDismissed, setGuestBannerDismissed] = useState(false);
     const pathname = usePathname();
-    const { isGuest } = useAuth();
+    const { isGuest, user, loading } = useAuth();
+
+    // Show demo banner if user is guest OR if not logged in (viewing demo data)
+    const showDemoBanner = !loading && (isGuest || !user);
 
     // Get page title based on current path
     const getPageTitle = () => {
@@ -63,8 +66,8 @@ export default function TopNav() {
 
     return (
         <>
-            {/* Guest Mode Banner */}
-            {isGuest && !guestBannerDismissed && (
+            {/* Demo Mode Banner - shows when viewing without login */}
+            {showDemoBanner && !guestBannerDismissed && (
                 <div className="bg-gradient-to-r from-[var(--neutral-metric)]/10 via-[var(--profit)]/10 to-[var(--neutral-metric)]/10 border-b border-[var(--border)] sticky top-0 z-30">
                     <div className="max-w-7xl mx-auto px-4 md:px-6 py-3 flex items-center justify-between gap-4">
                         <div className="flex items-center gap-3 min-w-0">

@@ -1,7 +1,7 @@
 // src/app/landing-v2/page.tsx
 'use client';
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'framer-motion';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -76,17 +76,459 @@ function HandDrawnArrow({ className = '' }: { className?: string }) {
 }
 
 // ============================================
+// LIVE LEAK DETECTION FEED (Mercury/Ramp style)
+// ============================================
+
+const leakTypes = [
+  { type: 'unbilled', icon: Clock, label: 'Unbilled hours', color: '#FF5733' },
+  { type: 'scope', icon: AlertTriangle, label: 'Scope creep', color: '#F59E0B' },
+  { type: 'overdue', icon: FileText, label: 'Overdue invoice', color: '#EF4444' },
+  { type: 'missing', icon: Bell, label: 'Missing invoice', color: '#8B5CF6' },
+];
+
+const clientNames = ['Acme Corp', 'TechStart Inc', 'MediaFlow', 'DataDrive', 'CloudNine', 'PixelPerfect', 'GrowthLabs', 'ScaleUp Co'];
+
+function generateFakeLeak() {
+  const type = leakTypes[Math.floor(Math.random() * leakTypes.length)];
+  const client = clientNames[Math.floor(Math.random() * clientNames.length)];
+  const amount = Math.floor(Math.random() * 8000) + 500;
+  const minutesAgo = Math.floor(Math.random() * 30) + 1;
+  return { ...type, client, amount, minutesAgo, id: Math.random() };
+}
+
+function LiveLeakFeed() {
+  const [leaks, setLeaks] = useState(() =>
+    Array.from({ length: 4 }, generateFakeLeak)
+  );
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLeaks(prev => {
+        const newLeak = generateFakeLeak();
+        return [newLeak, ...prev.slice(0, 3)];
+      });
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="bg-[#0C0C0E] border border-white/10 rounded-xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF5733] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF5733]"></span>
+          </span>
+          <span className="text-xs font-medium text-gray-400">Live Detection Feed</span>
+        </div>
+        <span className="text-[10px] text-gray-600">Simulated data</span>
+      </div>
+      <div className="divide-y divide-white/5">
+        {leaks.map((leak, i) => {
+          const Icon = leak.icon;
+          return (
+            <motion.div
+              key={leak.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="px-4 py-3 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: `${leak.color}15` }}
+                >
+                  <Icon className="w-4 h-4" style={{ color: leak.color }} />
+                </div>
+                <div>
+                  <p className="text-sm text-white">{leak.client}</p>
+                  <p className="text-xs text-gray-500">{leak.label}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-sm font-medium tabular-nums" style={{ color: leak.color }}>
+                  ${leak.amount.toLocaleString()}
+                </p>
+                <p className="text-[10px] text-gray-600">{leak.minutesAgo}m ago</p>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// LIVE MONEY COUNTER (Ramp style)
+// ============================================
+
+function LiveMoneyCounter() {
+  const [amount, setAmount] = useState(2847392);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Add random amount between $10-$500 every few seconds
+      setAmount(prev => prev + Math.floor(Math.random() * 490) + 10);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="inline-flex items-center gap-3 px-5 py-2.5 bg-gradient-to-r from-emerald-500/10 to-emerald-500/5 border border-emerald-500/20 rounded-full"
+    >
+      <div className="flex items-center gap-2">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+        <span className="text-xs text-gray-400">Recovered by agencies</span>
+      </div>
+      <motion.span
+        key={amount}
+        initial={{ scale: 1.1 }}
+        animate={{ scale: 1 }}
+        className="text-lg font-semibold text-emerald-500 tabular-nums"
+      >
+        ${amount.toLocaleString()}
+      </motion.span>
+    </motion.div>
+  );
+}
+
+// ============================================
+// BEFORE/AFTER COMPARISON SLIDER
+// ============================================
+
+function BeforeAfterSlider() {
+  const [sliderPosition, setSliderPosition] = useState(50);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+
+  const handleMove = useCallback((clientX: number) => {
+    if (!containerRef.current || !isDragging.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    const percent = (x / rect.width) * 100;
+    setSliderPosition(percent);
+  }, []);
+
+  const handleMouseDown = () => { isDragging.current = true; };
+  const handleMouseUp = () => { isDragging.current = false; };
+  const handleMouseMove = (e: React.MouseEvent) => handleMove(e.clientX);
+  const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX);
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => { isDragging.current = false; };
+    window.addEventListener('mouseup', handleGlobalMouseUp);
+    window.addEventListener('touchend', handleGlobalMouseUp);
+    return () => {
+      window.removeEventListener('mouseup', handleGlobalMouseUp);
+      window.removeEventListener('touchend', handleGlobalMouseUp);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="relative"
+    >
+      {/* Labels */}
+      <div className="flex justify-between mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-3 h-3 rounded-full bg-red-500/50" />
+          <span className="text-sm text-gray-400">Without OBSIDIAN</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-gray-400">With OBSIDIAN</span>
+          <div className="w-3 h-3 rounded-full bg-emerald-500" />
+        </div>
+      </div>
+
+      {/* Slider Container */}
+      <div
+        ref={containerRef}
+        className="relative h-[300px] md:h-[400px] rounded-xl overflow-hidden cursor-ew-resize select-none border border-white/10"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onTouchStart={handleMouseDown}
+        onTouchMove={handleTouchMove}
+      >
+        {/* BEFORE: Messy spreadsheet chaos */}
+        <div className="absolute inset-0 bg-[#0C0C0E]">
+          <div className="h-full p-4 md:p-6">
+            {/* Fake messy spreadsheet */}
+            <div className="bg-[#1a1a1f] rounded-lg p-3 h-full overflow-hidden">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-white/5">
+                <div className="w-3 h-3 rounded-full bg-red-500/50" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                <div className="w-3 h-3 rounded-full bg-green-500/50" />
+                <span className="text-[10px] text-gray-600 ml-2">agency_billing_tracker_FINAL_v3_UPDATED.xlsx</span>
+              </div>
+              {/* Spreadsheet rows */}
+              <div className="space-y-1 text-[10px] font-mono">
+                {[
+                  { client: 'Acme Corp', hours: '47.5', billed: '32', status: '❌ MISSING', color: 'text-red-400' },
+                  { client: 'TechStart', hours: '28', billed: '28', status: '✓', color: 'text-gray-500' },
+                  { client: 'MediaFlow', hours: '156', billed: '120', status: '⚠️ CHECK', color: 'text-yellow-400' },
+                  { client: '???', hours: '12', billed: '-', status: '???', color: 'text-red-400' },
+                  { client: 'CloudNine', hours: '89', billed: '45', status: '❌ OVERDUE', color: 'text-red-400' },
+                  { client: 'DataDrive', hours: '#REF!', billed: '#N/A', status: 'ERROR', color: 'text-red-400' },
+                  { client: 'PixelPerfect', hours: '200', billed: '180', status: '⚠️', color: 'text-yellow-400' },
+                ].map((row, i) => (
+                  <div key={i} className="flex items-center gap-2 py-1 px-2 bg-white/[0.02] rounded">
+                    <span className="w-20 text-gray-400 truncate">{row.client}</span>
+                    <span className="w-12 text-gray-500">{row.hours}h</span>
+                    <span className="w-12 text-gray-500">{row.billed}h</span>
+                    <span className={`flex-1 ${row.color}`}>{row.status}</span>
+                  </div>
+                ))}
+              </div>
+              {/* Red highlights */}
+              <div className="absolute top-1/3 left-1/4 w-32 h-8 border-2 border-red-500/40 rounded animate-pulse" />
+              <div className="absolute top-1/2 right-1/4 w-24 h-6 border-2 border-yellow-500/40 rounded animate-pulse" />
+              {/* Sticky notes */}
+              <div className="absolute top-4 right-4 w-20 h-16 bg-yellow-400/90 rounded shadow-lg transform rotate-3 p-2">
+                <p className="text-[8px] text-yellow-900 font-handwriting">CHECK WITH SARAH!!!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* AFTER: Clean OBSIDIAN dashboard */}
+        <div
+          className="absolute inset-0 bg-[#09090B]"
+          style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
+        >
+          <div className="h-full p-4 md:p-6">
+            <div className="bg-[#111113] rounded-lg border border-white/10 p-4 h-full">
+              {/* Clean header */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-[#FF5733]/20 flex items-center justify-center">
+                    <BarChart3 className="w-3 h-3 text-[#FF5733]" />
+                  </div>
+                  <span className="text-xs font-medium text-white">Revenue Overview</span>
+                </div>
+                <span className="text-[10px] px-2 py-0.5 bg-emerald-500/20 text-emerald-500 rounded-full">All synced</span>
+              </div>
+              {/* Clean stats */}
+              <div className="grid grid-cols-3 gap-3 mb-4">
+                <div className="bg-white/[0.02] rounded-lg p-3">
+                  <p className="text-[10px] text-gray-500">At Risk</p>
+                  <p className="text-lg font-light text-[#FF5733]">$12,450</p>
+                </div>
+                <div className="bg-white/[0.02] rounded-lg p-3">
+                  <p className="text-[10px] text-gray-500">Recovered</p>
+                  <p className="text-lg font-light text-emerald-500">$8,200</p>
+                </div>
+                <div className="bg-white/[0.02] rounded-lg p-3">
+                  <p className="text-[10px] text-gray-500">Clients</p>
+                  <p className="text-lg font-light text-white">12</p>
+                </div>
+              </div>
+              {/* Clean list */}
+              <div className="space-y-2">
+                {[
+                  { client: 'Acme Corp', issue: '15.5h unbilled', amount: '$2,325', status: 'action' },
+                  { client: 'MediaFlow', issue: 'Scope creep', amount: '$4,200', status: 'action' },
+                  { client: 'CloudNine', issue: 'Invoice overdue', amount: '$3,400', status: 'pending' },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-2 bg-white/[0.02] rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#FF5733]" />
+                      <div>
+                        <p className="text-xs text-white">{item.client}</p>
+                        <p className="text-[10px] text-gray-500">{item.issue}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-[#FF5733] tabular-nums">{item.amount}</span>
+                      <ChevronRight className="w-3 h-3 text-gray-600" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Slider Handle */}
+        <div
+          className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize z-10"
+          style={{ left: `${sliderPosition}%`, transform: 'translateX(-50%)' }}
+        >
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
+            <div className="flex items-center gap-0.5">
+              <ChevronLeft className="w-3 h-3 text-gray-800" />
+              <ChevronRight className="w-3 h-3 text-gray-800" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-center text-xs text-gray-600 mt-3">Drag to compare</p>
+    </motion.div>
+  );
+}
+
+// ============================================
+// REAL INTEGRATION LOGOS (SVG)
+// ============================================
+
+function TogglLogo({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#E57CD8"/>
+      <path d="M12 6V18M12 6L8 10M12 6L16 10" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+function ClockifyLogo({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#03A9F4"/>
+      <circle cx="12" cy="12" r="7" stroke="white" strokeWidth="1.5"/>
+      <path d="M12 8V12L15 14" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function HarvestLogo({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#FA5D00"/>
+      <circle cx="12" cy="12" r="6" stroke="white" strokeWidth="2"/>
+      <circle cx="12" cy="12" r="2" fill="white"/>
+    </svg>
+  );
+}
+
+function StripeLogo({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#635BFF"/>
+      <path d="M13.5 9.5C12.5 9 11 9.2 10.5 10.5C10 12 11.5 12.5 12.5 13C13.5 13.5 14 14.5 13.5 15.5C13 16.5 11 16.8 10 16" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+      <path d="M12 7V8.5M12 17V15.5" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+function QuickBooksLogo({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none">
+      <rect width="24" height="24" rx="4" fill="#2CA01C"/>
+      <circle cx="12" cy="12" r="6" stroke="white" strokeWidth="1.5"/>
+      <path d="M10 10V14L14 12L10 10Z" fill="white"/>
+    </svg>
+  );
+}
+
+// ============================================
 // GRAIN TEXTURE OVERLAY (Anti-AI)
 // ============================================
 
 function GrainOverlay() {
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-50 opacity-[0.03]"
+      className="fixed inset-0 pointer-events-none z-10 opacity-[0.015]"
       style={{
         backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
       }}
     />
+  );
+}
+
+// ============================================
+// SPECIAL EFFECTS (Kept: Cursor + Dashboard Tilt)
+// ============================================
+
+// Cursor Spotlight Effect
+function CursorSpotlight() {
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+      setIsVisible(true);
+    };
+
+    const handleMouseLeave = () => setIsVisible(false);
+
+    window.addEventListener('mousemove', handleMouseMove);
+    document.body.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      document.body.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed pointer-events-none z-30"
+      animate={{
+        x: mousePosition.x - 200,
+        y: mousePosition.y - 200,
+        opacity: isVisible ? 1 : 0,
+      }}
+      transition={{ type: "spring", damping: 30, stiffness: 200 }}
+      style={{
+        width: 400,
+        height: 400,
+        background: 'radial-gradient(circle, rgba(255,87,51,0.06) 0%, transparent 70%)',
+        borderRadius: '50%',
+      }}
+    />
+  );
+}
+
+// 3D Tilt Card Component for Dashboard
+function TiltCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), { stiffness: 300, damping: 30 });
+  const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), { stiffness: 300, damping: 30 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const xPos = (e.clientX - rect.left) / rect.width - 0.5;
+    const yPos = (e.clientY - rect.top) / rect.height - 0.5;
+    x.set(xPos);
+    y.set(yPos);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+        transformPerspective: 1000,
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 
@@ -128,7 +570,7 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
-// Interactive Leak Calculator (Notion-style demo)
+// Interactive Leak Calculator - redesigned to look obviously usable
 function InteractiveLeakCalculator() {
   const [teamSize, setTeamSize] = useState(5);
   const [avgRate, setAvgRate] = useState(150);
@@ -146,100 +588,190 @@ function InteractiveLeakCalculator() {
   const totalLeak = unbilledLeak + scopeCreepLeak + latePaymentLeak;
   const yearlyLeak = totalLeak * 12;
 
+  // Stepper button component
+  const StepperInput = ({
+    value,
+    onChange,
+    min,
+    max,
+    step = 1,
+    prefix = '',
+    suffix = ''
+  }: {
+    value: number;
+    onChange: (val: number) => void;
+    min: number;
+    max: number;
+    step?: number;
+    prefix?: string;
+    suffix?: string;
+  }) => (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={() => onChange(Math.max(min, value - step))}
+        className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
+      >
+        <Minus className="w-4 h-4" />
+      </button>
+      <div className="w-24 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+        <span className="text-lg font-medium tabular-nums text-white">
+          {prefix}{value.toLocaleString()}{suffix}
+        </span>
+      </div>
+      <button
+        onClick={() => onChange(Math.min(max, value + step))}
+        className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
+      >
+        <Plus className="w-4 h-4" />
+      </button>
+    </div>
+  );
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8"
+      className="bg-[#0C0C0E] border border-white/10 rounded-2xl overflow-hidden"
     >
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Inputs */}
-        <div className="space-y-6">
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">Team size (billable people)</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="1"
-                max="50"
-                value={teamSize}
-                onChange={(e) => setTeamSize(Number(e.target.value))}
-                className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733]"
-              />
-              <span className="text-xl font-light tabular-nums w-12 text-right">{teamSize}</span>
-            </div>
+      {/* Calculator Header */}
+      <div className="bg-gradient-to-r from-[#FF5733]/10 to-transparent border-b border-white/5 px-8 py-4">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#FF5733]/20 flex items-center justify-center">
+            <BarChart3 className="w-4 h-4 text-[#FF5733]" />
           </div>
-
           <div>
-            <label className="block text-sm text-gray-400 mb-2">Average hourly rate ($)</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="50"
-                max="500"
-                step="10"
-                value={avgRate}
-                onChange={(e) => setAvgRate(Number(e.target.value))}
-                className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733]"
-              />
-              <span className="text-xl font-light tabular-nums w-16 text-right">${avgRate}</span>
-            </div>
+            <h3 className="font-medium text-white">Leak Calculator</h3>
+            <p className="text-xs text-gray-500">Adjust the values to estimate your revenue leak</p>
           </div>
-
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">Hours per person/month</label>
-            <div className="flex items-center gap-4">
-              <input
-                type="range"
-                min="80"
-                max="200"
-                step="10"
-                value={monthlyHours}
-                onChange={(e) => setMonthlyHours(Number(e.target.value))}
-                className="flex-1 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733]"
-              />
-              <span className="text-xl font-light tabular-nums w-12 text-right">{monthlyHours}</span>
-            </div>
-          </div>
-
-          <p className="text-xs text-gray-600 leading-relaxed">
-            Based on industry averages: 8% unbilled hours, 12% scope creep, 5% late payment impact.
-            Your actual leaks may be higher or lower.
-          </p>
         </div>
+      </div>
 
-        {/* Results */}
-        <div className="bg-[#09090B] rounded-xl p-6">
-          <div className="text-sm text-gray-500 uppercase tracking-wider mb-4">Estimated annual leak</div>
-
-          <div className="text-5xl font-light text-[#FF5733] mb-6 tabular-nums">
-            ${yearlyLeak.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-          </div>
-
-          <div className="space-y-3">
-            {[
-              { label: 'Unbilled hours', value: unbilledLeak * 12, color: '#FF5733' },
-              { label: 'Scope creep', value: scopeCreepLeak * 12, color: '#F59E0B' },
-              { label: 'Late payments', value: latePaymentLeak * 12, color: '#EF4444' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
-                  <span className="text-sm text-gray-400">{item.label}</span>
-                </div>
-                <span className="text-sm tabular-nums">${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+      <div className="p-8">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Inputs - more interactive looking */}
+          <div className="space-y-6">
+            {/* Team Size */}
+            <div className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-white">Team Size</label>
+                <span className="text-xs text-gray-500">billable people</span>
               </div>
-            ))}
+              <div className="flex items-center justify-between">
+                <StepperInput
+                  value={teamSize}
+                  onChange={setTeamSize}
+                  min={1}
+                  max={50}
+                  step={1}
+                />
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  value={teamSize}
+                  onChange={(e) => setTeamSize(Number(e.target.value))}
+                  className="flex-1 ml-4 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733] [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-[#FF5733]/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform"
+                />
+              </div>
+            </div>
+
+            {/* Hourly Rate */}
+            <div className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-white">Hourly Rate</label>
+                <span className="text-xs text-gray-500">average across team</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <StepperInput
+                  value={avgRate}
+                  onChange={setAvgRate}
+                  min={50}
+                  max={500}
+                  step={10}
+                  prefix="$"
+                />
+                <input
+                  type="range"
+                  min="50"
+                  max="500"
+                  step="10"
+                  value={avgRate}
+                  onChange={(e) => setAvgRate(Number(e.target.value))}
+                  className="flex-1 ml-4 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733] [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-[#FF5733]/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform"
+                />
+              </div>
+            </div>
+
+            {/* Monthly Hours */}
+            <div className="bg-white/[0.02] rounded-xl p-4 border border-white/5">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-white">Monthly Hours</label>
+                <span className="text-xs text-gray-500">per person</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <StepperInput
+                  value={monthlyHours}
+                  onChange={setMonthlyHours}
+                  min={80}
+                  max={200}
+                  step={10}
+                  suffix="h"
+                />
+                <input
+                  type="range"
+                  min="80"
+                  max="200"
+                  step="10"
+                  value={monthlyHours}
+                  onChange={(e) => setMonthlyHours(Number(e.target.value))}
+                  className="flex-1 ml-4 h-2 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[#FF5733] [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:shadow-[#FF5733]/30 [&::-webkit-slider-thumb]:cursor-grab [&::-webkit-slider-thumb]:active:cursor-grabbing [&::-webkit-slider-thumb]:hover:scale-110 [&::-webkit-slider-thumb]:transition-transform"
+                />
+              </div>
+            </div>
+
+            <p className="text-xs text-gray-600 leading-relaxed px-1">
+              Based on industry averages: 8% unbilled hours, 12% scope creep, 5% late payment impact.
+            </p>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/5">
-            <Link
-              href="/login"
-              className="block w-full py-3 bg-[#FF5733] hover:bg-[#E84118] text-center font-medium rounded-lg transition-colors"
+          {/* Results */}
+          <div className="bg-[#09090B] rounded-xl p-6 border border-white/5">
+            <div className="text-sm text-gray-500 uppercase tracking-wider mb-4">Estimated annual leak</div>
+
+            <motion.div
+              key={yearlyLeak}
+              initial={{ scale: 1.05, opacity: 0.8 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-5xl font-light text-[#FF5733] mb-6 tabular-nums"
             >
-              Find your actual number
-            </Link>
+              ${yearlyLeak.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+            </motion.div>
+
+            <div className="space-y-3">
+              {[
+                { label: 'Unbilled hours', value: unbilledLeak * 12, color: '#FF5733' },
+                { label: 'Scope creep', value: scopeCreepLeak * 12, color: '#F59E0B' },
+                { label: 'Late payments', value: latePaymentLeak * 12, color: '#EF4444' },
+              ].map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <span className="text-sm text-gray-400">{item.label}</span>
+                  </div>
+                  <span className="text-sm tabular-nums">${item.value.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 pt-4 border-t border-white/5">
+              <Link
+                href="/login"
+                className="block w-full py-3 bg-[#FF5733] hover:bg-[#E84118] text-center font-medium rounded-lg transition-colors"
+              >
+                Find your actual number
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -295,8 +827,9 @@ export default function LandingV2() {
     target: heroRef,
     offset: ['start start', 'end start']
   });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  const heroY = useTransform(scrollYProgress, [0, 0.8], [0, -30]);
+  // Dashboard stays fully visible longer before fading
+  const heroOpacity = useTransform(scrollYProgress, [0.4, 1], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0.4, 1], [0, -50]);
 
   // Smooth scroll to section
   const scrollToSection = useCallback((sectionId: string) => {
@@ -361,6 +894,9 @@ export default function LandingV2() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white selection:bg-[#FF5733]/30">
+      {/* Cursor spotlight effect */}
+      <CursorSpotlight />
+
       {/* Grain texture overlay - makes everything feel tactile */}
       <GrainOverlay />
 
@@ -471,9 +1007,42 @@ export default function LandingV2() {
       <motion.section
         ref={heroRef}
         style={{ opacity: heroOpacity, y: heroY }}
-        className="relative pt-32 pb-16 px-6"
+        className="relative pt-32 pb-16 px-6 overflow-hidden"
       >
-        <div className="max-w-5xl mx-auto">
+        {/* Floating decorative elements */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          {/* Floating dollar signs - subtle animation */}
+          <motion.div
+            animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-32 left-[10%] text-4xl text-[#FF5733]/10 font-bold select-none"
+          >
+            $
+          </motion.div>
+          <motion.div
+            animate={{ y: [0, 10, 0], rotate: [0, -3, 0] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+            className="absolute top-48 right-[15%] text-3xl text-emerald-500/10 font-bold select-none"
+          >
+            $
+          </motion.div>
+          <motion.div
+            animate={{ y: [0, -8, 0], rotate: [0, -5, 0] }}
+            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute top-64 left-[20%] text-2xl text-amber-500/10 font-bold select-none hidden md:block"
+          >
+            $
+          </motion.div>
+          <motion.div
+            animate={{ y: [0, 12, 0], rotate: [0, 8, 0] }}
+            transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            className="absolute top-40 right-[25%] text-5xl text-[#FF5733]/5 font-bold select-none hidden lg:block"
+          >
+            $
+          </motion.div>
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
           {/* Main headline - more conversational */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -500,9 +1069,9 @@ export default function LandingV2() {
             transition={{ delay: 0.2 }}
             className="text-center text-gray-400 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
           >
-            Unbilled hours. Scope creep nobody tracked. Invoices that never went out.
+            Unbilled hours. Scope creep nobody mentioned. Invoices sitting in &quot;draft&quot; limbo.
             <br />
-            <span className="text-gray-500">We find it. You bill it. That&apos;s basically it.</span>
+            <span className="text-gray-500">We spot the gaps. You recover the money. Simple as that.</span>
           </motion.p>
 
           {/* CTA - single, clear */}
@@ -535,39 +1104,35 @@ export default function LandingV2() {
             </span>
           </motion.div>
 
-          {/* Social proof - specific, real feeling */}
+          {/* Value proposition badges */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="text-center text-sm text-gray-500 mb-20"
+            className="flex flex-wrap justify-center gap-3 text-sm text-gray-500 mb-20"
           >
-            <span className="inline-flex items-center gap-2">
-              <span className="flex -space-x-2">
-                {[...Array(4)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-7 h-7 rounded-full border-2 border-[#0A0A0B]"
-                    style={{
-                      background: ['#FF5733', '#3B82F6', '#10B981', '#8B5CF6'][i],
-                    }}
-                  />
-                ))}
+            {[
+              { icon: Clock, text: '5 min setup' },
+              { icon: FileText, text: 'No integrations required' },
+              { icon: Check, text: '14-day free trial' },
+            ].map((item, i) => (
+              <span key={i} className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/5 rounded-full">
+                <item.icon className="w-4 h-4 text-gray-600" />
+                <span>{item.text}</span>
               </span>
-              <span>127 agencies found <span className="text-white">$847,293</span> last month</span>
-            </span>
+            ))}
           </motion.div>
 
-          {/* Dashboard Preview - Real Screenshot */}
+          {/* Dashboard Preview - Real Screenshot with 3D Tilt */}
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.6 }}
-            className="max-w-5xl mx-auto"
+            transition={{ delay: 0.5, duration: 1.2 }}
+            className="max-w-5xl mx-auto perspective-1000"
           >
-            <div className="relative">
-              {/* Subtle glow */}
-              <div className="absolute -inset-4 bg-gradient-to-b from-[#FF5733]/10 via-transparent to-transparent blur-2xl opacity-50" />
+            <TiltCard className="relative">
+              {/* Subtle glow - behind the dashboard */}
+              <div className="absolute -inset-4 bg-gradient-to-b from-[#FF5733]/5 via-transparent to-transparent blur-3xl opacity-30 -z-10" />
 
               {/* Browser frame */}
               <div className="relative bg-[#0D0D0F] border border-white/10 rounded-xl overflow-hidden shadow-2xl shadow-black/50">
@@ -588,15 +1153,15 @@ export default function LandingV2() {
                 {/* Dashboard Screenshot */}
                 <div className="relative">
                   <Image
-                    src="/dashboard obsidian.png"
+                    src="/dashboard obsidian 2.png"
                     alt="OBSIDIAN Dashboard - Revenue leak detection for agencies"
                     width={1920}
                     height={1080}
                     className="w-full h-auto"
                     priority
                   />
-                  {/* Gradient fade at bottom for polish */}
-                  <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-[#0D0D0F] to-transparent pointer-events-none" />
+                  {/* Subtle gradient fade at bottom */}
+                  <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-[#0D0D0F]/50 to-transparent pointer-events-none" />
                 </div>
               </div>
 
@@ -624,15 +1189,15 @@ export default function LandingV2() {
                   <div className="text-2xl font-light tabular-nums text-emerald-500">+$4,200</div>
                 </div>
               </motion.div>
-            </div>
+            </TiltCard>
           </motion.div>
         </div>
       </motion.section>
 
-      {/* Logo Cloud - Integrations & Trust (Stripe/Vercel style) */}
+      {/* Logo Cloud - Integrations & Features (Stripe/Vercel style) */}
       <section className="py-16 px-6 border-y border-white/5 bg-[#09090B]/50">
         <div className="max-w-5xl mx-auto">
-          {/* Trust metrics bar */}
+          {/* Features bar */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -640,65 +1205,81 @@ export default function LandingV2() {
             className="flex flex-wrap justify-center gap-8 md:gap-16 mb-12"
           >
             {[
-              { value: '847', suffix: 'K', label: 'Revenue recovered' },
-              { value: '127', suffix: '', label: 'Agencies' },
-              { value: '4.2', suffix: 'hrs', label: 'Avg. setup time' },
-              { value: '99.9', suffix: '%', label: 'Uptime' },
+              { value: '4', suffix: '', label: 'Types of leaks we catch', prefix: '' },
+              { value: '5', suffix: ' min', label: 'To import your data', prefix: '~' },
+              { value: '14', suffix: ' days', label: 'Free trial', prefix: '' },
+              { value: '0', suffix: '', label: 'Sales calls required', prefix: '' },
             ].map((stat, i) => (
-              <div key={i} className="text-center">
-                <div className="text-2xl md:text-3xl font-light tabular-nums">
-                  ${stat.value.includes('.') ? '' : ''}<AnimatedCounter value={parseFloat(stat.value)} />{stat.suffix}
+              <div key={i} className="text-center group">
+                <div className="text-2xl md:text-3xl font-light tabular-nums group-hover:text-[#FF5733] transition-colors">
+                  {stat.prefix}<AnimatedCounter value={parseFloat(stat.value)} />{stat.suffix}
                 </div>
                 <div className="text-xs text-gray-500 uppercase tracking-wider mt-1">{stat.label}</div>
               </div>
             ))}
           </motion.div>
 
-          {/* Integration logos */}
+          {/* Integration logos - Real SVG logos */}
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             className="text-center"
           >
-            <p className="text-xs text-gray-600 uppercase tracking-wider mb-6">Works with your tools</p>
-            <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12 opacity-50 hover:opacity-70 transition-opacity">
+            <p className="text-xs text-gray-600 uppercase tracking-wider mb-6">Import from tools you already use</p>
+            <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
               {/* Toggl */}
-              <div className="flex items-center gap-2 text-gray-400">
-                <div className="w-6 h-6 rounded bg-[#E57CD8] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">T</span>
-                </div>
-                <span className="text-sm font-medium">Toggl</span>
-              </div>
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <TogglLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">Toggl Track</span>
+              </motion.div>
               {/* Clockify */}
-              <div className="flex items-center gap-2 text-gray-400">
-                <div className="w-6 h-6 rounded bg-[#03A9F4] flex items-center justify-center">
-                  <Clock className="w-3.5 h-3.5 text-white" />
-                </div>
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <ClockifyLogo className="w-7 h-7" />
                 <span className="text-sm font-medium">Clockify</span>
-              </div>
+              </motion.div>
               {/* Harvest */}
-              <div className="flex items-center gap-2 text-gray-400">
-                <div className="w-6 h-6 rounded bg-[#FA5D00] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">H</span>
-                </div>
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <HarvestLogo className="w-7 h-7" />
                 <span className="text-sm font-medium">Harvest</span>
-              </div>
-              {/* CSV */}
-              <div className="flex items-center gap-2 text-gray-400">
-                <div className="w-6 h-6 rounded bg-emerald-600 flex items-center justify-center">
-                  <FileText className="w-3.5 h-3.5 text-white" />
-                </div>
-                <span className="text-sm font-medium">CSV Import</span>
-              </div>
+              </motion.div>
+              {/* QuickBooks */}
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <QuickBooksLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">QuickBooks</span>
+                <span className="text-[10px] text-emerald-500/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">New</span>
+              </motion.div>
               {/* Stripe */}
-              <div className="flex items-center gap-2 text-gray-400">
-                <div className="w-6 h-6 rounded bg-[#635BFF] flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">S</span>
-                </div>
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <StripeLogo className="w-7 h-7" />
                 <span className="text-sm font-medium">Stripe</span>
-                <span className="text-[10px] text-gray-600 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
-              </div>
+                <span className="text-[10px] text-gray-500 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
+              </motion.div>
+              {/* CSV Import */}
+              <motion.div
+                whileHover={{ scale: 1.05, opacity: 1 }}
+                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+              >
+                <div className="w-7 h-7 rounded bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
+                  <FileText className="w-4 h-4 text-white" />
+                </div>
+                <span className="text-sm font-medium">Any CSV</span>
+              </motion.div>
             </div>
           </motion.div>
         </div>
@@ -717,7 +1298,7 @@ export default function LandingV2() {
               It&apos;s not complicated.
             </h2>
             <p className="text-gray-500 text-lg">
-              Seriously, there&apos;s no AI magic here. Just math.
+              Seriously, no AI magic. Just comparing numbers that should match but don&apos;t.
             </p>
           </motion.div>
 
@@ -725,20 +1306,20 @@ export default function LandingV2() {
             {[
               {
                 num: '1',
-                title: 'Dump your data in',
-                description: "Upload a CSV from whatever time tracker you use. Or connect Toggl if that's your thing. Takes about 5 minutes.",
+                title: 'Throw your data at us',
+                description: "Export from Toggl, Clockify, Harvest—or just upload a CSV. We're not picky. 5 minutes, tops.",
                 icon: FileText,
               },
               {
                 num: '2',
-                title: 'We do the math',
-                description: "Time logged vs. time billed. Hours worked vs. retainer limits. Invoices sent vs. payments received. Simple comparisons.",
+                title: 'We crunch the numbers',
+                description: "Hours logged ≠ hours billed? Retainer at 140%? Invoice from March still unpaid? We flag it all.",
                 icon: BarChart3,
               },
               {
                 num: '3',
-                title: 'You see what\'s missing',
-                description: "A list of gaps, ranked by how much money they represent. Click one, see the details, decide what to do.",
+                title: 'You plug the leaks',
+                description: "See exactly where money is slipping through. One click to the details. You decide what to chase.",
                 icon: TrendingUp,
               },
             ].map((step, i) => (
@@ -950,7 +1531,7 @@ export default function LandingV2() {
         </div>
       </section>
 
-      {/* Testimonials Grid - Multiple social proofs (Stripe-style) */}
+      {/* Use Cases - Example Scenarios */}
       <section className="py-24 px-6 bg-[#09090B]">
         <div className="max-w-5xl mx-auto">
           <motion.div
@@ -959,37 +1540,34 @@ export default function LandingV2() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl font-medium mb-4">Real agencies, real recoveries</h2>
-            <p className="text-gray-500">Not paid testimonials. Just people who found money.</p>
+            <h2 className="text-3xl font-medium mb-4">Common scenarios we catch</h2>
+            <p className="text-gray-500">Typical examples of revenue leaks agencies face daily.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
-                quote: "Found $12,400 in unbilled hours from a project we closed three months ago. That was day one.",
-                name: "Marcus Webb",
-                role: "Founder, Webb Digital",
-                size: "12-person agency",
-                amount: "$12,400",
-                gradient: "from-blue-500 to-purple-600"
+                scenario: "Unbilled Project Hours",
+                description: "A completed project has 47 hours logged but only 32 hours invoiced. The remaining 15 hours at $150/hr = $2,250 left on the table.",
+                amount: "$2,250",
+                icon: Clock,
+                color: "#3B82F6"
               },
               {
-                quote: "We were 40% over retainer on two clients and had no idea. Now we catch it same-week.",
-                name: "Sarah Chen",
-                role: "COO, Pixel Perfect",
-                size: "8-person studio",
-                amount: "$7,200/mo",
-                gradient: "from-emerald-500 to-teal-600"
+                scenario: "Retainer Overage",
+                description: "Client on a 20-hour monthly retainer consistently uses 26-28 hours. That's $900-1,200/mo in free work going unnoticed.",
+                amount: "$900-1,200/mo",
+                icon: AlertTriangle,
+                color: "#F59E0B"
               },
               {
-                quote: "Three invoices sitting in draft for 60+ days. Classic us. Never again.",
-                name: "James Okonkwo",
-                role: "Operations, BrightSide",
-                size: "15-person agency",
-                amount: "$23,500",
-                gradient: "from-amber-500 to-orange-600"
+                scenario: "Stale Draft Invoices",
+                description: "Three invoices have been sitting in 'draft' status for over 45 days. Combined value: $8,400 that's not in your bank.",
+                amount: "$8,400",
+                icon: FileText,
+                color: "#10B981"
               },
-            ].map((testimonial, i) => (
+            ].map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
@@ -1001,48 +1579,47 @@ export default function LandingV2() {
                 {/* Amount badge */}
                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-[#FF5733]/10 border border-[#FF5733]/20 rounded-full text-sm text-[#FF5733] mb-4">
                   <TrendingUp className="w-3.5 h-3.5" />
-                  {testimonial.amount} recovered
+                  {item.amount} at risk
                 </div>
 
-                <p className="text-gray-300 leading-relaxed mb-6">
-                  &ldquo;{testimonial.quote}&rdquo;
+                <h3 className="text-lg font-medium text-white mb-3">{item.scenario}</h3>
+                <p className="text-gray-400 leading-relaxed mb-6 text-sm">
+                  {item.description}
                 </p>
 
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${testimonial.gradient}`} />
+                <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${item.color}15` }}
+                  >
+                    <item.icon className="w-5 h-5" style={{ color: item.color }} />
+                  </div>
                   <div>
-                    <div className="font-medium text-sm">{testimonial.name}</div>
-                    <div className="text-xs text-gray-500">{testimonial.role}</div>
-                    <div className="text-[10px] text-gray-600">{testimonial.size}</div>
+                    <div className="text-xs text-gray-500 uppercase tracking-wider">Detection Type</div>
+                    <div className="text-sm font-medium text-gray-300">{item.scenario}</div>
                   </div>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {/* Aggregate social proof */}
+          {/* CTA instead of fake social proof */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="mt-12 text-center"
           >
-            <div className="inline-flex items-center gap-4 px-6 py-4 bg-white/[0.02] border border-white/5 rounded-full">
-              <div className="flex -space-x-2">
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-8 h-8 rounded-full border-2 border-[#09090B]"
-                    style={{
-                      background: ['#FF5733', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'][i],
-                    }}
-                  />
-                ))}
-              </div>
-              <div className="text-left">
-                <div className="text-sm font-medium">127 agencies</div>
-                <div className="text-xs text-gray-500">$847K recovered this month</div>
-              </div>
+            <div className="inline-flex flex-col items-center gap-4 px-8 py-6 bg-white/[0.02] border border-white/5 rounded-2xl">
+              <p className="text-gray-400 text-sm">See what revenue leaks exist in your agency</p>
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-[#FF5733] hover:bg-[#E84118] font-medium rounded-lg transition-colors"
+              >
+                Start your free analysis
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <span className="text-xs text-gray-600">No credit card required</span>
             </div>
           </motion.div>
         </div>
@@ -1227,19 +1804,24 @@ export default function LandingV2() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-medium mb-6">
+            <h2 className="text-3xl md:text-4xl font-medium mb-4">
               Worst case? You waste 10 minutes.
-              <br />
-              <span className="text-gray-500">Best case? You find thousands.</span>
             </h2>
+            <p className="text-xl text-gray-500 mb-8">
+              Best case? You recover thousands you didn&apos;t know you were losing.
+            </p>
 
             <Link
               href="/login"
-              className="inline-flex items-center gap-3 px-8 py-4 bg-[#FF5733] hover:bg-[#E84118] text-lg font-medium rounded-lg transition-colors"
+              className="inline-flex items-center gap-3 px-8 py-4 bg-[#FF5733] hover:bg-[#E84118] text-lg font-medium rounded-lg transition-colors group"
             >
-              Try it free
-              <ArrowRight className="w-5 h-5" />
+              Find your leaks
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
+
+            <p className="text-sm text-gray-600 mt-4">
+              Free for 14 days. No credit card needed. No awkward sales calls.
+            </p>
           </motion.div>
         </div>
       </section>
@@ -1268,7 +1850,7 @@ export default function LandingV2() {
 
           {/* Additional footer info */}
           <div className="mt-8 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-            <p>Built for agencies who want to stop leaving money on the table.</p>
+            <p>Built by people who got tired of finding unbilled hours in spreadsheets at 2am.</p>
             <div className="flex items-center gap-4">
               <button onClick={() => scrollToSection('product')} className="hover:text-gray-400 transition-colors">
                 Product

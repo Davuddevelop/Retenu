@@ -1,9 +1,8 @@
-import SplitLoginCard from "@/components/ui/split-login-card";
+// src/app/demo/page.tsx
+import { redirect } from 'next/navigation';
 
-export default function DemoOne() {
-    return (
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 dark:bg-gray-900">
-            <SplitLoginCard />
-        </div>
-    );
+// Demo page simply redirects to the app
+// The app automatically loads demo data when not authenticated
+export default function DemoPage() {
+    redirect('/app');
 }

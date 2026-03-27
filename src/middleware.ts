@@ -25,8 +25,14 @@ export async function middleware(request: NextRequest) {
     const isApiRoute = request.nextUrl.pathname.startsWith('/api')
     const isAppRoute = request.nextUrl.pathname.startsWith('/app')
 
+    // Allow app routes without auth - DataProvider loads demo data automatically
+    // This enables "Try Live Demo" without login friction
+    if (isAppRoute) {
+        return NextResponse.next();
+    }
+
     // If it doesn't match the routes we want to protect, explicitly allow it for now.
-    if (!isApiRoute && !isAppRoute) {
+    if (!isApiRoute) {
         return NextResponse.next();
     }
 
