@@ -25,7 +25,6 @@ export default function UploadTimeEntriesPage() {
     const [clients, setClients] = useState<Client[]>([]);
     const [file, setFile] = useState<File | null>(null);
     const [parsedRows, setParsedRows] = useState<ParsedRow[]>([]);
-    const [isProcessing, setIsProcessing] = useState(false);
     const [isImporting, setIsImporting] = useState(false);
     const [importResult, setImportResult] = useState<{ success: number; failed: number } | null>(null);
 
@@ -151,7 +150,6 @@ export default function UploadTimeEntriesPage() {
         if (!selectedFile) return;
 
         setFile(selectedFile);
-        setIsProcessing(true);
         setImportResult(null);
 
         try {
@@ -160,8 +158,6 @@ export default function UploadTimeEntriesPage() {
             setParsedRows(rows);
         } catch (err) {
             console.error('Error parsing CSV:', err);
-        } finally {
-            setIsProcessing(false);
         }
     };
 

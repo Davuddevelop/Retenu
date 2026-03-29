@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowRight, TrendingUp, AlertCircle, Clock, FileText, Users, ChevronRight, Check } from 'lucide-react';
+import { TrendingUp, AlertCircle, Clock, FileText, Users, ChevronRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { format, startOfMonth, endOfMonth, subMonths, formatDistanceToNow } from 'date-fns';
 import { useData } from '../providers/DataProvider';

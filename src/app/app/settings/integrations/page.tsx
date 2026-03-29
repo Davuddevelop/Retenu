@@ -40,9 +40,16 @@ const ClockifyLogo = () => (
     </svg>
 );
 
+// Shopify - official icon
+const ShopifyLogo = () => (
+    <svg viewBox="0 0 24 24" className="w-6 h-6" fill="currentColor">
+        <path d="M21.282 10.428l-3.328-8.239A1.785 1.785 0 0016.29 1.07l-4.542 1.554-4.558-1.554a1.769 1.769 0 00-1.666 1.119L2.196 10.428a1.69 1.69 0 00.322 1.848l7.522 8.35c.91.996 2.457.996 3.367 0l7.553-8.35a1.69 1.69 0 00.322-1.848zm-8.814-6.307l3.65 6.13H8.818l3.65-6.13zm-5.071 6.13L4.542 4.965a.286.286 0 01.272-.18l2.583.88v4.586H7.397zm10.141 0h-2.584V5.666l2.584-.881a.28.28 0 01.27.182L17.538 10.25zM11.734 19.38L5.613 11.838h12.24L11.734 19.38z" />
+    </svg>
+);
+
 interface Integration {
     id: string;
-    provider: 'stripe' | 'toggl' | 'clockify';
+    provider: 'stripe' | 'toggl' | 'clockify' | 'shopify';
     enabled: boolean;
     api_key?: string;
     workspace_id?: string;
@@ -89,6 +96,18 @@ const INTEGRATION_CONFIG = {
         ],
         docsUrl: 'https://clockify.me/user/settings',
     },
+    shopify: {
+        name: 'Shopify',
+        description: 'Sync store orders and revenue',
+        logo: ShopifyLogo,
+        color: '#95BF47',
+        useOAuth: false,
+        fields: [
+            { key: 'shop_url', label: 'Shop URL', placeholder: 'your-store.myshopify.com', secret: false },
+            { key: 'api_key', label: 'Admin Access Token', placeholder: 'shpat_...', secret: true },
+        ],
+        docsUrl: 'https://help.shopify.com',
+    },
 };
 
 function IntegrationsContent() {
@@ -116,6 +135,7 @@ function IntegrationsContent() {
                 stripe_connected: 'Stripe connected successfully!',
                 toggl_connected: 'Toggl connected! Map your projects to clients.',
                 clockify_connected: 'Clockify connected! Map your projects to clients.',
+                shopify_connected: 'Shopify connected!',
             };
             setNotification({
                 type: 'success',
@@ -141,10 +161,12 @@ function IntegrationsContent() {
 
         const timer = setTimeout(() => setNotification(null), 5000);
         return () => clearTimeout(timer);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchParams]);
 
     useEffect(() => {
         loadIntegrations();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [organizationId, mode]);
 
     const loadIntegrations = useCallback(async () => {
@@ -159,6 +181,7 @@ function IntegrationsContent() {
                     { id: 'stripe', provider: 'stripe', enabled: false },
                     { id: 'toggl', provider: 'toggl', enabled: false },
                     { id: 'clockify', provider: 'clockify', enabled: false },
+                    { id: 'shopify', provider: 'shopify', enabled: false },
                 ];
                 setIntegrations(initial);
             }
@@ -167,7 +190,7 @@ function IntegrationsContent() {
                 const response = await fetch(`/api/integrations?organization_id=${organizationId}`);
                 if (response.ok) {
                     const data = await response.json();
-                    const providers = ['stripe', 'toggl', 'clockify'] as const;
+                    const providers = ['stripe', 'toggl', 'clockify', 'shopify'] as const;
                     const integrationsMap = new Map(data.integrations?.map((i: Integration) => [i.provider, i]));
 
                     const allIntegrations: Integration[] = providers.map(provider => {
@@ -314,6 +337,57 @@ function IntegrationsContent() {
         }
     };
 
+    const handleShopifyConnect = async () => {
+        if (!formData.api_key || !formData.shop_url) {
+            setNotification({ type: 'error', message: 'Shop URL and Access Token are required' });
+            return;
+        }
+
+        setConnectingProvider('shopify');
+
+        try {
+            const response = await fetch('/api/auth/shopify/connect', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    organization_id: organizationId,
+                    api_key: formData.api_key,
+                    shop_url: formData.shop_url.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Connection failed');
+            }
+
+            const updated: Integration = {
+                id: 'shopify',
+                provider: 'shopify',
+                enabled: true,
+                api_key: formData.api_key,
+                config: {
+                    shop_url: data.shop.domain,
+                    shop_name: data.shop.name,
+                },
+            };
+
+            await saveIntegration(updated);
+            setEditingId(null);
+            setFormData({});
+            setNotification({ type: 'success', message: 'Shopify connected!' });
+            loadIntegrations();
+        } catch (err) {
+            setNotification({
+                type: 'error',
+                message: err instanceof Error ? err.message : 'Connection failed',
+            });
+        } finally {
+            setConnectingProvider(null);
+        }
+    };
+
     const handleSync = async (provider: 'toggl' | 'clockify') => {
         const integration = integrations.find(i => i.provider === provider);
         if (!integration?.enabled) return;
@@ -400,7 +474,7 @@ function IntegrationsContent() {
     const handleDisconnect = async (provider: string) => {
         const updated: Integration = {
             id: provider,
-            provider: provider as 'stripe' | 'toggl' | 'clockify',
+            provider: provider as 'stripe' | 'toggl' | 'clockify' | 'shopify',
             enabled: false,
         };
         await saveIntegration(updated);
@@ -546,6 +620,16 @@ function IntegrationsContent() {
                                     </button>
                                 )}
 
+                                {/* Shopify */}
+                                {integration.provider === 'shopify' && !integration.enabled && !isEditing && (
+                                    <button
+                                        onClick={() => setEditingId('shopify')}
+                                        className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors"
+                                    >
+                                        Connect Shopify
+                                    </button>
+                                )}
+
                                 {/* API Key Form */}
                                 {isEditing && 'fields' in config && (
                                     <div className="space-y-4">
@@ -578,7 +662,11 @@ function IntegrationsContent() {
                                         ))}
                                         <div className="flex gap-3">
                                             <button
-                                                onClick={integration.provider === 'clockify' ? handleClockifyConnect : handleTogglApiConnect}
+                                                onClick={
+                                                    integration.provider === 'shopify' ? handleShopifyConnect :
+                                                    integration.provider === 'clockify' ? handleClockifyConnect :
+                                                    handleTogglApiConnect
+                                                }
                                                 disabled={isConnecting}
                                                 className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
                                             >
@@ -613,6 +701,14 @@ function IntegrationsContent() {
                                                     <span className="text-gray-500">Workspace</span>
                                                     <span className="ml-2 text-gray-300">
                                                         {(integration.config?.workspace_name as string) || integration.workspace_id}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {!!integration.config?.shop_url && (
+                                                <div>
+                                                    <span className="text-gray-500">Shop URL</span>
+                                                    <span className="ml-2 text-gray-300">
+                                                        {integration.config.shop_url as string}
                                                     </span>
                                                 </div>
                                             )}

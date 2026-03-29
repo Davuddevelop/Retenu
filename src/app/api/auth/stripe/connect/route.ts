@@ -2,25 +2,19 @@
 // Initiates Stripe Connect OAuth flow
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { requireAuthAndOrgAccess } from '@/lib/apiAuth';
+import { withRateLimit } from '@/lib/rateLimit';
 
 const STRIPE_CLIENT_ID = process.env.STRIPE_CLIENT_ID || '';
 const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/stripe/callback`;
 
-// Supabase admin client for future use
-// function getSupabaseAdmin() {
-//     return createClient(
-//         process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-//         process.env.SUPABASE_SERVICE_ROLE_KEY || '',
-//         {
-//             auth: {
-//                 autoRefreshToken: false,
-//                 persistSession: false,
-//             },
-//         }
-//     );
-// }
-
 export async function GET(request: Request) {
+    // Rate limiting
+    const rateLimit = await withRateLimit(request, 'auth');
+    if (rateLimit.limited) {
+        return rateLimit.response;
+    }
+
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get('organization_id');
 
@@ -28,13 +22,27 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'organization_id required' }, { status: 400 });
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(organizationId)) {
+        return NextResponse.json({ error: 'Invalid organization_id format' }, { status: 400 });
+    }
+
+    // Authenticate and verify organization access
+    const auth = await requireAuthAndOrgAccess(organizationId);
+    if (auth.error || !auth.user) {
+        return auth.response!;
+    }
+
     if (!STRIPE_CLIENT_ID) {
         return NextResponse.json({ error: 'Stripe Connect not configured' }, { status: 500 });
     }
 
     // Generate a state token to prevent CSRF and track the organization
+    // Include user ID for additional verification on callback
     const state = Buffer.from(JSON.stringify({
         organization_id: organizationId,
+        user_id: auth.user.id,
         timestamp: Date.now(),
         nonce: crypto.randomUUID(),
     })).toString('base64url');

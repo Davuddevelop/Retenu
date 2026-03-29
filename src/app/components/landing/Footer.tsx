@@ -43,6 +43,7 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
                 OBSIDIAN

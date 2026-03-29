@@ -1,12 +1,12 @@
 // src/app/app/invoices/new/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, FileText } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
-import { Client, Invoice } from '../../../lib/types';
+import { Invoice } from '../../../lib/types';
 import { addDays, format } from 'date-fns';
 import { useData } from '../../../providers/DataProvider';
 import { createBrowserClient } from '@supabase/ssr';

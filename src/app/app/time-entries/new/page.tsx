@@ -1,12 +1,11 @@
 // src/app/app/time-entries/new/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Save, Clock, Plus, Minus } from 'lucide-react';
 import { dataStore } from '../../../lib/dataStore';
-import { Client } from '../../../lib/types';
 import { useData } from '../../../providers/DataProvider';
 import { createBrowserClient } from '@supabase/ssr';
 

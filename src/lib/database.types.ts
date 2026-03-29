@@ -245,7 +245,7 @@ export interface Database {
                 Row: {
                     id: string;
                     organization_id: string;
-                    provider: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero';
+                    provider: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero' | 'shopify';
                     access_token: string | null;
                     refresh_token: string | null;
                     api_key: string | null;
@@ -259,7 +259,7 @@ export interface Database {
                 Insert: {
                     id?: string;
                     organization_id: string;
-                    provider: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero';
+                    provider: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero' | 'shopify';
                     access_token?: string | null;
                     refresh_token?: string | null;
                     api_key?: string | null;
@@ -273,7 +273,7 @@ export interface Database {
                 Update: {
                     id?: string;
                     organization_id?: string;
-                    provider?: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero';
+                    provider?: 'stripe' | 'toggl' | 'clockify' | 'harvest' | 'quickbooks' | 'xero' | 'shopify';
                     access_token?: string | null;
                     refresh_token?: string | null;
                     api_key?: string | null;

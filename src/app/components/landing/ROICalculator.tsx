@@ -36,7 +36,7 @@ export function ROICalculator() {
 
   // Calculate potential Leaks based on industry averages
   const calculateLeaks = () => {
-    const { annualRevenue, numberOfClients, avgHourlyRate, teamSize } = inputs;
+    const { annualRevenue, avgHourlyRate, teamSize } = inputs;
 
     // Industry average: 3-7% Leakage
     const leakagePercentage = 0.05; // 5% average

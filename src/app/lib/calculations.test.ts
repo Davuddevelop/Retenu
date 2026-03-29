@@ -1,13 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
     getClientHourlyRate,
-    calculateClientRevenue,
-    calculateClientCosts,
     calculateUnderbilling,
     calculateScopeCreep,
     calculateMissingInvoices,
-    calculateLatePayments,
-    calculateClientMetrics
+    calculateLatePayments
 } from './calculations';
 import { Client, Contract, Invoice, TimeEntry, FinancialSettings } from './types';
 import { addDays, subDays, startOfMonth, endOfMonth, format } from 'date-fns';

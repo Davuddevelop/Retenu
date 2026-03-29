@@ -6,13 +6,19 @@ import { User, Session } from '@supabase/supabase-js';
 import { createBrowserClient } from '@supabase/ssr';
 import { useRouter } from 'next/navigation';
 
+interface SignUpResult {
+    error: Error | null;
+    needsEmailConfirmation?: boolean;
+    message?: string;
+}
+
 interface AuthContextType {
     user: User | null;
     session: Session | null;
     loading: boolean;
     isGuest: boolean;
     signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
-    signUp: (email: string, password: string, metadata?: { fullName: string, companyName: string }) => Promise<{ error: Error | null }>;
+    signUp: (email: string, password: string, metadata?: { fullName: string, companyName: string }) => Promise<SignUpResult>;
     signOut: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
     signInWithGitHub: () => Promise<void>;
@@ -75,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => {
             subscription.unsubscribe();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [router]);
 
     const ensureOrganization = async (userId: string, email: string, companyName?: string) => {
@@ -125,19 +132,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 },
             });
             if (error) throw error;
-            
+
+            // Check if email confirmation is required (user exists but no session)
+            if (data?.user && !data?.session) {
+                // User created but needs email confirmation
+                // Return special indicator
+                return {
+                    error: null,
+                    needsEmailConfirmation: true,
+                    message: 'Please check your email to confirm your account.'
+                };
+            }
+
             if (data?.user && data?.session) {
                 await ensureOrganization(data.user.id, data.user.email || '', metadata?.companyName);
             }
-            
-            return { error: null };
-        } catch (error) {
-            return { error: error as Error };
-        }
-    };
 
-    const signOut = async () => {
-        await supabase.auth.signOut();
+            return { error: null, needsEmailConfirmation: false };
+        } catch (error) {
+            return { error: error as Error, needsEmailConfirmation: false };
+        }
     };
 
     const signInWithGoogle = async () => {
@@ -158,26 +172,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const signInAsGuest = () => {
-        // Set guest mode cookie (expires in 7 days)
-        document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
-        setIsGuest(true);
-        router.push('/app');
-    };
+    const signInAsGuest = async () => {
+        try {
+            // Use Supabase anonymous auth for guest mode
+            // This creates a real session that can be verified by middleware
+            const { data, error } = await supabase.auth.signInAnonymously();
 
-    const exitGuestMode = () => {
-        document.cookie = 'guest_mode=; path=/; max-age=0';
-        setIsGuest(false);
-        router.push('/login');
+            if (error) {
+                console.error('Anonymous sign in error:', error);
+                // Fallback: still set cookie and let user in for demo purposes
+                // The DataProvider will handle demo data
+            }
+
+            // Set guest mode cookie to indicate demo data should be shown
+            // This is now just a flag for data, not for auth bypass
+            document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
+            setIsGuest(true);
+
+            if (data?.user) {
+                setUser(data.user);
+                setSession(data.session);
+            }
+
+            router.push('/app');
+        } catch (error) {
+            console.error('Guest sign in error:', error);
+            // Still allow access for demo - middleware will handle appropriately
+            document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
+            setIsGuest(true);
+            router.push('/app');
+        }
     };
 
     // Override signOut to also handle guest mode
     const handleSignOut = async () => {
+        // Clear guest mode cookie regardless
+        document.cookie = 'guest_mode=; path=/; max-age=0';
+
         if (isGuest) {
-            exitGuestMode();
-        } else {
-            await supabase.auth.signOut();
+            setIsGuest(false);
         }
+
+        // Always sign out from Supabase (handles both regular and anonymous users)
+        await supabase.auth.signOut();
     };
 
     return (

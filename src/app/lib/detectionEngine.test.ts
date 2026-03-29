@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { runDetectionEngine, getClientAlerts } from './detectionEngine';
+import { runDetectionEngine } from './detectionEngine';
 import { dataStore } from './dataStore';
 import { startOfMonth, endOfMonth, format, addDays } from 'date-fns';
 
@@ -16,7 +16,6 @@ vi.mock('./dataStore', () => ({
 
 describe('Detection Engine Integration', () => {
     const periodStart = startOfMonth(new Date());
-    const periodEnd = endOfMonth(new Date());
     const midMonthDate = format(addDays(periodStart, 15), 'yyyy-MM-dd');
 
     const mockSettings = {

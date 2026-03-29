@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { User, Bell, AlertTriangle, Clock, Menu, X, LayoutDashboard, Users, CreditCard, Settings, Plug, Play, ArrowRight } from 'lucide-react';
-import { useAuth } from '../providers/AuthProvider';
+import { useAuth } from '@/app/providers/AuthProvider';
 
 const navItems = [
     { href: '/app', label: 'Dashboard', icon: LayoutDashboard },

@@ -27,6 +27,7 @@ export default function ClientsPage() {
 
     useEffect(() => {
         const status = getDataStatus();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsDemoMode(status.isDemoMode);
         setClients(dataStore.getClients());
         setAlerts(runDetectionEngine());

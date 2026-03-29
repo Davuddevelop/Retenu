@@ -7,7 +7,7 @@ import { ArrowRight, Shield, TrendingUp, Zap, Play } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { AuroraWave } from '../Shaders';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '@/app/providers/AuthProvider';
 
 export function Hero() {
   const { signInAsGuest } = useAuth();

@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import {
   AlertTriangle,
   BarChart3,
-  Bell,
   Brain,
   Clock,
   FileSearch,
@@ -156,7 +155,7 @@ export function Features() {
           transition={{ delay: 0.4 }}
           className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
         >
-          {stats.map((stat, index) => (
+          {stats.map((stat) => (
             <div
               key={stat.label}
               className="text-center p-6 rounded-2xl bg-[var(--card)] border border-[var(--border)]"

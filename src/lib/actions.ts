@@ -7,7 +7,6 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { revalidatePath } from 'next/cache';
 import type { Database } from './database.types';
-import { SupabaseClient } from '@supabase/supabase-js';
 
 type Tables = Database['public']['Tables'];
 

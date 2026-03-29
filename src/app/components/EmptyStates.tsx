@@ -16,10 +16,9 @@ interface EmptyStateProps {
         label: string;
         href: string;
     };
-    variant?: 'default' | 'success';
 }
 
-export function EmptyState({ icon, title, description, action, secondaryAction, variant = 'default' }: EmptyStateProps) {
+export function EmptyState({ icon, title, description, action, secondaryAction }: EmptyStateProps) {
     return (
         <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
             <div className="w-12 h-12 rounded-lg bg-[#1c1c1f] flex items-center justify-center mb-5">
@@ -124,7 +123,6 @@ export function NoAlertsEmpty() {
             icon={<Check className="w-5 h-5 text-emerald-500" />}
             title="All clear"
             description="No revenue leaks detected. Projects on track, margins healthy, payments on time."
-            variant="success"
         />
     );
 }

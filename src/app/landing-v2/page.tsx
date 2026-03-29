@@ -17,9 +17,18 @@ import {
   Minus,
   Plus,
   Menu,
-  X
+  X,
+  ChevronRight,
+  ChevronLeft,
+  Play,
+  Upload,
+  Search,
+  Zap,
+  Star,
+  Command,
+  ArrowDown
 } from 'lucide-react';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 
 // ============================================
 // HAND-DRAWN SVG ELEMENTS (Human Touch)
@@ -76,6 +85,484 @@ function HandDrawnArrow({ className = '' }: { className?: string }) {
 }
 
 // ============================================
+// TYPEWRITER EFFECT
+// ============================================
+
+const typewriterWords = ['unbilled hours', 'scope creep', 'late invoices', 'missing payments'];
+
+function TypewriterText() {
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const word = typewriterWords[currentWordIndex];
+    const timeout = setTimeout(() => {
+      if (!isDeleting) {
+        if (currentText.length < word.length) {
+          setCurrentText(word.slice(0, currentText.length + 1));
+        } else {
+          setTimeout(() => setIsDeleting(true), 2000);
+        }
+      } else {
+        if (currentText.length > 0) {
+          setCurrentText(currentText.slice(0, -1));
+        } else {
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % typewriterWords.length);
+        }
+      }
+    }, isDeleting ? 50 : 100);
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentWordIndex, mounted]);
+
+  // Scalable wavy underline
+  const WavyUnderline = () => (
+    <svg
+      className="absolute -bottom-1 left-0 h-3 text-[#FF5733]/60"
+      style={{ width: '100%' }}
+      viewBox="0 0 100 8"
+      preserveAspectRatio="none"
+      fill="none"
+    >
+      <path
+        d="M0 4C5 2 10 6 15 4C20 2 25 6 30 4C35 2 40 6 45 4C50 2 55 6 60 4C65 2 70 6 75 4C80 2 85 6 90 4C95 2 100 4 100 4"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+
+  if (!mounted) {
+    return (
+      <span className="relative inline-block">
+        <span className="text-[#FF5733]">unbilled hours</span>
+        <WavyUnderline />
+      </span>
+    );
+  }
+
+  return (
+    <span className="relative inline-block min-w-[2ch]">
+      <span className="text-[#FF5733]">
+        {currentText}
+        <span className="animate-pulse text-[#FF5733]/70">|</span>
+      </span>
+      {currentText.length > 0 && <WavyUnderline />}
+    </span>
+  );
+}
+
+// ============================================
+// TESTIMONIAL CAROUSEL
+// ============================================
+
+const testimonials = [
+  {
+    quote: "Found $23,000 in unbilled hours within the first week. Paid for itself 100x over.",
+    name: "Sarah Chen",
+    title: "CEO",
+    company: "PixelCraft Studio",
+    avatar: "SC",
+    rating: 5
+  },
+  {
+    quote: "We were hemorrhaging money on scope creep. OBSIDIAN made it painfully obvious.",
+    name: "Marcus Rodriguez",
+    title: "Operations Director",
+    company: "GrowthLabs Agency",
+    avatar: "MR",
+    rating: 5
+  },
+  {
+    quote: "The ROI calculator wasn't lying. We recovered $47k in Q1 alone.",
+    name: "Emily Watson",
+    title: "Founder",
+    company: "Ember Digital",
+    avatar: "EW",
+    rating: 5
+  },
+  {
+    quote: "Finally, a tool that speaks agency. Not enterprise bloatware.",
+    name: "David Park",
+    title: "Managing Partner",
+    company: "Neon Interactive",
+    avatar: "DP",
+    rating: 5
+  }
+];
+
+function TestimonialCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsAutoPlaying(false)}
+      onMouseLeave={() => setIsAutoPlaying(true)}
+    >
+      {/* Main testimonial */}
+      <div className="relative overflow-hidden">
+        <motion.div
+          key={currentIndex}
+          initial={{ opacity: 0, x: 50 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -50 }}
+          transition={{ duration: 0.5 }}
+          className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 md:p-10"
+        >
+          {/* Stars */}
+          <div className="flex gap-1 mb-4">
+            {Array.from({ length: testimonials[currentIndex].rating }).map((_, i) => (
+              <Star key={i} className="w-5 h-5 fill-yellow-500 text-yellow-500" />
+            ))}
+          </div>
+
+          {/* Quote */}
+          <blockquote className="text-xl md:text-2xl font-light text-white mb-6 leading-relaxed">
+            &ldquo;{testimonials[currentIndex].quote}&rdquo;
+          </blockquote>
+
+          {/* Author */}
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF5733] to-[#FF8F33] flex items-center justify-center text-white font-medium">
+              {testimonials[currentIndex].avatar}
+            </div>
+            <div>
+              <p className="font-medium text-white">{testimonials[currentIndex].name}</p>
+              <p className="text-sm text-gray-500">
+                {testimonials[currentIndex].title}, {testimonials[currentIndex].company}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
+      {/* Navigation dots */}
+      <div className="flex justify-center gap-2 mt-6">
+        {testimonials.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrentIndex(i)}
+            className={`w-2 h-2 rounded-full transition-all ${
+              i === currentIndex
+                ? 'bg-[#FF5733] w-6'
+                : 'bg-white/20 hover:bg-white/40'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// STICKY CTA BAR
+// ============================================
+
+function StickyCTABar() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // Show after scrolling past hero (roughly 600px)
+      setIsVisible(window.scrollY > 600);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ y: -100 }}
+      animate={{ y: isVisible ? 0 : -100 }}
+      transition={{ duration: 0.3 }}
+      className="fixed top-0 left-0 right-0 z-50 bg-[#0A0A0B]/95 backdrop-blur-xl border-b border-white/5"
+    >
+      <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={24} height={24} className="h-6 w-6 object-contain" />
+          <span className="text-sm text-gray-400 hidden sm:block">Stop losing money to revenue leaks</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-gray-500 hidden md:block">
+            <span className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 rounded">
+              <Command className="w-3 h-3" /> K
+            </span>
+            {' '}to quick start
+          </span>
+          <Link
+            href="/login"
+            className="px-4 py-2 bg-[#FF5733] hover:bg-[#E84118] text-sm font-medium rounded-lg transition-colors"
+          >
+            Start Free Trial
+          </Link>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// ============================================
+// INTERACTIVE PRODUCT TOUR
+// ============================================
+
+const tourSteps = [
+  {
+    step: 1,
+    title: "Import your data",
+    description: "Connect Toggl, upload CSV, or paste from any time tracker. Takes about 2 minutes.",
+    icon: Upload,
+    color: "#3B82F6"
+  },
+  {
+    step: 2,
+    title: "We scan for leaks",
+    description: "Our engine cross-references hours logged, invoices sent, and contracts signed.",
+    icon: Search,
+    color: "#8B5CF6"
+  },
+  {
+    step: 3,
+    title: "Review what we found",
+    description: "See exactly where money is slipping through, sorted by recoverable amount.",
+    icon: AlertTriangle,
+    color: "#F59E0B"
+  },
+  {
+    step: 4,
+    title: "Take action",
+    description: "One-click invoice generation, client follow-ups, and scope adjustments.",
+    icon: Zap,
+    color: "#10B981"
+  }
+];
+
+function ProductTour() {
+  const [activeStep, setActiveStep] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+    const interval = setInterval(() => {
+      setActiveStep((prev) => (prev + 1) % tourSteps.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [isAutoPlaying]);
+
+  return (
+    <div
+      className="grid md:grid-cols-2 gap-8 items-center"
+      onMouseEnter={() => setIsAutoPlaying(false)}
+      onMouseLeave={() => setIsAutoPlaying(true)}
+    >
+      {/* Steps list */}
+      <div className="space-y-4">
+        {tourSteps.map((step, i) => {
+          const Icon = step.icon;
+          const isActive = i === activeStep;
+          return (
+            <motion.button
+              key={i}
+              onClick={() => setActiveStep(i)}
+              className={`w-full text-left p-4 rounded-xl border transition-all ${
+                isActive
+                  ? 'bg-white/5 border-[#FF5733]/50'
+                  : 'bg-transparent border-white/5 hover:border-white/10'
+              }`}
+              animate={{ scale: isActive ? 1.02 : 1 }}
+            >
+              <div className="flex items-start gap-4">
+                <div
+                  className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: `${step.color}20` }}
+                >
+                  <Icon className="w-5 h-5" style={{ color: step.color }} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-xs text-gray-500">Step {step.step}</span>
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeIndicator"
+                        className="w-1.5 h-1.5 rounded-full bg-[#FF5733]"
+                      />
+                    )}
+                  </div>
+                  <h4 className="font-medium text-white mb-1">{step.title}</h4>
+                  <p className="text-sm text-gray-500">{step.description}</p>
+                </div>
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+
+      {/* Visual preview */}
+      <div className="relative">
+        <motion.div
+          key={activeStep}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="bg-[#0C0C0E] border border-white/10 rounded-xl p-6 aspect-[4/3] flex items-center justify-center"
+        >
+          {activeStep === 0 && (
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-2xl bg-blue-500/20 flex items-center justify-center mx-auto mb-4">
+                <Upload className="w-8 h-8 text-blue-500" />
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-8 h-8 rounded bg-[#E57CD8]/20 flex items-center justify-center">
+                    <span className="text-xs font-bold text-[#E57CD8]">T</span>
+                  </div>
+                  <div className="w-8 h-8 rounded bg-[#03A9F4]/20 flex items-center justify-center">
+                    <Clock className="w-4 h-4 text-[#03A9F4]" />
+                  </div>
+                  <div className="w-8 h-8 rounded bg-[#FA5D00]/20 flex items-center justify-center">
+                    <span className="text-xs font-bold text-[#FA5D00]">H</span>
+                  </div>
+                  <div className="w-8 h-8 rounded bg-gray-500/20 flex items-center justify-center">
+                    <FileText className="w-4 h-4 text-gray-400" />
+                  </div>
+                </div>
+                <p className="text-sm text-gray-500">Drop your files or connect</p>
+              </div>
+            </div>
+          )}
+          {activeStep === 1 && (
+            <div className="w-full">
+              <div className="flex items-center gap-2 mb-4">
+                <Search className="w-4 h-4 text-purple-500" />
+                <span className="text-sm text-gray-400">Scanning 847 time entries...</span>
+              </div>
+              <div className="space-y-2">
+                {[85, 92, 78, 100].map((progress, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-xs text-gray-600 w-24">
+                      {['Hours logged', 'Invoices', 'Contracts', 'Payments'][i]}
+                    </span>
+                    <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progress}%` }}
+                        transition={{ duration: 1, delay: i * 0.2 }}
+                        className="h-full bg-purple-500 rounded-full"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          {activeStep === 2 && (
+            <div className="w-full space-y-3">
+              {[
+                { client: 'Acme Corp', issue: '23.5h unbilled', amount: '$3,525', color: '#FF5733' },
+                { client: 'TechStart', issue: 'Scope +40%', amount: '$2,800', color: '#F59E0B' },
+                { client: 'MediaFlow', issue: 'Invoice overdue', amount: '$4,200', color: '#EF4444' },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.2 }}
+                  className="flex items-center justify-between p-3 bg-white/[0.02] rounded-lg border border-white/5"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
+                    <div>
+                      <p className="text-sm text-white">{item.client}</p>
+                      <p className="text-xs text-gray-500">{item.issue}</p>
+                    </div>
+                  </div>
+                  <span className="text-sm font-medium" style={{ color: item.color }}>{item.amount}</span>
+                </motion.div>
+              ))}
+            </div>
+          )}
+          {activeStep === 3 && (
+            <div className="text-center">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-4"
+              >
+                <Check className="w-8 h-8 text-emerald-500" />
+              </motion.div>
+              <p className="text-2xl font-light text-emerald-500 mb-2">$10,525</p>
+              <p className="text-sm text-gray-500">Ready to recover</p>
+              <div className="flex justify-center gap-2 mt-4">
+                <button className="px-4 py-2 bg-[#FF5733] text-sm rounded-lg">Send invoices</button>
+                <button className="px-4 py-2 bg-white/5 text-sm rounded-lg">Export report</button>
+              </div>
+            </div>
+          )}
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
+// LOGO CLOUD (Trusted By)
+// ============================================
+
+function TrustedByLogos() {
+  const companies = [
+    { name: 'Webflow Agency', abbr: 'WA' },
+    { name: 'Design Studio', abbr: 'DS' },
+    { name: 'Growth Co', abbr: 'GC' },
+    { name: 'Tech Partners', abbr: 'TP' },
+    { name: 'Creative Lab', abbr: 'CL' },
+    { name: 'Digital First', abbr: 'DF' },
+  ];
+
+  return (
+    <div className="text-center">
+      <p className="text-sm text-gray-500 mb-6">Trusted by 500+ agencies worldwide</p>
+      <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+        {companies.map((company, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 }}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-400 transition-colors"
+          >
+            <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-xs font-bold">
+              {company.abbr}
+            </div>
+            <span className="text-sm font-medium hidden sm:block">{company.name}</span>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // LIVE LEAK DETECTION FEED (Mercury/Ramp style)
 // ============================================
 
@@ -96,12 +583,18 @@ function generateFakeLeak() {
   return { ...type, client, amount, minutesAgo, id: Math.random() };
 }
 
-function LiveLeakFeed() {
-  const [leaks, setLeaks] = useState(() =>
-    Array.from({ length: 4 }, generateFakeLeak)
-  );
+export function LiveLeakFeed() {
+  const [leaks, setLeaks] = useState<ReturnType<typeof generateFakeLeak>[]>([]);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize on client only to prevent hydration mismatch
+  useEffect(() => {
+    setLeaks(Array.from({ length: 4 }, generateFakeLeak));
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
     const interval = setInterval(() => {
       setLeaks(prev => {
         const newLeak = generateFakeLeak();
@@ -109,7 +602,7 @@ function LiveLeakFeed() {
       });
     }, 4000);
     return () => clearInterval(interval);
-  }, []);
+  }, [mounted]);
 
   return (
     <div className="bg-[#0C0C0E] border border-white/10 rounded-xl overflow-hidden">
@@ -124,37 +617,56 @@ function LiveLeakFeed() {
         <span className="text-[10px] text-gray-600">Simulated data</span>
       </div>
       <div className="divide-y divide-white/5">
-        {leaks.map((leak, i) => {
-          const Icon = leak.icon;
-          return (
-            <motion.div
-              key={leak.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.3 }}
-              className="px-4 py-3 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
-            >
+        {!mounted ? (
+          // Loading skeleton for SSR
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: `${leak.color}15` }}
-                >
-                  <Icon className="w-4 h-4" style={{ color: leak.color }} />
-                </div>
-                <div>
-                  <p className="text-sm text-white">{leak.client}</p>
-                  <p className="text-xs text-gray-500">{leak.label}</p>
+                <div className="w-8 h-8 rounded-lg bg-white/5 animate-pulse" />
+                <div className="space-y-1">
+                  <div className="w-20 h-3 bg-white/5 rounded animate-pulse" />
+                  <div className="w-16 h-2 bg-white/5 rounded animate-pulse" />
                 </div>
               </div>
-              <div className="text-right">
-                <p className="text-sm font-medium tabular-nums" style={{ color: leak.color }}>
-                  ${leak.amount.toLocaleString()}
-                </p>
-                <p className="text-[10px] text-gray-600">{leak.minutesAgo}m ago</p>
+              <div className="text-right space-y-1">
+                <div className="w-14 h-3 bg-white/5 rounded animate-pulse ml-auto" />
+                <div className="w-10 h-2 bg-white/5 rounded animate-pulse ml-auto" />
               </div>
-            </motion.div>
-          );
-        })}
+            </div>
+          ))
+        ) : (
+          leaks.map((leak) => {
+            const Icon = leak.icon;
+            return (
+              <motion.div
+                key={leak.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.3 }}
+                className="px-4 py-3 flex items-center justify-between hover:bg-white/[0.02] transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-8 h-8 rounded-lg flex items-center justify-center"
+                    style={{ backgroundColor: `${leak.color}15` }}
+                  >
+                    <Icon className="w-4 h-4" style={{ color: leak.color }} />
+                  </div>
+                  <div>
+                    <p className="text-sm text-white">{leak.client}</p>
+                    <p className="text-xs text-gray-500">{leak.label}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-medium tabular-nums" style={{ color: leak.color }}>
+                    ${leak.amount.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-gray-600">{leak.minutesAgo}m ago</p>
+                </div>
+              </motion.div>
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -164,7 +676,7 @@ function LiveLeakFeed() {
 // LIVE MONEY COUNTER (Ramp style)
 // ============================================
 
-function LiveMoneyCounter() {
+export function LiveMoneyCounter() {
   const [amount, setAmount] = useState(2847392);
 
   useEffect(() => {
@@ -204,7 +716,7 @@ function LiveMoneyCounter() {
 // BEFORE/AFTER COMPARISON SLIDER
 // ============================================
 
-function BeforeAfterSlider() {
+export function BeforeAfterSlider() {
   const [sliderPosition, setSliderPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
@@ -218,7 +730,6 @@ function BeforeAfterSlider() {
   }, []);
 
   const handleMouseDown = () => { isDragging.current = true; };
-  const handleMouseUp = () => { isDragging.current = false; };
   const handleMouseMove = (e: React.MouseEvent) => handleMove(e.clientX);
   const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX);
 
@@ -242,12 +753,12 @@ function BeforeAfterSlider() {
       {/* Labels */}
       <div className="flex justify-between mb-4">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-full bg-red-500/50" />
-          <span className="text-sm text-gray-400">Without OBSIDIAN</span>
+          <div className="w-3 h-3 rounded-full bg-emerald-500" />
+          <span className="text-sm text-gray-400">With OBSIDIAN</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">With OBSIDIAN</span>
-          <div className="w-3 h-3 rounded-full bg-emerald-500" />
+          <span className="text-sm text-gray-400">Without OBSIDIAN</span>
+          <div className="w-3 h-3 rounded-full bg-red-500/50" />
         </div>
       </div>
 
@@ -570,6 +1081,45 @@ function AnimatedCounter({ value, suffix = '' }: { value: number; suffix?: strin
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 }
 
+// Stepper button component
+const StepperInput = ({
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  prefix = '',
+  suffix = ''
+}: {
+  value: number;
+  onChange: (val: number) => void;
+  min: number;
+  max: number;
+  step?: number;
+  prefix?: string;
+  suffix?: string;
+}) => (
+  <div className="flex items-center gap-1">
+    <button
+      onClick={() => onChange(Math.max(min, value - step))}
+      className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
+    >
+      <Minus className="w-4 h-4" />
+    </button>
+    <div className="w-24 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
+      <span className="text-lg font-medium tabular-nums text-white">
+        {prefix}{value.toLocaleString()}{suffix}
+      </span>
+    </div>
+    <button
+      onClick={() => onChange(Math.min(max, value + step))}
+      className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
+    >
+      <Plus className="w-4 h-4" />
+    </button>
+  </div>
+);
+
 // Interactive Leak Calculator - redesigned to look obviously usable
 function InteractiveLeakCalculator() {
   const [teamSize, setTeamSize] = useState(5);
@@ -588,44 +1138,6 @@ function InteractiveLeakCalculator() {
   const totalLeak = unbilledLeak + scopeCreepLeak + latePaymentLeak;
   const yearlyLeak = totalLeak * 12;
 
-  // Stepper button component
-  const StepperInput = ({
-    value,
-    onChange,
-    min,
-    max,
-    step = 1,
-    prefix = '',
-    suffix = ''
-  }: {
-    value: number;
-    onChange: (val: number) => void;
-    min: number;
-    max: number;
-    step?: number;
-    prefix?: string;
-    suffix?: string;
-  }) => (
-    <div className="flex items-center gap-1">
-      <button
-        onClick={() => onChange(Math.max(min, value - step))}
-        className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
-      >
-        <Minus className="w-4 h-4" />
-      </button>
-      <div className="w-24 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
-        <span className="text-lg font-medium tabular-nums text-white">
-          {prefix}{value.toLocaleString()}{suffix}
-        </span>
-      </div>
-      <button
-        onClick={() => onChange(Math.min(max, value + step))}
-        className="w-10 h-10 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#FF5733]/50 flex items-center justify-center text-gray-400 hover:text-white transition-all active:scale-95"
-      >
-        <Plus className="w-4 h-4" />
-      </button>
-    </div>
-  );
 
   return (
     <motion.div
@@ -772,6 +1284,22 @@ function InteractiveLeakCalculator() {
                 Find your actual number
               </Link>
             </div>
+
+            {/* Extra content to fill space */}
+            <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>Free 14-day trial</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-gray-500">
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>See real numbers in 5 minutes</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -821,6 +1349,7 @@ export default function LandingV2() {
   const [activeNav, setActiveNav] = useState('product');
   const [openFAQ, setOpenFAQ] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
   const heroRef = useRef<HTMLDivElement>(null);
 
   const { scrollYProgress } = useScroll({
@@ -894,6 +1423,9 @@ export default function LandingV2() {
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white selection:bg-[#FF5733]/30">
+      {/* Sticky CTA bar - appears on scroll */}
+      <StickyCTABar />
+
       {/* Cursor spotlight effect */}
       <CursorSpotlight />
 
@@ -1043,7 +1575,7 @@ export default function LandingV2() {
         </div>
 
         <div className="max-w-5xl mx-auto relative z-10">
-          {/* Main headline - more conversational */}
+          {/* Main headline - with typewriter effect */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1051,14 +1583,9 @@ export default function LandingV2() {
             className="text-center mb-8"
           >
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium leading-[1.15] tracking-tight">
-              You&apos;re probably leaving
+              Stop losing money to
               <br />
-              <span className="relative inline-block">
-                <span className="text-[#FF5733]">$10k+ on the table</span>
-                <SquigglyUnderline className="absolute -bottom-2 left-0 w-full h-3 text-[#FF5733]/60" />
-              </span>
-              <br />
-              every quarter.
+              <TypewriterText />
             </h1>
           </motion.div>
 
@@ -1282,6 +1809,16 @@ export default function LandingV2() {
               </motion.div>
             </div>
           </motion.div>
+
+          {/* Trusted By Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 pt-12 border-t border-white/5"
+          >
+            <TrustedByLogos />
+          </motion.div>
         </div>
       </section>
 
@@ -1348,6 +1885,27 @@ export default function LandingV2() {
           <div className="hidden md:flex justify-center mt-8">
             <HandDrawnArrow className="w-32 h-8 text-gray-700 rotate-0" />
           </div>
+        </div>
+      </section>
+
+      {/* Interactive Product Tour */}
+      <section className="py-24 px-6 bg-[#09090B]">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-medium mb-4">
+              See how it works
+            </h2>
+            <p className="text-gray-500 text-lg">
+              From messy data to recovered revenue in 4 simple steps.
+            </p>
+          </motion.div>
+
+          <ProductTour />
         </div>
       </section>
 
@@ -1531,6 +2089,48 @@ export default function LandingV2() {
         </div>
       </section>
 
+      {/* Before/After + Live Feed Section */}
+      <section className="py-24 px-6 bg-[#09090B]">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-medium mb-4">
+              See the difference
+            </h2>
+            <p className="text-gray-500">
+              From spreadsheet chaos to clarity in minutes.
+            </p>
+          </motion.div>
+
+          <div className="grid lg:grid-cols-5 gap-8">
+            {/* Before/After Slider - takes more space */}
+            <div className="lg:col-span-3">
+              <BeforeAfterSlider />
+            </div>
+
+            {/* Live Leak Feed */}
+            <div className="lg:col-span-2">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
+              >
+                <h3 className="text-lg font-medium mb-4 text-gray-300">Live Detection Preview</h3>
+                <LiveLeakFeed />
+                <p className="text-xs text-gray-600 mt-3 text-center">
+                  Simulated feed showing what real-time detection looks like
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Use Cases - Example Scenarios */}
       <section className="py-24 px-6 bg-[#09090B]">
         <div className="max-w-5xl mx-auto">
@@ -1625,7 +2225,28 @@ export default function LandingV2() {
         </div>
       </section>
 
-      {/* Pricing - honest and simple */}
+      {/* Testimonials */}
+      <section className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-medium mb-4">
+              Agencies love OBSIDIAN
+            </h2>
+            <p className="text-gray-500">
+              Don&apos;t take our word for it. Here&apos;s what our users say.
+            </p>
+          </motion.div>
+
+          <TestimonialCarousel />
+        </div>
+      </section>
+
+      {/* Pricing - with monthly/yearly toggle */}
       <section id="pricing" className="py-24 px-6 bg-[#09090B]">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div
@@ -1636,9 +2257,36 @@ export default function LandingV2() {
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
               Simple, transparent pricing
             </h2>
-            <p className="text-gray-500 text-lg mb-12">
+            <p className="text-gray-500 text-lg mb-8">
               Choose the plan that fits your agency. All plans include a 14-day free trial.
             </p>
+
+            {/* Billing Toggle */}
+            <div className="inline-flex items-center gap-4 p-1.5 bg-white/5 rounded-full mb-12">
+              <button
+                onClick={() => setBillingPeriod('monthly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all ${
+                  billingPeriod === 'monthly'
+                    ? 'bg-white text-black'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingPeriod('yearly')}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-all flex items-center gap-2 ${
+                  billingPeriod === 'yearly'
+                    ? 'bg-white text-black'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Yearly
+                <span className="px-2 py-0.5 bg-emerald-500 text-white text-xs rounded-full">
+                  Save 20%
+                </span>
+              </button>
+            </div>
           </motion.div>
 
           {/* Pricing Cards */}
@@ -1652,7 +2300,19 @@ export default function LandingV2() {
               className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 flex flex-col"
             >
               <div className="text-sm text-gray-400 font-medium mb-2">Starter</div>
-              <div className="text-4xl font-light mb-2">$29<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-4xl font-light mb-2">
+                <motion.span
+                  key={billingPeriod}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  ${billingPeriod === 'monthly' ? '29' : '23'}
+                </motion.span>
+                <span className="text-lg text-gray-500">/mo</span>
+              </div>
+              {billingPeriod === 'yearly' && (
+                <div className="text-xs text-emerald-500 mb-4">Billed $276/year</div>
+              )}
               <div className="text-gray-500 mb-6">For small agencies</div>
 
               <ul className="space-y-3 text-left mb-8 flex-1">
@@ -1690,7 +2350,19 @@ export default function LandingV2() {
                 Most Popular
               </div>
               <div className="text-sm text-[#FF5733] font-medium mb-2">Pro</div>
-              <div className="text-4xl font-light mb-2">$49<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-4xl font-light mb-2">
+                <motion.span
+                  key={billingPeriod}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  ${billingPeriod === 'monthly' ? '49' : '39'}
+                </motion.span>
+                <span className="text-lg text-gray-500">/mo</span>
+              </div>
+              {billingPeriod === 'yearly' && (
+                <div className="text-xs text-emerald-500 mb-4">Billed $468/year</div>
+              )}
               <div className="text-gray-500 mb-6">For growing agencies</div>
 
               <ul className="space-y-3 text-left mb-8 flex-1">
@@ -1726,7 +2398,19 @@ export default function LandingV2() {
               className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 flex flex-col"
             >
               <div className="text-sm text-gray-400 font-medium mb-2">Enterprise</div>
-              <div className="text-4xl font-light mb-2">$99<span className="text-lg text-gray-500">/mo</span></div>
+              <div className="text-4xl font-light mb-2">
+                <motion.span
+                  key={billingPeriod}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                >
+                  ${billingPeriod === 'monthly' ? '99' : '79'}
+                </motion.span>
+                <span className="text-lg text-gray-500">/mo</span>
+              </div>
+              {billingPeriod === 'yearly' && (
+                <div className="text-xs text-emerald-500 mb-4">Billed $948/year</div>
+              )}
               <div className="text-gray-500 mb-6">For large agencies</div>
 
               <ul className="space-y-3 text-left mb-8 flex-1">

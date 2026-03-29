@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useAuth } from '../../providers/AuthProvider';
+import { useAuth } from '@/app/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Loader2, ArrowRight } from 'lucide-react';
@@ -33,6 +33,7 @@ export default function LoginPage() {
     const [isSignIn, setIsSignIn] = useState(true);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [successMessage, setSuccessMessage] = useState('');
 
     // Form State
     const [email, setEmail] = useState('');
@@ -43,24 +44,35 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccessMessage('');
         setIsLoading(true);
 
         if (isSignIn) {
             const { error: signInError } = await signIn(email, password);
             if (signInError) {
-                setError(signInError.message);
+                // Handle email not confirmed error
+                if (signInError.message.toLowerCase().includes('email not confirmed')) {
+                    setError('Please check your email and click the confirmation link before signing in.');
+                } else {
+                    setError(signInError.message);
+                }
                 setIsLoading(false);
             } else {
                 router.push('/app');
             }
         } else {
-            const { error: signUpError } = await signUp(email, password, {
+            const result = await signUp(email, password, {
                 fullName,
                 companyName
             });
-            if (signUpError) {
-                setError(signUpError.message);
+            if (result.error) {
+                setError(result.error.message);
                 setIsLoading(false);
+            } else if (result.needsEmailConfirmation) {
+                setSuccessMessage('Account created! Please check your email to confirm your account before signing in.');
+                setIsLoading(false);
+                // Switch to sign in mode after showing message
+                setTimeout(() => setIsSignIn(true), 100);
             } else {
                 router.push('/app');
             }
@@ -110,6 +122,17 @@ export default function LoginPage() {
 
                 {/* Form Card */}
                 <div className="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-8 shadow-xl">
+                    {/* Success Message */}
+                    {successMessage && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-sm"
+                        >
+                            {successMessage}
+                        </motion.div>
+                    )}
+
                     {/* Error Message */}
                     {error && (
                         <motion.div

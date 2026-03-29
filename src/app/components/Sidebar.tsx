@@ -22,6 +22,7 @@ export default function Sidebar() {
 
     useEffect(() => {
         const alerts = runDetectionEngine();
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setAlertCount(alerts.length);
     }, []);
 

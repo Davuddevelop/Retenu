@@ -1,7 +1,7 @@
 // src/app/app/invoices/page.tsx
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useCallback, useEffect, useState, useMemo } from 'react';
 import { dataStore } from '../../lib/dataStore';
 import { getDataStatus } from '../../lib/detectionEngine';
 import { Invoice, Client } from '../../lib/types';
@@ -71,10 +71,10 @@ export default function InvoicesPage() {
         loadInvoices();
     };
 
-    const getClientName = (clientId: string) => {
+    const getClientName = useCallback((clientId: string) => {
         const client = clients.find(c => c.id === clientId);
         return client?.name || 'Unknown Client';
-    };
+    }, [clients]);
 
     // Filter invoices
     const filteredInvoices = useMemo(() => {
@@ -94,7 +94,7 @@ export default function InvoicesPage() {
             }
             return true;
         }).sort((a, b) => b.issue_date.localeCompare(a.issue_date));
-    }, [invoices, filterClient, filterStatus, searchQuery, clients]);
+    }, [invoices, filterClient, filterStatus, searchQuery, clients, getClientName]);
 
     // Calculate totals with more precision
     const stats = useMemo(() => {

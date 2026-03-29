@@ -2,11 +2,19 @@
 // Initiates Toggl OAuth flow
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
+import { requireAuthAndOrgAccess } from '@/lib/apiAuth';
+import { withRateLimit } from '@/lib/rateLimit';
 
 const TOGGL_CLIENT_ID = process.env.TOGGL_CLIENT_ID || '';
 const REDIRECT_URI = `${process.env.NEXT_PUBLIC_APP_URL}/api/auth/toggl/callback`;
 
 export async function GET(request: Request) {
+    // Rate limiting
+    const rateLimit = await withRateLimit(request, 'auth');
+    if (rateLimit.limited) {
+        return rateLimit.response;
+    }
+
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get('organization_id');
 
@@ -14,13 +22,27 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'organization_id required' }, { status: 400 });
     }
 
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(organizationId)) {
+        return NextResponse.json({ error: 'Invalid organization_id format' }, { status: 400 });
+    }
+
+    // Authenticate and verify organization access
+    const auth = await requireAuthAndOrgAccess(organizationId);
+    if (auth.error || !auth.user) {
+        return auth.response!;
+    }
+
     if (!TOGGL_CLIENT_ID) {
         return NextResponse.json({ error: 'Toggl OAuth not configured' }, { status: 500 });
     }
 
     // Generate state token for CSRF protection
+    // Include user ID for additional verification on callback
     const state = Buffer.from(JSON.stringify({
         organization_id: organizationId,
+        user_id: auth.user.id,
         timestamp: Date.now(),
         nonce: crypto.randomUUID(),
     })).toString('base64url');

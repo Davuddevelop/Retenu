@@ -2,6 +2,12 @@
 // Clockify uses API keys, not OAuth - this endpoint validates and saves the API key
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { requireAuthAndOrgAccess } from '@/lib/apiAuth';
+import { validateBody } from '@/lib/validation/validate';
+import { clockifyConnectSchema } from '@/lib/validation/schemas';
+import { withRateLimit, applyRateLimitHeaders } from '@/lib/rateLimit';
+import { encryptApiKey, isEncryptionConfigured } from '@/lib/encryption';
+import { logIntegrationConnect } from '@/lib/audit';
 
 const CLOCKIFY_API_BASE = 'https://api.clockify.me/api/v1';
 
@@ -19,14 +25,35 @@ function getSupabaseAdmin() {
 }
 
 export async function POST(request: Request) {
-    const body = await request.json();
-    const { organization_id, api_key, workspace_id } = body;
+    // Rate limiting
+    const rateLimit = await withRateLimit(request, 'api');
+    if (rateLimit.limited) {
+        return rateLimit.response;
+    }
 
-    if (!organization_id || !api_key) {
+    // Parse and validate request body
+    let body;
+    try {
+        body = await request.json();
+    } catch {
         return NextResponse.json(
-            { error: 'organization_id and api_key are required' },
+            { error: 'Invalid JSON body' },
             { status: 400 }
         );
+    }
+
+    // Validate input with Zod
+    const validation = validateBody(clockifyConnectSchema, body);
+    if (!validation.success) {
+        return validation.error;
+    }
+
+    const { organization_id, api_key, workspace_id } = validation.data;
+
+    // Authenticate and verify organization access
+    const auth = await requireAuthAndOrgAccess(organization_id);
+    if (auth.error || !auth.user) {
+        return auth.response!;
     }
 
     try {
@@ -72,13 +99,20 @@ export async function POST(request: Request) {
 
         const supabase = getSupabaseAdmin();
 
-        // Upsert integration
+        // Encrypt API key before storing
+        const encryptedApiKey = isEncryptionConfigured()
+            ? encryptApiKey(api_key)
+            : null;
+
+        // Upsert integration with encrypted API key
         const { error: dbError } = await supabase
             .from('integrations')
             .upsert({
                 organization_id,
                 provider: 'clockify',
-                api_key,
+                // Store encrypted key if encryption is configured, otherwise store plaintext (legacy)
+                api_key: encryptedApiKey ? null : api_key,
+                api_key_encrypted: encryptedApiKey,
                 workspace_id: selectedWorkspaceId,
                 enabled: true,
                 config: {
@@ -98,7 +132,20 @@ export async function POST(request: Request) {
             throw new Error('Failed to save integration');
         }
 
-        return NextResponse.json({
+        // Audit log the connection
+        await logIntegrationConnect(
+            auth.user.id,
+            organization_id,
+            'clockify',
+            {
+                workspace_id: selectedWorkspaceId,
+                workspace_name: workspaceData.name,
+                user_email: userData.email,
+            },
+            request
+        );
+
+        const response = NextResponse.json({
             success: true,
             user: {
                 id: userData.id,
@@ -110,6 +157,8 @@ export async function POST(request: Request) {
                 name: workspaceData.name,
             },
         });
+
+        return applyRateLimitHeaders(response, rateLimit.headers);
     } catch (err) {
         console.error('Clockify connect error:', err);
         return NextResponse.json(
@@ -121,11 +170,30 @@ export async function POST(request: Request) {
 
 // GET - Fetch available workspaces for the API key
 export async function GET(request: Request) {
+    // Rate limiting
+    const rateLimit = await withRateLimit(request, 'api');
+    if (rateLimit.limited) {
+        return rateLimit.response;
+    }
+
+    // Require authentication (user must be logged in to validate API keys)
+    const auth = await requireAuthAndOrgAccess(
+        new URL(request.url).searchParams.get('organization_id') || ''
+    );
+    if (auth.error) {
+        return auth.response!;
+    }
+
     const { searchParams } = new URL(request.url);
     const apiKey = searchParams.get('api_key');
 
     if (!apiKey) {
         return NextResponse.json({ error: 'api_key required' }, { status: 400 });
+    }
+
+    // Basic validation of API key format
+    if (apiKey.length < 10 || apiKey.length > 500) {
+        return NextResponse.json({ error: 'Invalid API key format' }, { status: 400 });
     }
 
     try {
@@ -146,12 +214,14 @@ export async function GET(request: Request) {
 
         const workspaces = await workspacesResponse.json();
 
-        return NextResponse.json({
+        const response = NextResponse.json({
             workspaces: workspaces.map((w: { id: string; name: string }) => ({
                 id: w.id,
                 name: w.name,
             })),
         });
+
+        return applyRateLimitHeaders(response, rateLimit.headers);
     } catch (err) {
         console.error('Clockify workspaces fetch error:', err);
         return NextResponse.json(

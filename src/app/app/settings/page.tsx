@@ -62,7 +62,9 @@ export default function SettingsPage() {
     };
 
     const handleReplayTutorial = () => {
-        localStorage.removeItem('hasSeenTutorial');
+        // Clear both localStorage and sessionStorage keys used by the tutorial
+        localStorage.removeItem('obsidian_tutorial_completed');
+        sessionStorage.removeItem('obsidian_tutorial_completed_guest');
         window.location.href = '/app';
     };
 

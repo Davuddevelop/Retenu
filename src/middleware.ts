@@ -1,44 +1,48 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// Public routes that don't require authentication
+const PUBLIC_ROUTES = [
+    '/_next',
+    '/auth',
+    '/login',
+    '/signup',
+    '/favicon.ico',
+    '/api/stripe/webhook', // Validates its own signature
+    '/', // Landing page
+    '/landing-v2',
+    '/landing-test',
+    '/hero-demo',
+    '/demo',
+    '/pricing',
+    '/privacy',
+    '/security',
+    '/terms',
+]
+
 export async function middleware(request: NextRequest) {
-    // Ignore static files, images, setup, login, etc
-    if (
-        request.nextUrl.pathname.startsWith('/_next') ||
-        request.nextUrl.pathname.startsWith('/auth') ||
-        request.nextUrl.pathname.startsWith('/login') ||
-        request.nextUrl.pathname.startsWith('/signup') ||
-        request.nextUrl.pathname.startsWith('/favicon.ico') ||
-        // Temporarily allow webhook without auth as it validates its own signature
-        request.nextUrl.pathname.startsWith('/api/stripe/webhook')
-    ) {
+    const pathname = request.nextUrl.pathname
+
+    // Allow public routes without authentication
+    const isPublicRoute = PUBLIC_ROUTES.some(route =>
+        pathname === route || pathname.startsWith(route + '/')
+    )
+
+    if (isPublicRoute) {
         return NextResponse.next()
     }
 
-    // Check for guest mode cookie - allows access without authentication
-    const guestMode = request.cookies.get('guest_mode')?.value === 'true'
-    if (guestMode) {
+    // Protected routes require authentication
+    const isApiRoute = pathname.startsWith('/api')
+    const isAppRoute = pathname.startsWith('/app')
+
+    // If not a protected route, allow through
+    if (!isApiRoute && !isAppRoute) {
         return NextResponse.next()
     }
 
-    // Determine if it's an API route or an app route
-    const isApiRoute = request.nextUrl.pathname.startsWith('/api')
-    const isAppRoute = request.nextUrl.pathname.startsWith('/app')
-
-    // Allow app routes without auth - DataProvider loads demo data automatically
-    // This enables "Try Live Demo" without login friction
-    if (isAppRoute) {
-        return NextResponse.next();
-    }
-
-    // If it doesn't match the routes we want to protect, explicitly allow it for now.
-    if (!isApiRoute) {
-        return NextResponse.next();
-    }
-
-    let supabaseResponse = NextResponse.next({
-        request,
-    })
+    // Create Supabase client for auth check
+    let supabaseResponse = NextResponse.next({ request })
 
     const supabase = createServerClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -50,9 +54,7 @@ export async function middleware(request: NextRequest) {
                 },
                 setAll(cookiesToSet) {
                     cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-                    supabaseResponse = NextResponse.next({
-                        request,
-                    })
+                    supabaseResponse = NextResponse.next({ request })
                     cookiesToSet.forEach(({ name, value, options }) =>
                         supabaseResponse.cookies.set(name, value, options)
                     )
@@ -64,23 +66,36 @@ export async function middleware(request: NextRequest) {
     // IMPORTANT: Avoid writing any logic between createServerClient and
     // supabase.auth.getUser(). A simple mistake could make it very hard to debug
     // issues with users being randomly logged out.
-    const {
-        data: { user },
-    } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (
-        !user &&
-        (isApiRoute || isAppRoute)
-    ) {
-        if (isApiRoute) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Check for guest mode - but user must still have a valid anonymous session
+    const isGuestMode = request.cookies.get('guest_mode')?.value === 'true'
+
+    // No authenticated user (including anonymous) = unauthorized
+    if (!user) {
+        // For guest mode without session, we need to let them through to get anonymous auth
+        // But only for app routes, not API routes
+        if (isGuestMode && isAppRoute) {
+            // Allow through - AuthProvider will handle anonymous auth
+            return NextResponse.next()
         }
 
-        // no user, potentially respond by redirecting the user to the login page
-        const url = request.nextUrl.clone()
-        url.pathname = '/login'
-        return NextResponse.redirect(url)
+        if (isApiRoute) {
+            return NextResponse.json(
+                { error: 'Unauthorized', message: 'Authentication required' },
+                { status: 401 }
+            )
+        }
+
+        // Redirect to login for app routes
+        const loginUrl = request.nextUrl.clone()
+        loginUrl.pathname = '/login'
+        loginUrl.searchParams.set('redirect', pathname)
+        return NextResponse.redirect(loginUrl)
     }
+
+    // User is authenticated - add user ID to headers for downstream use
+    supabaseResponse.headers.set('x-user-id', user.id)
 
     return supabaseResponse
 }

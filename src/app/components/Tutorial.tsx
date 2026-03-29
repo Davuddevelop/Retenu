@@ -157,19 +157,26 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
             setIsNavigating(true);
             setIsReady(false);
             router.push(step.page);
-        }
-    }, [currentStep, step.page, pathname, router]);
-
-    // Wait for page to be ready after navigation
-    useEffect(() => {
-        if (pathname === step.page) {
+        } else if (pathname === step.page && !isReady) {
+            // Already on the right page, just wait for render
             const timer = setTimeout(() => {
                 setIsNavigating(false);
                 setIsReady(true);
-            }, 600); // Give page time to render
+            }, 400);
             return () => clearTimeout(timer);
         }
-    }, [pathname, step.page]);
+    }, [currentStep, step.page, pathname, router, isReady]);
+
+    // Wait for page to be ready after navigation
+    useEffect(() => {
+        if (pathname === step.page && isNavigating) {
+            const timer = setTimeout(() => {
+                setIsNavigating(false);
+                setIsReady(true);
+            }, 800); // Give page time to render
+            return () => clearTimeout(timer);
+        }
+    }, [pathname, step.page, isNavigating]);
 
     // Update highlight position
     const updatePosition = useCallback(() => {
@@ -184,6 +191,9 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
                 width: rect.width,
                 height: rect.height,
             });
+        } else {
+            // Element not found - reset to center mode
+            setHighlightPosition({ top: 0, left: 0, width: 0, height: 0 });
         }
     }, [step.target, isReady]);
 
@@ -191,16 +201,25 @@ export function Tutorial({ onComplete, onSkip }: TutorialProps) {
     useEffect(() => {
         if (!step.target || !isReady || isNavigating) return;
 
-        // Initial positioning with delay
-        const initTimer = setTimeout(() => {
-            updatePosition();
+        // Retry finding element with exponential backoff
+        let retryCount = 0;
+        const maxRetries = 5;
+
+        const tryFindElement = () => {
             const element = document.querySelector(step.target!);
             if (element) {
+                updatePosition();
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 // Update position after scroll completes
                 setTimeout(updatePosition, 400);
+            } else if (retryCount < maxRetries) {
+                retryCount++;
+                setTimeout(tryFindElement, 200 * retryCount);
             }
-        }, 200);
+        };
+
+        // Initial positioning with delay
+        const initTimer = setTimeout(tryFindElement, 200);
 
         window.addEventListener('scroll', updatePosition, true);
         window.addEventListener('resize', updatePosition);
@@ -591,6 +610,9 @@ export function useTutorial() {
         const isGuestMode = document.cookie.includes('guest_mode=true');
         const guestCompleted = isGuestMode && sessionStorage.getItem(TUTORIAL_COMPLETED_GUEST_KEY) === 'true';
 
+        // Mark as initialized first
+        setInitialized(true);
+
         // Only show welcome if tutorial hasn't been completed
         if (!hasCompleted && !guestCompleted) {
             // Small delay for page to settle
@@ -599,8 +621,6 @@ export function useTutorial() {
             }, 800);
             return () => clearTimeout(timer);
         }
-
-        setInitialized(true);
     }, [initialized]);
 
     const startTutorial = useCallback(() => {
