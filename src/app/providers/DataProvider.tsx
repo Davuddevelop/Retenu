@@ -47,6 +47,8 @@ interface DataProviderProps {
     children: ReactNode;
     // If true, use Supabase; otherwise use local dataStore
     useSupabase?: boolean;
+    // Force demo mode for guest/anonymous users
+    forceDemoMode?: boolean;
     // Server-side initial data for hydration
     initialData?: {
         organizationId?: string;
@@ -59,14 +61,14 @@ interface DataProviderProps {
     };
 }
 
-export function DataProvider({ children, useSupabase = false, initialData }: DataProviderProps) {
+export function DataProvider({ children, useSupabase = false, forceDemoMode = false, initialData }: DataProviderProps) {
     const supabase = useSupabase ? createBrowserClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321',
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy_anon_key'
     ) : null;
 
     const [mode] = useState<DataMode>(useSupabase ? 'supabase' : 'local');
-    const [isDemoMode, setIsDemoMode] = useState(false);
+    const [isDemoMode, setIsDemoMode] = useState(forceDemoMode);
     const [isInitialized, setIsInitialized] = useState(!!initialData);
     const [isLoading, setIsLoading] = useState(!initialData);
     const [hasData, setHasData] = useState(false);
@@ -93,14 +95,15 @@ export function DataProvider({ children, useSupabase = false, initialData }: Dat
     const loadLocalData = useCallback(() => {
         const status = getDataStatus();
 
-        // If no data exists and not in demo mode, auto-enable demo for first-time users
-        if (!status.hasClients && !status.isDemoMode) {
-            const demoDisabled = localStorage.getItem('revenueLeak_demoDisabled');
-            if (!demoDisabled) {
+        // If forceDemoMode is true (guest user), always enable demo mode
+        if (forceDemoMode) {
+            if (!status.isDemoMode) {
                 dataStore.enableDemoMode();
-                setIsDemoMode(true);
             }
+            setIsDemoMode(true);
         } else {
+            // Real user - don't auto-enable demo mode
+            // They should see empty state and connect their own data
             setIsDemoMode(status.isDemoMode);
         }
 
@@ -121,7 +124,7 @@ export function DataProvider({ children, useSupabase = false, initialData }: Dat
         setHasData(status.hasClients);
         setIsInitialized(true);
         setIsLoading(false);
-    }, []);
+    }, [forceDemoMode]);
 
     // ============================================
     // SUPABASE MODE FUNCTIONS
@@ -133,11 +136,35 @@ export function DataProvider({ children, useSupabase = false, initialData }: Dat
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return null;
 
-        const { data } = await supabase
+        // First try to fetch existing organization
+        let { data } = await supabase
             .from('organizations')
             .select('*')
             .eq('owner_id', user.id)
             .single();
+
+        // If no organization exists, create one
+        if (!data) {
+            const orgName = user.user_metadata?.companyName ||
+                           user.email?.split('@')[0] ||
+                           'My Organization';
+
+            const { data: newOrg, error: insertError } = await supabase
+                .from('organizations')
+                .insert({
+                    name: orgName + "'s Agency",
+                    owner_id: user.id,
+                })
+                .select()
+                .single();
+
+            if (insertError) {
+                console.error('Failed to create organization:', insertError);
+                return null;
+            }
+
+            data = newOrg;
+        }
 
         if (data) {
             setOrganizationId(data.id);

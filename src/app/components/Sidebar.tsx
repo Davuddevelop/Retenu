@@ -39,11 +39,11 @@ export default function Sidebar() {
             <div className="h-16 flex items-center px-6 border-b border-[var(--border)]">
                 <Link href="/app" className="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--neutral-metric)] rounded-lg">
                     <div className="relative">
-                        <Image src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" width={32} height={32} className="h-8 w-8 object-contain" />
+                        <Image src="/logo-removebg-preview.png" alt="RETENU Logo" width={32} height={32} className="h-8 w-8 object-contain" />
                         <div className="absolute inset-0 bg-[var(--neutral-metric)]/20 rounded-lg blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <span className="text-xl font-bold tracking-tight text-[var(--foreground)]">
-                        OBSIDIAN
+                        RETENU
                     </span>
                 </Link>
             </div>

@@ -9,7 +9,7 @@ import { cn } from '@/app/lib/utils';
 
 const faqs = [
   {
-    question: 'How does OBSIDIAN detect billing errors?',
+    question: 'How does RETENU detect billing errors?',
     answer:
       'Our detection engine compares your time tracking data against invoices to find gaps. It checks for unbilled hours, clients exceeding their hour limits, overdue invoices, and months without invoices. Simple logic that catches real problems.',
   },
@@ -76,7 +76,7 @@ export function FAQ() {
             transition={{ delay: 0.2 }}
             className="mt-4 text-gray-400"
           >
-            Everything you need to know about OBSIDIAN.
+            Everything you need to know about RETENU.
           </motion.p>
         </div>
 

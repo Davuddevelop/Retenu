@@ -69,7 +69,7 @@ export default function PrivacyPolicy() {
                                 <div>
                                     <h2 className="text-xl font-bold text-[var(--foreground)] mb-2">Your Security is Our Priority</h2>
                                     <p className="text-gray-400 leading-relaxed">
-                                        At OBSIDIAN, we understand that you&apos;re trusting us with sensitive financial data and API credentials.
+                                        At RETENU, we understand that you&apos;re trusting us with sensitive financial data and API credentials.
                                         We take this responsibility extremely seriously and have built enterprise-grade security into every aspect of our platform.
                                     </p>
                                 </div>
@@ -78,7 +78,7 @@ export default function PrivacyPolicy() {
 
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">What This Policy Covers</h2>
                         <p className="text-gray-400 leading-relaxed mb-4">
-                            This Privacy Policy explains how OBSIDIAN collects, uses, stores, and protects your information when you use our service.
+                            This Privacy Policy explains how RETENU collects, uses, stores, and protects your information when you use our service.
                             We are committed to transparency and your right to privacy.
                         </p>
                     </section>
@@ -268,7 +268,7 @@ export default function PrivacyPolicy() {
                         <h2 className="text-2xl font-bold text-[var(--foreground)] mb-4">Changes to This Policy</h2>
                         <p className="text-gray-400">
                             We may update this Privacy Policy from time to time. We will notify you of any material changes by
-                            email and by posting a notice in the app. Continued use of OBSIDIAN after changes constitutes
+                            email and by posting a notice in the app. Continued use of RETENU after changes constitutes
                             acceptance of the updated policy.
                         </p>
                     </section>
@@ -280,7 +280,7 @@ export default function PrivacyPolicy() {
                 <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                         <p className="text-sm text-gray-500">
-                            © {new Date().getFullYear()} OBSIDIAN. All rights reserved.
+                            © {new Date().getFullYear()} RETENU. All rights reserved.
                         </p>
                         <div className="flex gap-6">
                             <Link href="/terms" className="text-sm text-gray-400 hover:text-[var(--foreground)] transition-colors">

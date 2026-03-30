@@ -1,4 +1,4 @@
-# Obsidian Skills
+# Retenu Skills
 
 This project includes custom skills for Claude Code. Each skill provides specialized knowledge and patterns for different development tasks.
 

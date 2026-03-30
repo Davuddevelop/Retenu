@@ -176,7 +176,7 @@ const testimonials = [
     rating: 5
   },
   {
-    quote: "We were hemorrhaging money on scope creep. OBSIDIAN made it painfully obvious.",
+    quote: "We were hemorrhaging money on scope creep. RETENU made it painfully obvious.",
     name: "Marcus Rodriguez",
     title: "Operations Director",
     company: "GrowthLabs Agency",
@@ -300,7 +300,7 @@ function StickyCTABar() {
     >
       <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={24} height={24} className="h-6 w-6 object-contain" />
+          <Image src="/logo-removebg-preview.png" alt="RETENU" width={24} height={24} className="h-6 w-6 object-contain" />
           <span className="text-sm text-gray-400 hidden sm:block">Stop losing money to revenue leaks</span>
         </div>
         <div className="flex items-center gap-3">
@@ -754,10 +754,10 @@ export function BeforeAfterSlider() {
       <div className="flex justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-3 h-3 rounded-full bg-emerald-500" />
-          <span className="text-sm text-gray-400">With OBSIDIAN</span>
+          <span className="text-sm text-gray-400">With RETENU</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-400">Without OBSIDIAN</span>
+          <span className="text-sm text-gray-400">Without RETENU</span>
           <div className="w-3 h-3 rounded-full bg-red-500/50" />
         </div>
       </div>
@@ -812,7 +812,7 @@ export function BeforeAfterSlider() {
           </div>
         </div>
 
-        {/* AFTER: Clean OBSIDIAN dashboard */}
+        {/* AFTER: Clean RETENU dashboard */}
         <div
           className="absolute inset-0 bg-[#09090B]"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
@@ -1438,8 +1438,8 @@ export default function LandingV2() {
           <div className="h-16 flex items-center justify-between">
             <div className="flex items-center gap-10">
               <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={28} height={28} className="h-7 w-7 object-contain" />
-                <span className="text-lg font-bold tracking-[0.15em]">OBSIDIAN</span>
+                <Image src="/logo-removebg-preview.png" alt="RETENU" width={28} height={28} className="h-7 w-7 object-contain" />
+                <span className="text-lg font-bold tracking-[0.15em]">RETENU</span>
               </Link>
 
               <div className="hidden md:flex items-center gap-6">
@@ -1681,7 +1681,7 @@ export default function LandingV2() {
                 <div className="relative">
                   <Image
                     src="/dashboard obsidian 2.png"
-                    alt="OBSIDIAN Dashboard - Revenue leak detection for agencies"
+                    alt="RETENU Dashboard - Revenue leak detection for agencies"
                     width={1920}
                     height={1080}
                     className="w-full h-auto"
@@ -2235,7 +2235,7 @@ export default function LandingV2() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-4xl font-medium mb-4">
-              Agencies love OBSIDIAN
+              Agencies love RETENU
             </h2>
             <p className="text-gray-500">
               Don&apos;t take our word for it. Here&apos;s what our users say.
@@ -2516,8 +2516,8 @@ export default function LandingV2() {
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center gap-6">
               <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <Image src="/logo-removebg-preview.png" alt="OBSIDIAN" width={24} height={24} className="h-6 w-6 object-contain" />
-                <span className="font-bold tracking-[0.15em]">OBSIDIAN</span>
+                <Image src="/logo-removebg-preview.png" alt="RETENU" width={24} height={24} className="h-6 w-6 object-contain" />
+                <span className="font-bold tracking-[0.15em]">RETENU</span>
               </Link>
               <span className="text-sm text-gray-600">© {new Date().getFullYear()}</span>
             </div>

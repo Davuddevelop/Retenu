@@ -167,6 +167,69 @@ export function DemoModeBanner({ onDisable }: { onDisable?: () => void }) {
 }
 
 // ============================================
+// NEW USER WELCOME
+// ============================================
+
+export function NewUserWelcome() {
+    return (
+        <div className="bg-gradient-to-br from-[#111113] to-[#0a0a0b] border border-[#1c1c1f] rounded-xl p-8 text-center">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF5733] to-[#E84118] flex items-center justify-center mx-auto mb-6">
+                <TrendingUp className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-2xl font-semibold text-white mb-3">
+                Welcome to RETENU
+            </h2>
+            <p className="text-gray-400 max-w-md mx-auto mb-8">
+                Let&apos;s set up your account to start detecting revenue leaks.
+                Connect your tools or add data manually.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                <div className="p-4 bg-[#0f0f11] rounded-lg border border-[#1c1c1f]">
+                    <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mx-auto mb-3">
+                        <Users className="w-5 h-5 text-blue-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-white mb-1">Add Clients</h3>
+                    <p className="text-xs text-gray-500">Set retainers and billing rates</p>
+                </div>
+
+                <div className="p-4 bg-[#0f0f11] rounded-lg border border-[#1c1c1f]">
+                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mx-auto mb-3">
+                        <Clock className="w-5 h-5 text-emerald-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-white mb-1">Import Time</h3>
+                    <p className="text-xs text-gray-500">Connect Toggl or Clockify</p>
+                </div>
+
+                <div className="p-4 bg-[#0f0f11] rounded-lg border border-[#1c1c1f]">
+                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+                        <FileText className="w-5 h-5 text-purple-400" />
+                    </div>
+                    <h3 className="text-sm font-medium text-white mb-1">Track Invoices</h3>
+                    <p className="text-xs text-gray-500">Connect Stripe or add manually</p>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-center gap-4">
+                <Link
+                    href="/app/clients/new"
+                    className="px-6 py-3 bg-white text-black font-medium rounded-lg text-sm hover:bg-gray-100 transition-colors inline-flex items-center gap-2"
+                >
+                    Add Your First Client
+                    <ArrowRight className="w-4 h-4" />
+                </Link>
+                <Link
+                    href="/app/settings/integrations"
+                    className="px-6 py-3 text-gray-400 hover:text-white text-sm transition-colors"
+                >
+                    Connect Integrations
+                </Link>
+            </div>
+        </div>
+    );
+}
+
+// ============================================
 // SETUP CHECKLIST
 // ============================================
 

@@ -1,5 +1,5 @@
 // src/app/lib/detectionEngine.ts
-// OBSIDIAN detection engine - uses real calculations, no hardcoded values
+// RETENU detection engine - uses real calculations, no hardcoded values
 
 import {
     RevenueAlert,

@@ -1,12 +1,12 @@
-# Obsidian Roadmap
+# Retenu Roadmap
 
-> Analysis and roadmap for transforming Obsidian into a production-ready SaaS
+> Analysis and roadmap for transforming Retenu into a production-ready SaaS
 
 ---
 
 ## Executive Summary
 
-Obsidian is a Obsidian detection tool for agencies that tracks clients, time entries, and invoices to identify underbilling, scope creep, missing invoices, and margin issues. The core detection engine and UI foundation are solid, but significant work remains for production readiness.
+Retenu is a Retenu detection tool for agencies that tracks clients, time entries, and invoices to identify underbilling, scope creep, missing invoices, and margin issues. The core detection engine and UI foundation are solid, but significant work remains for production readiness.
 
 ---
 
@@ -108,7 +108,7 @@ The sync endpoints exist but:
 ### Invoice Sync Missing
 Stripe webhook receives invoice events, but:
 - No initial sync of historical invoices
-- No mapping of Stripe customers to Obsidian clients
+- No mapping of Stripe customers to Retenu clients
 - Webhook doesn't check if invoice already exists
 
 **Fix:** Add Stripe invoice list sync endpoint and customer-to-client mapping.

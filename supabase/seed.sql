@@ -1,4 +1,4 @@
--- Obsidian Seed Data
+-- Retenu Seed Data
 -- Run this AFTER schema.sql to populate test data
 -- Note: You must have a user in auth.users first (create via Supabase Auth UI or API)
 

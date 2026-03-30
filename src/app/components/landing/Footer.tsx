@@ -44,9 +44,9 @@ export function Footer() {
           <div className="col-span-2">
             <Link href="/" className="flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" className="h-8 w-8 object-contain" />
+              <img src="/logo-removebg-preview.png" alt="RETENU Logo" className="h-8 w-8 object-contain" />
               <span className="text-lg font-bold text-[var(--foreground)]">
-                OBSIDIAN
+                RETENU
               </span>
             </Link>
             <p className="mt-4 text-sm text-gray-500 max-w-xs">
@@ -91,7 +91,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="py-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-sm text-gray-500">
-            © {new Date().getFullYear()} OBSIDIAN. All rights reserved.
+            © {new Date().getFullYear()} RETENU. All rights reserved.
           </p>
           <div className="flex items-center gap-6 text-sm text-gray-500">
             <Link href="#" className="hover:text-[var(--foreground)] transition-colors">

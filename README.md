@@ -1,14 +1,14 @@
-# 💸 Obsidian
+# 💸 Retenu
 
 **Stop the bleeding. Scale your agency.**
 
-Obsidian is a high-performance financial intelligence platform designed specifically for agencies. It automatically identifies "hidden" revenue losses by analyzing the gap between your contracts, time tracking, and actual invoicing.
+Retenu is a high-performance financial intelligence platform designed specifically for agencies. It automatically identifies "hidden" revenue losses by analyzing the gap between your contracts, time tracking, and actual invoicing.
 
 
 
 ## 🚀 The Core Engine
 
-Obsidian doesn't just show you numbers; it actively detects **four types of leakage** that kill agency margins:
+Retenu doesn't just show you numbers; it actively detects **four types of leakage** that kill agency margins:
 
 1.  **Underbilling Detection:** Automatically flags when billable hours worked exceed the amount actually invoiced, accounting for retainer offsets.
 2.  **Scope Creep Alerts:** Real-time monitoring of contract hour limits. The system triggers warnings when projects exceed their scoped boundaries.
@@ -35,8 +35,8 @@ Built with a modern, high-performance stack for maximum reliability:
 
 ### 2. Installation
 ```bash
-git clone https://github.com/Davuddevelop/Obsidian.git
-cd Obsidian
+git clone https://github.com/Davuddevelop/Retenu.git
+cd Retenu
 npm install
 ```
 

@@ -35,7 +35,7 @@ interface TutorialStep {
 const tutorialSteps: TutorialStep[] = [
     {
         id: 'welcome',
-        title: 'Welcome to OBSIDIAN',
+        title: 'Welcome to RETENU',
         description: 'Let\'s take a quick tour of your revenue leak detection dashboard. This will only take about 2 minutes.',
         tip: 'You can skip this tour anytime and access it later from Settings.',
         page: '/app',
@@ -129,7 +129,7 @@ const tutorialSteps: TutorialStep[] = [
     {
         id: 'complete',
         title: 'You\'re Ready!',
-        description: 'Start by adding a client, then import your time entries and invoices. OBSIDIAN will automatically detect any revenue leaks.',
+        description: 'Start by adding a client, then import your time entries and invoices. RETENU will automatically detect any revenue leaks.',
         tip: 'Questions? Check Settings for help or replay this tour.',
         page: '/app',
         position: 'center',
@@ -521,7 +521,7 @@ export function WelcomeModal({ onStart, onSkip }: WelcomeModalProps) {
                         <DollarSign className="w-8 h-8 text-white" />
                     </motion.div>
                     <h2 className="text-2xl font-semibold text-white mb-2">
-                        Welcome to OBSIDIAN
+                        Welcome to RETENU
                     </h2>
                     <p className="text-sm text-gray-400">
                         Revenue leak detection for agencies

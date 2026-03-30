@@ -123,6 +123,7 @@ function IntegrationsContent() {
     const [connectingProvider, setConnectingProvider] = useState<string | null>(null);
     const [clientMapping, setClientMapping] = useState<Record<string, string>>({});
     const [showMapping, setShowMapping] = useState<string | null>(null);
+    const [isSavingMapping, setIsSavingMapping] = useState(false);
     const [externalProjects, setExternalProjects] = useState<Array<{ id: string | number; name: string }>>([]);
     const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
@@ -821,17 +822,40 @@ function IntegrationsContent() {
                                 Cancel
                             </button>
                             <button
-                                onClick={() => {
-                                    localStorage.setItem(
-                                        `revenueLeak_mapping_${showMapping}`,
-                                        JSON.stringify(clientMapping)
-                                    );
-                                    setShowMapping(null);
-                                    setExternalProjects([]);
-                                    setNotification({ type: 'success', message: 'Mapping saved!' });
+                                onClick={async () => {
+                                    setIsSavingMapping(true);
+                                    try {
+                                        localStorage.setItem(
+                                            `revenueLeak_mapping_${showMapping}`,
+                                            JSON.stringify(clientMapping)
+                                        );
+                                        
+                                        const response = await fetch('/api/integrations', {
+                                            method: 'PATCH',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                organization_id: organizationId,
+                                                provider: showMapping,
+                                                config: { client_mapping: clientMapping }
+                                            }),
+                                        });
+
+                                        if (!response.ok) throw new Error('Failed to save mapping to database');
+
+                                        setShowMapping(null);
+                                        setExternalProjects([]);
+                                        setNotification({ type: 'success', message: 'Mapping saved!' });
+                                    } catch (err) {
+                                        console.error('Save mapping error:', err);
+                                        setNotification({ type: 'error', message: 'Failed to save mapping' });
+                                    } finally {
+                                        setIsSavingMapping(false);
+                                    }
                                 }}
-                                className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors"
+                                disabled={isSavingMapping}
+                                className="px-4 py-2 bg-white text-black font-medium rounded-md text-sm hover:bg-gray-100 transition-colors disabled:opacity-50 inline-flex items-center gap-2"
                             >
+                                {isSavingMapping && <Loader2 className="w-4 h-4 animate-spin" />}
                                 Save
                             </button>
                         </div>

@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "OBSIDIAN | Financial Intelligence",
+  title: "RETENU | Financial Intelligence",
   description: "Detect hidden revenue loss and monitor agency profitability.",
 };
 

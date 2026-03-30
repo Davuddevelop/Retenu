@@ -174,7 +174,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-[var(--foreground)]">Alert Thresholds</h2>
-                            <p className="text-sm text-gray-500">Define when to trigger OBSIDIAN alerts</p>
+                            <p className="text-sm text-gray-500">Define when to trigger RETENU alerts</p>
                         </div>
                     </div>
                 </div>
@@ -290,7 +290,7 @@ export default function SettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-base font-medium text-[var(--foreground)]">Tutorial</h2>
-                            <p className="text-sm text-gray-500">Take a guided tour of OBSIDIAN</p>
+                            <p className="text-sm text-gray-500">Take a guided tour of RETENU</p>
                         </div>
                     </div>
                     <button

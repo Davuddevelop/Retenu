@@ -9,7 +9,7 @@
       "Bash(ping:*)",
       "WebFetch(domain:www.saasframe.io)",
       "Bash(npx tsc:*)",
-      "Bash(if not exist \"c:\\\\Users\\\\User\\\\Favorites\\\\Obsidian\\\\supabase\" mkdir \"c:\\\\Users\\\\User\\\\Favorites\\\\Obsidian\\\\supabase\")",
+      "Bash(if not exist \"c:\\\\Users\\\\User\\\\Favorites\\\\Retenu\\\\supabase\" mkdir \"c:\\\\Users\\\\User\\\\Favorites\\\\Retenu\\\\supabase\")",
       "Bash(npm run lint:*)",
       "WebFetch(domain:github.com)",
       "Bash(npx next lint:*)",
@@ -19,7 +19,9 @@
       "WebFetch(domain:nicelydone.club)",
       "WebFetch(domain:www.vectorlogo.zone)",
       "WebFetch(domain:worldvectorlogo.com)",
-      "WebFetch(domain:simpleicons.org)"
+      "WebFetch(domain:simpleicons.org)",
+      "WebFetch(domain:www.namecheap.com)",
+      "WebFetch(domain:instantdomainsearch.com)"
     ]
   }
 }

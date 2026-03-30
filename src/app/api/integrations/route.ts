@@ -118,7 +118,6 @@ export async function GET(request: Request) {
     }
 }
 
-// DELETE - Disconnect an integration
 export async function DELETE(request: Request) {
     const { searchParams } = new URL(request.url);
     const organizationId = searchParams.get('organization_id');
@@ -160,6 +159,68 @@ export async function DELETE(request: Request) {
         console.error('Error disconnecting integration:', error);
         return NextResponse.json(
             { error: error instanceof Error ? error.message : 'Failed to disconnect' },
+            { status: 500 }
+        );
+    }
+}
+
+// PATCH - Update integration config (e.g. client mapping)
+export async function PATCH(request: Request) {
+    try {
+        const body = await request.json();
+        const { organization_id, provider, config } = body;
+
+        if (!organization_id || !provider || !config) {
+            return NextResponse.json(
+                { error: 'organization_id, provider, and config required' },
+                { status: 400 }
+            );
+        }
+
+        // AUTH CHECK
+        const auth = await checkAuth(organization_id);
+        if (!auth.authorized) {
+            return NextResponse.json({ error: auth.error }, { status: auth.error === 'Unauthorized' ? 401 : 403 });
+        }
+
+        const supabase = getSupabaseAdmin();
+
+        // Fetch current integration to merge config
+        const { data: currentIntegration, error: fetchError } = await supabase
+            .from('integrations')
+            .select('config')
+            .eq('organization_id', organization_id)
+            .eq('provider', provider)
+            .single();
+
+        if (fetchError || !currentIntegration) {
+            return NextResponse.json(
+                { error: 'Integration not found' },
+                { status: 404 }
+            );
+        }
+
+        const mergedConfig = {
+            ...(currentIntegration.config || {}),
+            ...config
+        };
+
+        const { error: updateError } = await supabase
+            .from('integrations')
+            .update({
+                config: mergedConfig,
+                updated_at: new Date().toISOString(),
+            })
+            .eq('organization_id', organization_id)
+            .eq('provider', provider);
+
+        if (updateError) throw updateError;
+
+        return NextResponse.json({ success: true, config: mergedConfig });
+    } catch (error) {
+        console.error('Error updating integration config:', error);
+        return NextResponse.json(
+            { error: error instanceof Error ? error.message : 'Failed to update config' },
             { status: 500 }
         );
     }

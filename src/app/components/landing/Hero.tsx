@@ -52,7 +52,7 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="mt-6 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed"
           >
-            OBSIDIAN automatically detects billing errors, undercharging, and missed
+            RETENU automatically detects billing errors, undercharging, and missed
             invoices in real-time. Service businesses lose{' '}
             <span className="text-[var(--foreground)] font-semibold">4-10% of annual revenue</span> on average—
             and <span className="text-[var(--leak)] font-semibold">57% of agencies</span> lose $1K-$5K monthly to unbilled scope creep alone.

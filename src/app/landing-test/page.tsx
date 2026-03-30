@@ -486,7 +486,7 @@ export default function LandingPage() {
               <Link href="/security" className="hover:text-white transition-colors">Security</Link>
             </div>
             <div className="text-sm text-gray-500">
-              © 2024 OBSIDIAN. All rights reserved.
+              © 2024 RETENU. All rights reserved.
             </div>
           </div>
         </div>

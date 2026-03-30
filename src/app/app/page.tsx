@@ -1,17 +1,19 @@
 // src/app/app/page.tsx
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { TrendingUp, AlertCircle, Clock, FileText, Users, ChevronRight, Check } from 'lucide-react';
 import Link from 'next/link';
 import { format, startOfMonth, endOfMonth, subMonths, formatDistanceToNow } from 'date-fns';
 import { useData } from '../providers/DataProvider';
-import { SetupChecklist, NoClientsEmpty } from '../components/EmptyStates';
+import { SetupChecklist, NoClientsEmpty, NewUserWelcome } from '../components/EmptyStates';
 import { Tutorial, WelcomeModal, useTutorial } from '../components/Tutorial';
 import type { DashboardMetrics } from '../lib/types';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function DashboardPage() {
+    const router = useRouter();
     const {
         clients,
         invoices,
@@ -20,7 +22,25 @@ export default function DashboardPage() {
         settings,
         isLoading,
         hasData,
+        isDemoMode,
+        isInitialized,
     } = useData();
+
+    // Redirect new real users to onboarding
+    useEffect(() => {
+        if (!isInitialized || isLoading) return;
+
+        // Demo/guest users skip onboarding
+        if (isDemoMode) return;
+
+        // Check if onboarding is complete
+        const onboardingComplete = localStorage.getItem('retenu_onboarding_complete') === 'true';
+
+        // If real user hasn't completed onboarding and has no data, redirect
+        if (!onboardingComplete && !hasData) {
+            router.replace('/onboarding');
+        }
+    }, [isInitialized, isLoading, isDemoMode, hasData, router]);
 
     const [timeframe, setTimeframe] = useState<'3M' | '6M' | '12M'>('6M');
 
@@ -252,9 +272,13 @@ export default function DashboardPage() {
             )}
 
             {!hasData ? (
-                <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
-                    <NoClientsEmpty />
-                </div>
+                isDemoMode ? (
+                    <div className="bg-[#111113] rounded-lg border border-[#1c1c1f]">
+                        <NoClientsEmpty />
+                    </div>
+                ) : (
+                    <NewUserWelcome />
+                )
             ) : (
                 <>
                     {/* Primary Metric - Revenue at Risk (Compact horizontal layout) */}

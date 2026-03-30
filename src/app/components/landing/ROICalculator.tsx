@@ -53,7 +53,7 @@ export function ROICalculator() {
     const hoursSavedPerMonth = teamSize * 4; // 4 hours per team member per month
     const timeSavingsValue = hoursSavedPerMonth * avgHourlyRate * 12;
 
-    // Recovery rate with OBSIDIAN (assume 80% of leaks can be recovered)
+    // Recovery rate with RETENU (assume 80% of leaks can be recovered)
     const recoveryRate = 0.80;
     const potentialRecovery = totalLeakage * recoveryRate;
 
@@ -365,7 +365,7 @@ export function ROICalculator() {
                     <div className="relative">
                       <div className="flex items-start justify-between mb-4">
                         <div>
-                          <p className="text-sm text-gray-400 mb-1">Estimated Annual OBSIDIAN</p>
+                          <p className="text-sm text-gray-400 mb-1">Estimated Annual RETENU</p>
                           <motion.p
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
@@ -381,7 +381,7 @@ export function ROICalculator() {
                       </div>
 
                       <div className="mt-6 p-4 rounded-2xl bg-[var(--profit)]/10 border border-[var(--profit)]/20">
-                        <p className="text-sm text-gray-400 mb-1">Potential Recovery with OBSIDIAN</p>
+                        <p className="text-sm text-gray-400 mb-1">Potential Recovery with RETENU</p>
                         <p className="text-3xl font-bold text-[var(--profit)]">
                           {formatCurrency(results.potentialRecovery)}
                         </p>
@@ -396,7 +396,7 @@ export function ROICalculator() {
                   <div className="space-y-3">
                     <h4 className="text-lg font-semibold text-[var(--foreground)] flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-[var(--leak)]" />
-                      OBSIDIAN Breakdown
+                      RETENU Breakdown
                     </h4>
                     {leakBreakdown.map((leak, index) => (
                       <motion.div

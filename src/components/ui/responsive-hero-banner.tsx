@@ -45,10 +45,10 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
     ctaButtonText = "Get Started",
     ctaButtonHref = "/login",
     badgeLabel = "New",
-    badgeText = "Automated OBSIDIAN Detection",
+    badgeText = "Automated RETENU Detection",
     title = "Stop Losing Revenue",
     titleLine2 = "Before It's Too Late",
-    description = "OBSIDIAN detects billing errors, undercharging, and missed invoices in real-time. Find the 4-10% of revenue agencies typically lose.",
+    description = "RETENU detects billing errors, undercharging, and missed invoices in real-time. Find the 4-10% of revenue agencies typically lose.",
     primaryButtonText = "Start Free Trial",
     primaryButtonHref = "/login",
     secondaryButtonText = "Watch Demo",
@@ -78,9 +78,9 @@ const ResponsiveHeroBanner: React.FC<ResponsiveHeroBannerProps> = ({
                             href="/"
                             className="inline-flex items-center justify-center gap-2"
                         >
-                            <Image src="/logo-removebg-preview.png" alt="OBSIDIAN Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-xl shadow-lg" />
+                            <Image src="/logo-removebg-preview.png" alt="RETENU Logo" width={40} height={40} className="h-10 w-10 object-contain rounded-xl shadow-lg" />
                             <span className="text-xl font-bold text-white">
-                                OBSIDIAN
+                                RETENU
                             </span>
                         </Link>
 
