@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/cron/clockify",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/cron/detect",
-      "schedule": "5 * * * *"
+      "schedule": "5 0 * * *"
     }
   ]
 }
