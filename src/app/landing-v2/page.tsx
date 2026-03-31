@@ -29,6 +29,8 @@ import {
   ArrowDown
 } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { CaseStudies } from '../components/landing/CaseStudies';
+import { Testimonials } from '../components/landing/Testimonials';
 
 // ============================================
 // HAND-DRAWN SVG ELEMENTS (Human Touch)
@@ -162,117 +164,6 @@ function TypewriterText() {
   );
 }
 
-// ============================================
-// TESTIMONIAL CAROUSEL
-// ============================================
-
-const testimonials = [
-  {
-    quote: "Found $23,000 in unbilled hours within the first week. Paid for itself 100x over.",
-    name: "Sarah Chen",
-    title: "CEO",
-    company: "PixelCraft Studio",
-    avatar: "SC",
-    rating: 5
-  },
-  {
-    quote: "We were hemorrhaging money on scope creep. RETENU made it painfully obvious.",
-    name: "Marcus Rodriguez",
-    title: "Operations Director",
-    company: "GrowthLabs Agency",
-    avatar: "MR",
-    rating: 5
-  },
-  {
-    quote: "The ROI calculator wasn't lying. We recovered $47k in Q1 alone.",
-    name: "Emily Watson",
-    title: "Founder",
-    company: "Ember Digital",
-    avatar: "EW",
-    rating: 5
-  },
-  {
-    quote: "Finally, a tool that speaks agency. Not enterprise bloatware.",
-    name: "David Park",
-    title: "Managing Partner",
-    company: "Neon Interactive",
-    avatar: "DP",
-    rating: 5
-  }
-];
-
-function TestimonialCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
-
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isAutoPlaying]);
-
-  return (
-    <div
-      className="relative"
-      onMouseEnter={() => setIsAutoPlaying(false)}
-      onMouseLeave={() => setIsAutoPlaying(true)}
-    >
-      {/* Main testimonial */}
-      <div className="relative overflow-hidden">
-        <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
-          transition={{ duration: 0.5 }}
-          className="bg-[#0C0C0E] border border-white/10 rounded-2xl p-8 md:p-10"
-        >
-          {/* Stars */}
-          <div className="flex gap-1 mb-4">
-            {Array.from({ length: testimonials[currentIndex].rating }).map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-yellow-500 text-yellow-500" />
-            ))}
-          </div>
-
-          {/* Quote */}
-          <blockquote className="text-xl md:text-2xl font-light text-white mb-6 leading-relaxed">
-            &ldquo;{testimonials[currentIndex].quote}&rdquo;
-          </blockquote>
-
-          {/* Author */}
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#FF5733] to-[#FF8F33] flex items-center justify-center text-white font-medium">
-              {testimonials[currentIndex].avatar}
-            </div>
-            <div>
-              <p className="font-medium text-white">{testimonials[currentIndex].name}</p>
-              <p className="text-sm text-gray-500">
-                {testimonials[currentIndex].title}, {testimonials[currentIndex].company}
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      {/* Navigation dots */}
-      <div className="flex justify-center gap-2 mt-6">
-        {testimonials.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrentIndex(i)}
-            className={`w-2 h-2 rounded-full transition-all ${
-              i === currentIndex
-                ? 'bg-[#FF5733] w-6'
-                : 'bg-white/20 hover:bg-white/40'
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ============================================
 // STICKY CTA BAR
@@ -2225,26 +2116,9 @@ export default function LandingV2() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section className="py-24 px-6">
-        <div className="max-w-3xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-medium mb-4">
-              Agencies love RETENU
-            </h2>
-            <p className="text-gray-500">
-              Don&apos;t take our word for it. Here&apos;s what our users say.
-            </p>
-          </motion.div>
-
-          <TestimonialCarousel />
-        </div>
-      </section>
+      {/* Case Studies & Testimonials */}
+      <CaseStudies />
+      <Testimonials />
 
       {/* Pricing - with monthly/yearly toggle */}
       <section id="pricing" className="py-24 px-6 bg-[#09090B]">
