@@ -172,36 +172,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
     };
 
-    const signInAsGuest = async () => {
-        try {
-            // Use Supabase anonymous auth for guest mode
-            // This creates a real session that can be verified by middleware
-            const { data, error } = await supabase.auth.signInAnonymously();
+    const signInAsGuest = () => {
+        // Set guest mode cookie immediately - this enables demo mode
+        document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
+        setIsGuest(true);
 
-            if (error) {
-                console.error('Anonymous sign in error:', error);
-                // Fallback: still set cookie and let user in for demo purposes
-                // The DataProvider will handle demo data
-            }
-
-            // Set guest mode cookie to indicate demo data should be shown
-            // This is now just a flag for data, not for auth bypass
-            document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
-            setIsGuest(true);
-
+        // Try anonymous auth in background (optional, for better session management)
+        supabase.auth.signInAnonymously().then(({ data }) => {
             if (data?.user) {
                 setUser(data.user);
                 setSession(data.session);
             }
+        }).catch(() => {
+            // Anonymous auth not enabled - that's fine, cookie-based demo still works
+        });
 
-            router.push('/app');
-        } catch (error) {
-            console.error('Guest sign in error:', error);
-            // Still allow access for demo - middleware will handle appropriately
-            document.cookie = 'guest_mode=true; path=/; max-age=604800; SameSite=Lax';
-            setIsGuest(true);
-            router.push('/app');
-        }
+        // Navigate to app immediately using hard navigation for reliability
+        window.location.href = '/app';
     };
 
     // Override signOut to also handle guest mode

@@ -1468,7 +1468,7 @@ export default function LandingV2() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Link href="/app" className="hidden sm:block text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
+              <Link href="/demo" className="hidden sm:block text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
                 Demo
               </Link>
               <Link href="/login" className="hidden sm:block text-sm text-gray-400 hover:text-white transition-colors px-4 py-2">
@@ -1517,7 +1517,7 @@ export default function LandingV2() {
                 </button>
               ))}
               <Link
-                href="/app"
+                href="/demo"
                 className="px-4 py-3 text-[#FF5733] hover:text-white transition-colors font-medium"
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -1617,7 +1617,7 @@ export default function LandingV2() {
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
-                href="/app"
+                href="/demo"
                 className="group px-8 py-4 border border-white/20 hover:border-white/40 hover:bg-white/5 text-lg font-medium transition-all rounded-lg flex items-center gap-3"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
