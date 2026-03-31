@@ -22,7 +22,10 @@
       "WebFetch(domain:simpleicons.org)",
       "WebFetch(domain:www.namecheap.com)",
       "WebFetch(domain:instantdomainsearch.com)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: rename middleware.ts to proxy.ts for Next.js 16\n\nNext.js 16 deprecated the middleware convention in favor of proxy.\n- Renamed src/middleware.ts to src/proxy.ts\n- Changed export function middleware\\(\\) to export function proxy\\(\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

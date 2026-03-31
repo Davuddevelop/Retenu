@@ -9,11 +9,12 @@ const PUBLIC_ROUTES = [
     '/signup',
     '/favicon.ico',
     '/api/stripe/webhook', // Validates its own signature
+    '/api/demo', // Demo mode entry - sets cookie and redirects
     '/', // Landing page
     '/landing-v2',
     '/landing-test',
     '/hero-demo',
-    // '/demo' is handled specially in proxy - sets cookie and redirects
+    '/demo', // Fallback demo page
     '/pricing',
     '/privacy',
     '/security',
