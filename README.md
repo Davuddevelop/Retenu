@@ -1,72 +1,27 @@
-# 💸 Retenu
+<div align="center">
+  <img src="public/header-banner.png" alt="RETENU Banner" width="100%">
+  
+  # 💸 RETENU
+  **Precision Revenue Intelligence for Modern Agencies**
+  
+  [![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+  [![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-**Stop the bleeding. Scale your agency.**
+  ---
 
-Retenu is a high-performance financial intelligence platform designed specifically for agencies. It automatically identifies "hidden" revenue losses by analyzing the gap between your contracts, time tracking, and actual invoicing.
+  ### Stop the bleeding. Scale your agency.
+  *Retenu is a high-performance financial intelligence platform that automatically identifies "hidden" revenue losses by analyzing the gap between contracts, time tracking, and invoicing.*
+</div>
 
+## 🔍 The Problem
+Most agencies lose **5-15% of their annual revenue** to "minor" leaks: 
+- 📢 **Unbilled revisions** that "only took a minute."
+- 📉 **Scope creep** on retainer accounts.
+- 🕒 **Forgotten hours** sitting in time trackers.
+- 🧱 **Ghost projects** that wrapped but were never invoiced.
 
-
-## 🚀 The Core Engine
-
-Retenu doesn't just show you numbers; it actively detects **four types of leakage** that kill agency margins:
-
-1.  **Underbilling Detection:** Automatically flags when billable hours worked exceed the amount actually invoiced, accounting for retainer offsets.
-2.  **Scope Creep Alerts:** Real-time monitoring of contract hour limits. The system triggers warnings when projects exceed their scoped boundaries.
-3.  **Missing Invoice audit:** A safety net that ensures every active client with a retainer is invoiced every single month.
-4.  **Late Payment Tracking:** Aggressive monitoring of overdue receivables to keep your cash flow healthy.
-5.  **Social Proof Engine:** Integrated user testimonials and deep-dive case studies to showcase real-world agency impact and ROI.
-
-## 🛠️ Technology Stack
-
-Built with a modern, high-performance stack for maximum reliability:
-
-- **Framework:** [Next.js 16](https://nextjs.org/) (App Router)
-- **Language:** TypeScript
-- **Database & Auth:** [Supabase](https://supabase.com/)
-- **Styling:** Tailwind CSS + Framer Motion (for premium UI animations)
-- **Integrations:** Stripe (Invoices), Toggl (Time Tracking)
-- **Testing:** [Vitest](https://vitest.dev/) (100% logic coverage)
-
-## 🚦 Getting Started
-
-### 1. Prerequisites
-- Node.js 18+
-- A Supabase project
-- Optional: Stripe and Toggl developer accounts
-
-### 2. Installation
-```bash
-git clone https://github.com/Davuddevelop/Retenu.git
-cd Retenu
-npm install
-```
-
-### 3. Environment Setup
-Copy `.env.example` to `.env.local` and fill in your credentials:
-```bash
-cp .env.example .env.local
-```
-
-### 4. Direct Development
-```bash
-npm run dev
-```
-
-## 🧪 Automated Testing
-
-We take financial accuracy seriously. Our calculation engine is protected by a comprehensive suite of automated tests.
-
-Run the test suite:
-```bash
-npm test
-```
-
-## 🔐 Security & Compliance
-
-- **OAuth 2.0:** Secure integrations with Stripe and Toggl.
-- **Row Level Security (RLS):** Built-in data protection via Supabase.
-- **GDPR Ready:** Clean data management patterns.
+**RETENU makes these leaks impossible to ignore.**
 
 ---
-
-Built with ❤️ for Agency Owners.
