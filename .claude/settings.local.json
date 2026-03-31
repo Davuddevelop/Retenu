@@ -21,7 +21,8 @@
       "WebFetch(domain:worldvectorlogo.com)",
       "WebFetch(domain:simpleicons.org)",
       "WebFetch(domain:www.namecheap.com)",
-      "WebFetch(domain:instantdomainsearch.com)"
+      "WebFetch(domain:instantdomainsearch.com)",
+      "Bash(git add:*)"
     ]
   }
 }

@@ -13,14 +13,14 @@ const PUBLIC_ROUTES = [
     '/landing-v2',
     '/landing-test',
     '/hero-demo',
-    // '/demo' is handled specially in middleware - sets cookie and redirects
+    // '/demo' is handled specially in proxy - sets cookie and redirects
     '/pricing',
     '/privacy',
     '/security',
     '/terms',
 ]
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
     try {
         const pathname = request.nextUrl.pathname
 
@@ -107,7 +107,7 @@ export async function middleware(request: NextRequest) {
             const { data } = await supabase.auth.getUser()
             user = data?.user ?? null
         } catch (error) {
-            console.error('Middleware Supabase error:', error)
+            console.error('Proxy Supabase error:', error)
             // If Supabase fails, fall back to guest mode check
         }
 
@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
         return supabaseResponse
     } catch (error) {
         // Catch-all: never let middleware crash
-        console.error('Middleware fatal error:', error)
+        console.error('Proxy fatal error:', error)
         // Allow request through on error to prevent blocking users
         return NextResponse.next()
     }
