@@ -14,6 +14,7 @@ Retenu doesn't just show you numbers; it actively detects **four types of leakag
 2.  **Scope Creep Alerts:** Real-time monitoring of contract hour limits. The system triggers warnings when projects exceed their scoped boundaries.
 3.  **Missing Invoice audit:** A safety net that ensures every active client with a retainer is invoiced every single month.
 4.  **Late Payment Tracking:** Aggressive monitoring of overdue receivables to keep your cash flow healthy.
+5.  **Social Proof Engine:** Integrated user testimonials and deep-dive case studies to showcase real-world agency impact and ROI.
 
 ## 🛠️ Technology Stack
 
