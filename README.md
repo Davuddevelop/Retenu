@@ -24,4 +24,25 @@ Most agencies lose **5-15% of their annual revenue** to "minor" leaks:
 
 **RETENU makes these leaks impossible to ignore.**
 
+## 🚀 The Engine
+Retenu actively detects **four types of leakage** that kill agency margins:
+
+| Feature | Impact | Detection Logic |
+| :--- | :--- | :--- |
+| **Unbilled hours** | Recovered $42K/6mo | Discrepancy between time tracker and invoice line items. |
+| **Scope Creep** | 15% Margin Increase | Automatically flags when work exceeds contract boundaries. |
+| **Missing Invoices** | 0 Forgotten Orders | Safety net ensuring every active client is billed monthly. |
+| **Late Payments** | Healthier Cash Flow | Real-time monitoring of overdue receivables. |
+
+---
+
+## 💎 Social Proof
+*Trusted by high-performance agencies worldwide.*
+
+> "We realized we were essentially giving away two weeks of work every year. RETENU made it visible."  
+> — **Sarah Chen**, Founder @ PixelCraft Studio
+
+> "It's not about charging for every minute, it's about knowing where your energy is going. This tool is a game changer."  
+> — **Marcus Rodriguez**, Head of Ops @ GrowthLabs
+
 ---
