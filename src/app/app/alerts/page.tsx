@@ -4,7 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useData } from '../../providers/DataProvider';
 import Link from 'next/link';
-import { ChevronRight, ChevronDown } from 'lucide-react';
+import { ChevronRight, ChevronDown, Check, X } from 'lucide-react';
 import { NoAlertsEmpty } from '../../components/EmptyStates';
 
 const formatCurrency = (val: number) => {
@@ -37,7 +37,26 @@ const getSeverityLabel = (severity: string) => {
 };
 
 export default function AlertsPage() {
-    const { alerts, clients, isLoading } = useData();
+    const { alerts, clients, isLoading, resolveAlert, ignoreAlert } = useData();
+    const [actionInProgress, setActionInProgress] = useState<string | null>(null);
+
+    const handleResolve = async (alertId: string) => {
+        setActionInProgress(alertId);
+        try {
+            await resolveAlert(alertId);
+        } finally {
+            setActionInProgress(null);
+        }
+    };
+
+    const handleIgnore = async (alertId: string) => {
+        setActionInProgress(alertId);
+        try {
+            await ignoreAlert(alertId);
+        } finally {
+            setActionInProgress(null);
+        }
+    };
 
     const [filterType, setFilterType] = useState<string>('all');
     const [filterSeverity, setFilterSeverity] = useState<string>('all');
@@ -227,7 +246,7 @@ export default function AlertsPage() {
                                 <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">Client</th>
                                 <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide">Severity</th>
                                 <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Impact</th>
-                                <th className="px-6 py-4 w-12"></th>
+                                <th className="px-6 py-4 text-xs font-medium text-gray-500 uppercase tracking-wide text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-[#1c1c1f]">
@@ -260,12 +279,31 @@ export default function AlertsPage() {
                                             )}
                                         </td>
                                         <td className="px-6 py-5">
-                                            <Link
-                                                href={`/app/clients/${alert.client_id}`}
-                                                className="text-gray-500 hover:text-white transition-colors opacity-0 group-hover:opacity-100"
-                                            >
-                                                <ChevronRight className="w-5 h-5" />
-                                            </Link>
+                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => handleResolve(alert.id)}
+                                                    disabled={actionInProgress === alert.id}
+                                                    className="p-1.5 rounded-md bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 transition-colors disabled:opacity-50"
+                                                    title="Mark as resolved"
+                                                >
+                                                    <Check className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleIgnore(alert.id)}
+                                                    disabled={actionInProgress === alert.id}
+                                                    className="p-1.5 rounded-md bg-gray-500/10 text-gray-400 hover:bg-gray-500/20 transition-colors disabled:opacity-50"
+                                                    title="Ignore this alert"
+                                                >
+                                                    <X className="w-4 h-4" />
+                                                </button>
+                                                <Link
+                                                    href={`/app/clients/${alert.client_id}`}
+                                                    className="p-1.5 rounded-md text-gray-500 hover:text-white transition-colors"
+                                                    title="View client"
+                                                >
+                                                    <ChevronRight className="w-4 h-4" />
+                                                </Link>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

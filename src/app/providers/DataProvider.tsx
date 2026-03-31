@@ -39,6 +39,8 @@ interface DataContextType {
     refreshInvoices: () => Promise<void>;
     refreshTimeEntries: () => Promise<void>;
     refreshAlerts: () => Promise<void>;
+    resolveAlert: (alertId: string) => Promise<void>;
+    ignoreAlert: (alertId: string) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | null>(null);
@@ -338,6 +340,51 @@ export function DataProvider({ children, useSupabase = false, forceDemoMode = fa
         setAlerts(transformedAlerts);
     }, [supabase, organizationId, mode]);
 
+    const resolveAlert = useCallback(async (alertId: string) => {
+        if (mode === 'local') {
+            // For local mode, update the alert in state
+            setAlerts(prev => prev.map(alert =>
+                alert.id === alertId
+                    ? { ...alert, status: 'resolved' as const, resolved_at: new Date().toISOString() }
+                    : alert
+            ).filter(alert => alert.status === 'active'));
+            return;
+        }
+
+        if (!supabase || !organizationId) return;
+
+        await supabase
+            .from('alerts')
+            .update({
+                status: 'resolved',
+                resolved_at: new Date().toISOString(),
+            })
+            .eq('id', alertId)
+            .eq('organization_id', organizationId);
+
+        // Refresh alerts to get updated list
+        await refreshAlerts();
+    }, [supabase, organizationId, mode, refreshAlerts]);
+
+    const ignoreAlert = useCallback(async (alertId: string) => {
+        if (mode === 'local') {
+            // For local mode, remove the alert from active list
+            setAlerts(prev => prev.filter(alert => alert.id !== alertId));
+            return;
+        }
+
+        if (!supabase || !organizationId) return;
+
+        await supabase
+            .from('alerts')
+            .update({ status: 'ignored' })
+            .eq('id', alertId)
+            .eq('organization_id', organizationId);
+
+        // Refresh alerts to get updated list
+        await refreshAlerts();
+    }, [supabase, organizationId, mode, refreshAlerts]);
+
     const refreshSettings = useCallback(async () => {
         if (mode === 'local') {
             setSettings(dataStore.getSettings());
@@ -540,6 +587,8 @@ export function DataProvider({ children, useSupabase = false, forceDemoMode = fa
                 refreshInvoices,
                 refreshTimeEntries,
                 refreshAlerts,
+                resolveAlert,
+                ignoreAlert,
             }}
         >
             {children}
