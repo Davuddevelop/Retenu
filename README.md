@@ -142,6 +142,97 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_key
 
 Next.js 16 (App Router) / TypeScript / Tailwind CSS / Supabase / Stripe / Vercel
 
+## Deployment
+
+### Vercel (Recommended)
+
+1. Push to GitHub
+2. Import project in [Vercel](https://vercel.com)
+3. Add environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `STRIPE_SECRET_KEY` (optional)
+   - `STRIPE_WEBHOOK_SECRET` (optional)
+4. Deploy
+
+### Self-Hosted
+
+```bash
+npm run build
+npm start
+```
+
+Requires Node.js 18+ and a PostgreSQL database (Supabase or self-hosted).
+
+## Database Schema
+
+Located in `supabase/schema.sql`. Key tables:
+
+| Table | Purpose |
+|-------|---------|
+| `organizations` | Multi-tenant org data |
+| `clients` | Client profiles + retainer terms |
+| `contracts` | Billing rates per client |
+| `invoices` | Invoice records |
+| `time_entries` | Tracked hours |
+| `alerts` | Detection engine outputs |
+| `financial_settings` | Org-level thresholds |
+
+Run migrations:
+```bash
+# Using Supabase CLI
+supabase db push
+
+# Or manually
+psql -d your_db -f supabase/schema.sql
+```
+
+## API Reference
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/demo` | Enter demo mode (sets cookie, redirects) |
+| `POST` | `/api/stripe/webhook` | Stripe payment webhooks |
+| `GET` | `/api/integrations/toggl` | Fetch Toggl time entries |
+| `POST` | `/api/cron/detect` | Run detection engine (cron) |
+
+### Authentication
+
+All `/app/*` routes require authentication via Supabase Auth or guest mode cookie.
+
+```typescript
+// Guest mode
+Cookie: guest_mode=true
+
+// Authenticated
+Authorization: Bearer <supabase_jwt>
+```
+
+## Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+
+# Watch mode
+npm run test:watch
+```
+
+Tests use Vitest + React Testing Library. Coverage target: 50%+.
+
+## Contributing
+
+1. Fork the repo
+2. Create feature branch (`git checkout -b feature/name`)
+3. Write tests for new code
+4. Ensure CI passes (`npm test && npm run lint`)
+5. Submit PR
+
 ## License
 
 MIT
