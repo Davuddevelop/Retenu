@@ -21,7 +21,7 @@ const plans = [
       'Email support',
       '30-day history',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Try It Free',
     popular: false,
   },
   {
@@ -39,7 +39,7 @@ const plans = [
       'Custom dashboards',
       'Team collaboration',
     ],
-    cta: 'Start Free Trial',
+    cta: 'Try It Free',
     popular: true,
   },
   {
@@ -185,10 +185,9 @@ export function Pricing() {
           transition={{ delay: 0.5 }}
           className="text-center text-sm text-gray-500 mt-12"
         >
-          All plans include a 14-day free trial. No credit card required.
+          Design partners get Pro features free for 6 months — 5 spots available.
           <br />
-          <span className="text-[var(--profit)]">30-day money-back guarantee</span> on all
-          paid plans.
+          <span className="text-[var(--profit)]">No credit card required</span> to start.
         </motion.p>
       </div>
     </section>

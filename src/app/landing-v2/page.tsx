@@ -204,7 +204,7 @@ function StickyCTABar() {
             href="/login"
             className="px-4 py-2 bg-[#FF5733] hover:bg-[#E84118] text-sm font-medium rounded-lg transition-colors"
           >
-            Start Free Trial
+            Try It Free
           </Link>
         </div>
       </div>
@@ -1142,7 +1142,7 @@ function InteractiveLeakCalculator() {
             <div className="mt-6 pt-4 border-t border-white/5 space-y-3">
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
-                <span>Free 14-day trial</span>
+                <span>Design partner program</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
                 <Check className="w-3.5 h-3.5 text-emerald-500" />
@@ -1466,7 +1466,7 @@ export default function LandingV2() {
                 href="/login"
                 className="group px-8 py-4 bg-[#FF5733] hover:bg-[#E84118] text-lg font-medium transition-all rounded-lg flex items-center gap-3"
               >
-                Start Free Trial
+                Try It Free
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
@@ -1494,7 +1494,7 @@ export default function LandingV2() {
             {[
               { icon: Clock, text: '5 min setup' },
               { icon: FileText, text: 'No integrations required' },
-              { icon: Check, text: '14-day free trial' },
+              { icon: Check, text: 'Design partner program' },
             ].map((item, i) => (
               <span key={i} className="inline-flex items-center gap-2 px-4 py-2 bg-white/[0.02] border border-white/5 rounded-full">
                 <item.icon className="w-4 h-4 text-gray-600" />
@@ -2084,7 +2084,7 @@ export default function LandingV2() {
               Simple, transparent pricing
             </h2>
             <p className="text-gray-500 text-lg mb-8">
-              Choose the plan that fits your agency. All plans include a 14-day free trial.
+              Choose the plan that fits your agency. Design partners get Pro features free for 6 months.
             </p>
 
             {/* Billing Toggle */}
@@ -2160,7 +2160,7 @@ export default function LandingV2() {
                 href="/login"
                 className="block w-full py-3 border border-white/10 hover:border-white/20 text-center font-medium rounded-lg transition-colors"
               >
-                Start free trial
+                Try It Free
               </Link>
             </motion.div>
 
@@ -2211,7 +2211,7 @@ export default function LandingV2() {
                 href="/login"
                 className="block w-full py-3 bg-[#FF5733] hover:bg-[#E84118] text-center font-medium rounded-lg transition-colors"
               >
-                Start free trial
+                Try It Free
               </Link>
             </motion.div>
 
@@ -2271,7 +2271,7 @@ export default function LandingV2() {
             viewport={{ once: true }}
             className="text-center text-sm text-gray-500 mt-8"
           >
-            14-day free trial on all plans. No credit card required. Cancel anytime.
+            Design partners get Pro features free for 6 months — 5 spots available.
           </motion.p>
         </div>
       </section>
@@ -2330,7 +2330,7 @@ export default function LandingV2() {
             </Link>
 
             <p className="text-sm text-gray-600 mt-4">
-              Free for 14 days. No credit card needed. No awkward sales calls.
+              Free during design partner program. No credit card needed. No sales calls.
             </p>
           </motion.div>
         </div>

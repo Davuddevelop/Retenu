@@ -472,12 +472,12 @@ export function ROICalculator() {
                       Ready to recover {formatCurrency(results.potentialRecovery)}?
                     </p>
                     <p className="text-sm text-gray-400 mb-4">
-                      Start your free 14-day trial and see your actual leaks in real-time
+                      Join our design partner program and see your actual leaks in real-time
                     </p>
                     <Link href="/login">
                       <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                         <Button size="lg" className="rounded-2xl shadow-lg shadow-[var(--profit)]/20">
-                          Start Free Trial
+                          Try It Free
                           <ArrowRight className="ml-2 h-4 w-4" />
                         </Button>
                       </motion.div>

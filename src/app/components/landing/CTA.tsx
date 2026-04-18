@@ -70,7 +70,7 @@ export function CTA() {
             >
               <Link href="/login">
                 <Button size="lg" className="min-w-[200px] group">
-                  Start Free Trial
+                  Try It Free
                   <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -88,7 +88,7 @@ export function CTA() {
               transition={{ delay: 0.4 }}
               className="mt-6 text-sm text-gray-500"
             >
-              14-day free trial • No credit card required • Cancel anytime
+              Design partner program • 5 spots available • No credit card required
             </motion.p>
           </div>
         </motion.div>

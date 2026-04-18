@@ -302,7 +302,7 @@ export default function LandingPage() {
               >
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-[#FF5733]" />
-                  <span>14-day free trial</span>
+                  <span>Design partner program</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle className="w-4 h-4 text-[#FF5733]" />

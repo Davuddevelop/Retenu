@@ -820,7 +820,7 @@ export function LeakExamples() {
                 {' '}losing?
               </h3>
               <p className="text-gray-400 max-w-2xl mx-auto mb-8">
-                Start your free trial and see exactly where your revenue is leaking in under 5 minutes. No credit card required.
+                Try it free and see exactly where your revenue is leaking in under 5 minutes. No credit card required.
               </p>
 
               <div className="flex justify-center">
@@ -838,7 +838,7 @@ export function LeakExamples() {
               <div className="mt-8 flex flex-wrap items-center justify-center gap-6 text-xs text-gray-500">
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-[var(--profit)]" />
-                  <span>14-day free trial</span>
+                  <span>Design partner program</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="w-4 h-4 text-[var(--profit)]" />
