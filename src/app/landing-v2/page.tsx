@@ -1985,7 +1985,8 @@ export default function LandingV2() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl font-medium mb-4">Common scenarios we catch</h2>
-            <p className="text-gray-500">Typical examples of revenue leaks agencies face daily.</p>
+            <p className="text-gray-500">Typical leak patterns our detection engine checks for.</p>
+            <p className="text-gray-600 italic text-sm mt-3">Example scenarios — representative of what agencies actually encounter.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
