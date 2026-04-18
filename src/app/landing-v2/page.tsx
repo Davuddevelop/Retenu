@@ -1258,7 +1258,7 @@ export default function LandingV2() {
     },
     {
       question: "What if I don't use Toggl for time tracking?",
-      answer: "No problem. You can upload any CSV export from whatever you use—Harvest, Clockify, even a spreadsheet you made yourself. We also have a Toggl integration if you do use it. Clockify and Harvest integrations are coming based on what users ask for most."
+      answer: "No problem. You can upload any CSV export from whatever you use—Harvest, Clockify, even a spreadsheet you made yourself. We also have Toggl and Clockify integrations in beta. Harvest integration is coming based on user requests."
     },
     {
       question: "Is this actually secure? You're a small company.",
@@ -1608,57 +1608,59 @@ export default function LandingV2() {
           >
             <p className="text-xs text-gray-600 uppercase tracking-wider mb-6">Import from tools you already use</p>
             <div className="flex flex-wrap justify-center items-center gap-6 md:gap-10">
-              {/* Toggl */}
+              {/* CSV Import - LIVE (Primary) */}
               <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2.5 text-gray-300 transition-all cursor-default"
               >
-                <TogglLogo className="w-7 h-7" />
-                <span className="text-sm font-medium">Toggl Track</span>
-              </motion.div>
-              {/* Clockify */}
-              <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
-              >
-                <ClockifyLogo className="w-7 h-7" />
-                <span className="text-sm font-medium">Clockify</span>
-              </motion.div>
-              {/* Harvest */}
-              <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
-              >
-                <HarvestLogo className="w-7 h-7" />
-                <span className="text-sm font-medium">Harvest</span>
-              </motion.div>
-              {/* QuickBooks */}
-              <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
-              >
-                <QuickBooksLogo className="w-7 h-7" />
-                <span className="text-sm font-medium">QuickBooks</span>
-                <span className="text-[10px] text-emerald-500/80 bg-emerald-500/10 px-1.5 py-0.5 rounded">New</span>
-              </motion.div>
-              {/* Stripe */}
-              <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
-              >
-                <StripeLogo className="w-7 h-7" />
-                <span className="text-sm font-medium">Stripe</span>
-                <span className="text-[10px] text-gray-500 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
-              </motion.div>
-              {/* CSV Import */}
-              <motion.div
-                whileHover={{ scale: 1.05, opacity: 1 }}
-                className="flex items-center gap-2.5 text-gray-400 opacity-60 hover:opacity-100 transition-all cursor-default"
-              >
-                <div className="w-7 h-7 rounded bg-gradient-to-br from-gray-600 to-gray-700 flex items-center justify-center">
+                <div className="w-7 h-7 rounded bg-gradient-to-br from-emerald-600 to-emerald-700 flex items-center justify-center">
                   <FileText className="w-4 h-4 text-white" />
                 </div>
                 <span className="text-sm font-medium">Any CSV</span>
+                <span className="text-[10px] text-emerald-500 bg-emerald-500/10 px-1.5 py-0.5 rounded font-medium">Live</span>
+              </motion.div>
+              {/* Toggl - BETA */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2.5 text-gray-300 transition-all cursor-default"
+              >
+                <TogglLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">Toggl Track</span>
+                <span className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded font-medium">Beta</span>
+              </motion.div>
+              {/* Clockify - BETA */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2.5 text-gray-300 transition-all cursor-default"
+              >
+                <ClockifyLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">Clockify</span>
+                <span className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded font-medium">Beta</span>
+              </motion.div>
+              {/* Stripe - BETA */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                className="flex items-center gap-2.5 text-gray-300 transition-all cursor-default"
+              >
+                <StripeLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">Stripe</span>
+                <span className="text-[10px] text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded font-medium">Beta</span>
+              </motion.div>
+              {/* Harvest - COMING SOON */}
+              <motion.div
+                className="flex items-center gap-2.5 text-gray-500 opacity-50 cursor-not-allowed"
+              >
+                <HarvestLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">Harvest</span>
+                <span className="text-[10px] text-gray-500 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
+              </motion.div>
+              {/* QuickBooks - COMING SOON */}
+              <motion.div
+                className="flex items-center gap-2.5 text-gray-500 opacity-50 cursor-not-allowed"
+              >
+                <QuickBooksLogo className="w-7 h-7" />
+                <span className="text-sm font-medium">QuickBooks</span>
+                <span className="text-[10px] text-gray-500 bg-white/5 px-1.5 py-0.5 rounded">Soon</span>
               </motion.div>
             </div>
           </motion.div>
