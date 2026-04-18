@@ -140,38 +140,6 @@ export function Testimonials() {
           ))}
         </div>
 
-        {/* Social Proof */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="mt-16 text-center"
-        >
-          <div className="inline-flex items-center gap-4 p-4 rounded-2xl bg-[var(--card)] border border-[var(--border)]">
-            <div className="flex -space-x-3">
-              {['JD', 'AK', 'LS', 'MP', 'RW'].map((initials, i) => (
-                <div
-                  key={i}
-                  className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-600 to-gray-700 border-2 border-[var(--card)] flex items-center justify-center"
-                >
-                  <span className="text-xs font-medium text-white">{initials}</span>
-                </div>
-              ))}
-            </div>
-            <div className="text-left">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 text-amber-400 fill-current" />
-                ))}
-                <span className="text-sm font-semibold text-[var(--foreground)] ml-2">
-                  4.9/5
-                </span>
-              </div>
-              <p className="text-xs text-gray-500">From 500+ agency reviews</p>
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );

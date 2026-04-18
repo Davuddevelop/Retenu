@@ -69,7 +69,7 @@ export function CaseStudies() {
             <div className="bg-[#0C0C0E] rounded-xl px-8 py-6 flex flex-col md:flex-row items-center gap-6">
               <div className="text-left">
                 <p className="text-white font-bold text-lg">Ready to find your own hidden revenue?</p>
-                <p className="text-gray-400 text-sm">Join 500+ agencies recovering $2.8M+ monthly.</p>
+                <p className="text-gray-400 text-sm">Start your free audit today.</p>
               </div>
               <button className="px-6 py-3 bg-[#FF5733] hover:bg-[#E84118] text-white font-semibold rounded-lg transition-colors whitespace-nowrap">
                 Start Your Audit

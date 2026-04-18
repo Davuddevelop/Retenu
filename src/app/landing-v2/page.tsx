@@ -415,43 +415,6 @@ function ProductTour() {
   );
 }
 
-// ============================================
-// LOGO CLOUD (Trusted By)
-// ============================================
-
-function TrustedByLogos() {
-  const companies = [
-    { name: 'Webflow Agency', abbr: 'WA' },
-    { name: 'Design Studio', abbr: 'DS' },
-    { name: 'Growth Co', abbr: 'GC' },
-    { name: 'Tech Partners', abbr: 'TP' },
-    { name: 'Creative Lab', abbr: 'CL' },
-    { name: 'Digital First', abbr: 'DF' },
-  ];
-
-  return (
-    <div className="text-center">
-      <p className="text-sm text-gray-500 mb-6">Trusted by 500+ agencies worldwide</p>
-      <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
-        {companies.map((company, i) => (
-          <motion.div
-            key={i}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.1 }}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-400 transition-colors"
-          >
-            <div className="w-8 h-8 rounded bg-white/5 flex items-center justify-center text-xs font-bold">
-              {company.abbr}
-            </div>
-            <span className="text-sm font-medium hidden sm:block">{company.name}</span>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 // ============================================
 // LIVE LEAK DETECTION FEED (Mercury/Ramp style)
@@ -1613,7 +1576,7 @@ export default function LandingV2() {
       </motion.section>
 
       {/* Logo Cloud - Integrations & Features (Stripe/Vercel style) */}
-      <section className="py-16 px-6 border-y border-white/5 bg-[#09090B]/50">
+      <section className="pt-16 pb-6 px-6 border-y border-white/5 bg-[#09090B]/50">
         <div className="max-w-5xl mx-auto">
           {/* Features bar */}
           <motion.div
@@ -1701,15 +1664,6 @@ export default function LandingV2() {
             </div>
           </motion.div>
 
-          {/* Trusted By Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-16 pt-12 border-t border-white/5"
-          >
-            <TrustedByLogos />
-          </motion.div>
         </div>
       </section>
 
