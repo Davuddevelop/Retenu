@@ -29,8 +29,7 @@ import {
   ArrowDown
 } from 'lucide-react';
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { CaseStudies } from '../components/landing/CaseStudies';
-import { Testimonials } from '../components/landing/Testimonials';
+import { EarlyAdopters } from '../components/landing/EarlyAdopters';
 
 // ============================================
 // HAND-DRAWN SVG ELEMENTS (Human Touch)
@@ -2070,9 +2069,8 @@ export default function LandingV2() {
         </div>
       </section>
 
-      {/* Case Studies & Testimonials */}
-      <CaseStudies />
-      <Testimonials />
+      {/* Early Adopters - Honest pitch */}
+      <EarlyAdopters />
 
       {/* Pricing - with monthly/yearly toggle */}
       <section id="pricing" className="py-24 px-6 bg-[#09090B]">
